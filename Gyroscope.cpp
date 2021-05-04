@@ -1,5 +1,6 @@
+#include <Gyroscope.h>
 
- float Gyroscope::GyroscopeCalibrate(){
+ float Gyroscope::GyroscopeCalibrate(void){
 // find the voltage value when gyro is zero
   int i;
   float sum = 0;
@@ -16,7 +17,7 @@
     sum += sensorValue;
     delay(5);
   }
-  
+  Gyroscope.GyroZeroVoltage = sum / 100; 
   // average the sum to find the zero drift
   return sum / 100; 
  }

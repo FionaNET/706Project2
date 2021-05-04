@@ -8,8 +8,8 @@ class Gyroscope {
     Gyroscope(void);
 
     //variables
-
+    float GyroZeroVoltage;
     //functions
     // Calibrate the gyroscope which returns the zero voltage value
-   float GyroscopeCalibrate(); 
+   float GyroscopeCalibrate(void); 
 };
