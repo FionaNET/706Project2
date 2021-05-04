@@ -2,7 +2,7 @@
 #include <Motions.h>
 #include <Firefighting.h>
 #include <PinAllocation.h>
-
+#include <Gyroscope.h>
 
 DetermineDirection FireDetect = DetermineDirection();
 Motions Robot = Motions();
@@ -12,7 +12,7 @@ int FireNum = 2;
 float ref_angle = 0;
 void setup() {
   // put your setup code here, to run once:
-  
+  //Gyroscope calibration 
 }
 
 void loop() {
