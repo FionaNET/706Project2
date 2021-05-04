@@ -5,8 +5,11 @@
 class Gyroscope {
   public:
     // Constructor
-    Gyro(void);
+    Gyroscope(void);
 
-    // Methods that control robot movement
+    //variables
+
+    //functions
+    // Calibrate the gyroscope which returns the zero voltage value
    float GyroscopeCalibrate(); 
 };

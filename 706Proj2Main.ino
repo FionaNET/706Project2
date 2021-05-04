@@ -12,7 +12,10 @@ int FireNum = 2;
 float ref_angle = 0;
 void setup() {
   // put your setup code here, to run once:
-  //Gyroscope calibration 
+  
+  //Gyroscope calibration called via gyroscopecalibration();
+  Gyroscope Gyro = new Gyroscope();
+  float GyroZeroVoltage = Gyro.GyroscopeCalibrate();
 }
 
 void loop() {
