@@ -15,7 +15,7 @@ void setup() {
   
   //Gyroscope calibration called via gyroscopecalibration();
   Gyroscope Gyro = new Gyroscope();
-  float GyroZeroVoltage = Gyro.GyroscopeCalibrate();
+  Gyro.GyroscopeCalibrate();
 }
 
 void loop() {
