@@ -1,6 +1,6 @@
 #include <Phototransistor.h>
 
-void Phototransistor::Init(uint8_t setSensorPin, int filterlenth){
+Phototransistor::Phototransistor(uint8_t setSensorPin, int filterlenth){
     pinMode(PHOTOTRANSISTOR1, INPUT);
 
     this->currentVar = analogRead(PHOTOTRANSISTOR1);
