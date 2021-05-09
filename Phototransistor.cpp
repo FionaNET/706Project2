@@ -4,7 +4,7 @@ Phototransistor::Phototransistor(uint8_t setSensorPin, int filterlenth){
     pinMode(PHOTOTRANSISTOR1, INPUT);
 
     this->currentVar = analogRead(PHOTOTRANSISTOR1);
-    this->queue[fitlerlenth] = {};
+    this->queue[filterlenth] = {};
     uint8_t indx = 0;
     float sum = 0;
     float average = 0;
