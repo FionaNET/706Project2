@@ -1,6 +1,6 @@
 #include <Gyroscope.h>
 
-void Gyroscope::Gyroscope(void)
+Gyroscope::Gyroscope()
 [
     pinMode(GYRO_PIN), INPUT);
     this.GyroZeroVoltage = 0;          //gyro zero drift voltage
