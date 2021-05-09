@@ -7,6 +7,7 @@
 DetermineDirection FireDetect = DetermineDirection();
 Motions Robot = Motions();
 Firefighting Firefighter = Firefighting();
+Gyroscope Gyro = Gyroscope(); 
 
 int FireNum = 2; 
 float ref_angle = 0;
@@ -14,7 +15,7 @@ void setup() {
   // put your setup code here, to run once:
   
   //Gyroscope calibration called via gyroscopecalibration();
-  Gyroscope Gyro = new Gyroscope();
+  
   Gyro.GyroscopeCalibrate();
 }
 

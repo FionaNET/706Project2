@@ -1,9 +1,9 @@
 #include <Phototransistor.h>
 
 Phototransistor::Phototransistor(uint8_t setSensorPin, int filterlenth){
-    pinMode(PHOTOTRANSISTOR1, INPUT);
+    pinMode(setSensorPin, INPUT);
 
-    this->currentVar = analogRead(PHOTOTRANSISTOR1);
+    this->currentVar = analogRead(setSensorPin);
     this->queue[filterlenth] = {};
     uint8_t indx = 0;
     float sum = 0;
