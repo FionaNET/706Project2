@@ -14,15 +14,18 @@ class LightDetect {
 
 		LightDetect(float thr_front, float thr_dir_close, float thr_dir_far);
 
-
+		//public functions
 		bool detect_front();
 		int detect_dir();
+		int getPTAvg(void);
 
 		float thr1;
 		float thr2;
 		float thr3;
 
-		//add deconstructor
+		//deconstructor
+		~LightDetect();
+
 
 	private:
 
