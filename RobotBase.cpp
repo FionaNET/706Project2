@@ -2,27 +2,24 @@
 
 #include <RobotBase.h>
 
-RobotBase::RobotBase(int LFpin, int RFpin, int LRpin, int RFpin) {
+RobotBase::RobotBase(int LFpin, int RFpin, int LRpin, int RRpin) {
   LFcurrent = 1500;
   RFcurrent = 1500;
   LRcurrent = 1500;
   RRcurrent = 1500;
 
-  LF.attach(FLpin);
-  RF.attach(FRpin);
-  LR.attach(BLpin);
-  RR.attach(BRpin);
+  LF.attach(LFpin);
+  RF.attach(RFpin);
+  LR.attach(LRpin);
+  RR.attach(RRpin);
 }
 
 void RobotBase::Stop() {
-  LF.writeMicroseconds(1500);
   LFcurrent = 1500;
-  RF.writeMicroseconds(1500);
   RFcurrent = 1500;
-  LR.writeMicroseconds(1500);
   LRcurrent = 1500;
-  RF.writeMicroseconds(1500);
   RRcurrent = 1500;
+  setMotors();
 }
 
 void RobotBase::Disable() {   //completelly disable the motors
@@ -42,14 +39,25 @@ void RobotBase::Move(int angle, float speed) {
   }
 }
 
-void RobotBase::Straight(){
+void RobotBase::Straight(int speed){
 
-  LFcurrent = 1500 + speed_change;
-  RFcurrent = 1500 + speed_change;
-  LRcurrent = 1500 - speed_change;
-  RRcurrent = 1500 - speed_change;
+  LFcurrent = 1500 + (speed - 20);
+  LRcurrent = 1500 + speed;
+  RFcurrent = 1500 - (speed-60);
+  RRcurrent = 1500 - speed;
     
-  RobotBase.setMotors();
+  setMotors();
+}
+
+void RobotBase::Forward(){
+  
+  LFcurrent = 1500 + this->speed_forward;
+  RFcurrent = 1500 - this->speed_forward;
+  LRcurrent = 1500 + this->speed_forward;
+  RRcurrent = 1500 - this->speed_forward;
+  setMotors();
+
+
 }
 
 void RobotBase::Norm(){
@@ -73,11 +81,11 @@ void RobotBase::Turn(bool direction, int speed) {
     int speed_change = -speed;
   }
 
-  LFcurrent = 1500 + speed_change;
-  RFcurrent = 1500 + speed_change;
-  LRcurrent = 1500 + speed_change;
-  RRcurrent = 1500 + speed_change;
-  
+  LFcurrent = 1500 + speed;
+  RFcurrent = 1500 + speed;
+  LRcurrent = 1500 + speed;
+  RRcurrent = 1500 + speed;
+  setMotors();
 }
 
 void RobotBase::setMotors(){
@@ -85,6 +93,42 @@ void RobotBase::setMotors(){
   RF.writeMicroseconds(RFcurrent);
   LR.writeMicroseconds(LRcurrent);
   RR.writeMicroseconds(RRcurrent);
+}
+
+void RobotBase::Strafe(bool direction, unsigned long time){
+  int speed = 400;
+  int start_time;
+  if(time != 0){
+    if(direction){  //strafe right
+      LFcurrent = 1500 + speed;
+      RFcurrent = 1500 + speed;
+      LRcurrent = 1500 - speed;
+      RRcurrent = 1500 - speed;
+    }else{        //strafe left
+      LFcurrent = 1500 - speed;
+      RFcurrent = 1500 - speed;
+      LRcurrent = 1500 + speed;
+      RRcurrent = 1500 + speed;
+    }
+  }else{
+    start_time = millis();
+    while(millis() - startTime < time){
+        if(direction){  //strafe right
+        LFcurrent = 1500 + speed;
+        RFcurrent = 1500 + speed;
+        LRcurrent = 1500 - speed;
+        RRcurrent = 1500 - speed;
+      }else{        //strafe left
+        LFcurrent = 1500 - speed;
+        RFcurrent = 1500 - speed;
+        LRcurrent = 1500 + speed;
+        RRcurrent = 1500 + speed;
+      }
+      setMotors();
+    }
+    Stop();
+    setMotors();
+  }
 }
 
 void RobotBase::Print() {
