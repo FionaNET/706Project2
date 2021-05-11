@@ -10,6 +10,7 @@ class Robot{
         void Robot();
         void rotate_while_scan();
         void obstical_avoid();
+        void CL_Turn(int angle);
     
     private:
         RobotBase wheels;
