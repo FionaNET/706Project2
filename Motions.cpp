@@ -1,13 +1,16 @@
 #include <Motions.h>
+#include <IR_Sensor.h>
+#include <RobotBase.h>
 
 Motions::Motions(){
     this->lightInfo = LightDetect();
     this-> Robot = RobotBase();
 
+    backTracker = false;
 }
 
 
-void Moitions::rotate_while_scan(){
+void Motions::rotate_while_scan(){
     bool front = lightInfo.detect_front();
     float timeStart = millis();
     float timeout = 2000; // 2 sec for a full rotation, need calibration
@@ -22,4 +25,22 @@ void Moitions::rotate_while_scan(){
     // alternative:
     // Robot.Disable();  
 
+}
+
+void Motions::obstical_avoid(){
+    //Initialise the IR sensors
+    IR_Sensor Left_FrontIR = IR_Sensor(LONG,IR_LF);
+    IR_Sensor Left_RearIR = IR_Sensor(LONG,IR_RF);
+    IR_Sensor Right_FrontIR = IR_Sensor(MID,IR_LR);
+    IR_Sensor Right_rearIR = IR_Sensor(MID,IR_RR);
+
+
+    //Read all IR_Sensors and decide if any is too much
+    if(Left_FrontIR.getReading() < obsticalThresh){
+        backTracker = true;
+        
+        while(backTracker){
+
+        }
+    }
 }

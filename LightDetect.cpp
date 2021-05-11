@@ -8,10 +8,10 @@ LightDetect::LightDetect(float thr_front, float thr_dir, float thr_far){
 	this->thr3 = thr_far;
 	
 	this->filterlenth = 5;
-	this->PT_LL = Phototransistor(PT[0],filterlenth);
-	this->PT_LC = Phototransistor(PT[1],filterlenth);
-	this->PT_RC = Phototransistor(PT[2],filterlenth);
-	this->PT_RR = Phototransistor(PT[3],filterlenth);
+	this->PT_LL = new Phototransistor(PT[0],filterlenth);
+	this->PT_LC = new Phototransistor(PT[1],filterlenth);
+	this->PT_RC = new Phototransistor(PT[2],filterlenth);
+	this->PT_RR = new Phototransistor(PT[3],filterlenth);
 
 }
 
