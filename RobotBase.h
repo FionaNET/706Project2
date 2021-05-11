@@ -17,7 +17,8 @@ class RobotBase {
     void norm(int speed);
     void Move(int angle, float speed);
     void Turn(bool direction, float speed);
-    void Strafe(bool direction);
+    void Straight();
+    void Strafe(bool direction, unsigned long time);
     void Print();
 
   private:
