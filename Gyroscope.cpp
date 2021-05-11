@@ -1,7 +1,7 @@
 #include <Gyroscope.h>
 
 Gyroscope::Gyroscope()
-[
+{
     pinMode(GYRO_PIN), INPUT);
     this.GyroZeroVoltage = 0;          //gyro zero drift voltage
     this.T = 100;                        // T is the time of one loop
@@ -12,7 +12,7 @@ Gyroscope::Gyroscope()
     this.gyroRate = 0;                 // read out value of sensor in voltage
     this.currentAngle = 0;             // current angle calculated by angular velocity integral on
     this.serialRead = 0;                // for serial print control
-]
+}
 
  float Gyroscope::GyroscopeCalibrate(void)
  {
