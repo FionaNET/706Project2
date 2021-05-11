@@ -15,6 +15,13 @@ LightDetect::LightDetect(float thr_front, float thr_dir, float thr_far){
 
 }
 
+LightDetect::~LightDetect(void)
+{
+	delete this.PT_LL;
+	delete this.PT_LC;
+	delete this.PT_RC;
+	delete this.PT_RR;
+}
 
 bool LightDetect::detect_front(){
 	if (PT_LC->getAverageReading()+PT_RC->getAverageReading() > this->thr1){
@@ -49,4 +56,15 @@ int LightDetect::detect_dir(){
 	}
 	}
 
+}
+
+int LightDetect::getPTAvg(void)
+{
+	int Avg = 0;
+	Avg += this->PT_LL->getAverageReading();
+	Avg += this->PT_LC->getAverageReading();
+	Avg += this->PT_RC->getAverageReading();
+	Avg += this->PT_RR->getAverageReading();
+	Avg = Avg/4;
+	return Avg;
 }

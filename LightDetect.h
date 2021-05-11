@@ -14,16 +14,20 @@ class LightDetect {
 
 		LightDetect(float thr_front, float thr_dir_close, float thr_dir_far);
 
-
+		//public functions
 		bool detect_front();
 		int detect_dir();
-
-
-	private:
+		int getPTAvg(void);
 
 		float thr1;
 		float thr2;
 		float thr3;
+
+		//deconstructor
+		~LightDetect();
+
+
+	private:
 
 		// Array of phototransistor pins
 		int PTPins[4] = { PHOTOTRANSISTOR1, PHOTOTRANSISTOR2, PHOTOTRANSISTOR3, PHOTOTRANSISTOR4 };
@@ -33,7 +37,5 @@ class LightDetect {
 		Phototransistor* PT_RR; // right right phototransistor
 
 		int filterlenth;
-
-		
 
 };
