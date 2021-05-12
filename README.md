@@ -1,3 +1,3 @@
-# 709Project2
+# 706Project2
 
-709 Firefighting project with servo, fan, IR, gyroscope and ultrasonic sensors.
+706 Firefighting project with servo, fan, IR, gyroscope and ultrasonic sensors.
