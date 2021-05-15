@@ -13,6 +13,8 @@ void Robot::Robot(){
 
     this->gyro = Gyroscope();
     this->sonar = Ultrasonic();
+
+    this->speed_step = 1; // set the speed stepsize to be 1
 }
 
 void Robot::rotate_while_scan(){
@@ -32,18 +34,18 @@ void Robot::rotate_while_scan(){
 
 }
 
-void Robot::rotate_angle(float ref_angle){
+//void Robot::rotate_angle(float ref_angle){
+//
+//   float rotate_time = this->alpha * ref_angle / this->speed;
+//
+//   float time_start = millis();
 
-    float rotate_time = this->alpha * ref_angle / this->speed;
-
-    float time_start = millis();
-
-    while (millis() - time_start < rotate_time){
-        this->wheels->Turn(direction, speed);
-    }
+ //   while (millis() - time_start < rotate_time){
+ //       this->wheels->Turn(direction, speed);
+ //   }
         
     
-}
+//}
 
 void Robot::obstical_avoid(){
     //Read all IR_Sensors and decide if any is too much
@@ -87,11 +89,19 @@ void Robot::obstical_avoid(){
         
 
         while (tar_arrive != 1) {
+            bool direction; 
+
             this->obstical_avoid();
 
             float fuzzy_var = this->lightInfo->detect_dir();
-            float angle = fuzzy_var * this->ref_angle;
-            this->rotate_angle(angle);
+            if (fuzzy_var <0){
+                direction = false;
+            }    
+
+
+            float speed = fuzzy_var * this->speed_step;
+            this->turn(direction,speed);
+            delay(10); // allow rotation to happen
             this->wheels->forward();
             
             // check if meet target

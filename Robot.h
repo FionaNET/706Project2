@@ -11,10 +11,9 @@ class Robot{
         void rotate_while_scan();
         void obstical_avoid();
         void go_target();
-        void rotate_angle(float ref_angle); // turn to reference angle
+        //void rotate_angle(float ref_angle); // turn to reference angle
 
-        float alpha; // tuning parameter for rotation to a given angle
-        float speed; // rotataing speed
+
     
     private:
         RobotBase wheels;
@@ -26,5 +25,8 @@ class Robot{
         //float obsticalThresh
 
 
-        float ref_angle; // reference angle for turn right or left when correcting the path, get mupliplied by the fuzzy value
+        float speed_step; // this will get mupliplied by the fuzzy value
+
+        //float alpha; // tuning parameter for rotation to a given angle
+        //float speed; // rotataing speed
 };
