@@ -5,10 +5,10 @@
 ***********************************/
 
 // Phototransistor pins
-#define PHOTOTRANSISTOR1 A12 // LL
-#define PHOTOTRANSISTOR2 A13 // LC
-#define PHOTOTRANSISTOR3 A14 // RC
-#define PHOTOTRANSISTOR4 A15 // RR
+#define PHOTOTRANSISTOR1 A8 // LL
+#define PHOTOTRANSISTOR2 A9 // LC
+#define PHOTOTRANSISTOR3 A10 // RC
+#define PHOTOTRANSISTOR4 A11 // RR
 
 // Servo motor definitions ? 
 #define SERVO_PIN 45
@@ -37,7 +37,7 @@
 // #define FRONT_WALL false
 
 // Fan pin
-#define FAN_PIN 22
+#define FAN_PIN 5
 
 //Gyorscope Pin
 #define GYRO_PIN A3
