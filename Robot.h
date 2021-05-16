@@ -18,6 +18,7 @@ class Robot{
         float Right_Rules(float LeftN, float RightF, float CenterN, float CenterF);
         float Forward_Rules(float LeftN, float RightN, float CenterN);
         float min3(float a, float b, float c);
+        void go_target();
     
     private:
         RobotBase wheels;
@@ -33,6 +34,8 @@ class Robot{
         unsigned long startTime;
         unsigned long stopTime;
         float memory;
+
+        float speed_step; // this will get mupliplied by the fuzzy value
 
         float* fuzzify(float e);
         
