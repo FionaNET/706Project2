@@ -1,6 +1,9 @@
+#ifndef Gyroscope_h
+#define Gyroscope_h
+
 #include <Arduino.h>
 #include <Servo.h>
-#include <PinAllocation.h>
+#include "PinAllocation.h"
 
 class Gyroscope {
   public:
@@ -24,3 +27,5 @@ class Gyroscope {
    float GyroRead(void);
    float GyroRawRead(void);
 };
+
+#ifndef
