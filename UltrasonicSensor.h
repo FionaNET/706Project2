@@ -12,4 +12,5 @@ class UltrasonicSensor {
         //functions
         float ReadUltraSonic(void);
 };
+
 #endif

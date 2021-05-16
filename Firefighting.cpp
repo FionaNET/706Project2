@@ -5,7 +5,7 @@ Firefighting::Firefighting(int ThreshholdVal)
     pinMode(FAN_PIN, OUTPUT); //set as output
     digitalWrite(FAN_PIN, LOW); // set fan to low by default
     this.Fire_extinguish = 0;
-    this->LightDetector = new LightDetect(5,10,15); //example threshhold values
+    this->LightDetector = new LightDetect(); 
     this->fireThreshhold = ThreshholdVal;
 }
 

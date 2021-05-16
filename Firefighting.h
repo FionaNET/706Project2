@@ -1,7 +1,10 @@
+#ifndef Firefighting_h
+#define  Firefighting_h
+
 #include <Arduino.h>
 #include <Servo.h>
-#include <PinAllocation.h>
-#include <LightDetect.h>
+#include "PinAllocation.h"
+#include "LightDetect.h"
 
 class Firefighting {
     public:
@@ -26,3 +29,5 @@ class Firefighting {
     void FanOn(void);
     void FanOff(void);
 };
+
+#endif
