@@ -4,7 +4,7 @@
 
 class Phototransistor {
     public: 
-        void Init(uint8_t setSensorPin, int filterlenth);
+        Phototransistor(uint8_t setSensorPin, int filterlenth);
         float getRawReading(); // get the brightness reading from sensor
         float getAverageReading();
 
