@@ -7,6 +7,7 @@ class Phototransistor {
         Phototransistor(uint8_t setSensorPin, int filterlenth);
         float getRawReading(); // get the brightness reading from sensor
         float getAverageReading();
+        float getDistance();   //covert ADC value to distance (only for centre phototransistors)
 
 
     private:
@@ -15,7 +16,7 @@ class Phototransistor {
 
 
         float currentVar;
-        float* queue; 
+        float queue[filterlenth]; 
         int indx;
         float sum;
         float average;
