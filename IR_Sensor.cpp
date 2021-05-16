@@ -1,4 +1,5 @@
-#include <IR_Sensor.h>
+
+#include "IR_Sensor.h"
 
 //constructor
 IR_Sensor::IR_Sensor(bool range, int pin){

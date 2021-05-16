@@ -1,5 +1,8 @@
 //Control all four wheels of the robot
 
+#ifndef RobotBase_h
+#define RobotBase_h
+
 #include <Arduino.h>
 #include <Servo.h>
 #define LEFT false
@@ -27,3 +30,5 @@ class RobotBase {
     int LFcurrent, RFcurrent, LRcurrent, RRcurrent;
     void setMotors(); 
 };
+
+#endif

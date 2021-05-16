@@ -1,4 +1,7 @@
-#include <PinAllocation.h>
+#ifndef IR_Sensor_h
+#define IR_Sensor_h
+
+#include "PinAllocation.h"
 #include <Arduino.h>
 #define MID true
 #define LONG false
@@ -14,3 +17,5 @@ class IR_Sensor{
     int pin;
     int objectThresh;
 };
+
+#endif
