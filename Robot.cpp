@@ -20,15 +20,15 @@ void Robot::rotate_while_scan(){
     float timeStart = millis();
     float timeout = 2000; // 2 sec for a full rotation, need calibration
     while (!front) {
-        Robot.Turn(true, 10); // trun right 360 deg and scan
+        this->wheels.Turn(true, 10); // trun right 360 deg and scan
         front = lightInfo.detect_front();
         if (millis()-timeStart > timeout) {
             break;
         }
     }
-    Robot.stop();
+    this->wheels.Stop();
     // alternative:
-    // Robot.Disable();  
+    // this->wheels.Disable();  
 
 }
 
@@ -281,3 +281,36 @@ void Robot::obstical_avoid(){
     turn_time = millis() - turn_start;
   }
   }
+
+
+      void Robot::go_target(){
+        int tar_arrive = 0;
+        
+
+        while (tar_arrive != 1) {
+            bool direction; 
+
+            this->obstical_avoid();
+
+            float fuzzy_var = this->lightInfo->detect_dir();
+            if (fuzzy_var <0){
+                direction = false;
+            }    
+
+
+            float speed = fuzzy_var * this->speed_step;
+            this->turn(direction,speed);
+            delay(10); // allow rotation to happen
+            this->wheels->forward();
+            
+            // check if meet target
+            if ((this->sonar.ReadUltraSonic() < this->thr_sonar) && this->lightInfo->detect_front()){
+                tar_arrive = 1;
+            } 
+        }
+
+        // arrived at the target
+         this->wheels.Stop();
+        // alternative:
+        // this->wheels.Disable(); 
+    }

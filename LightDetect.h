@@ -19,9 +19,6 @@ class LightDetect {
 		int detect_dir();
 		int getPTAvg(void);
 
-		float thr1;
-		float thr2;
-		float thr3;
 
 		//deconstructor
 		~LightDetect();
@@ -37,5 +34,21 @@ class LightDetect {
 		Phototransistor* PT_RR; // right right phototransistor
 
 		int filterlenth;
+
+		float thr1; // threshold for the front
+		// shape parameters
+		float very_left_point1;
+		float very_left_point2;
+		float left_point1;
+		float left_point2;
+		float left_point3;
+		float center_point1;
+		float center_point2;
+		float center_point3;
+		float right_point1;
+		float right_point2;
+		float right_point3;
+		float very_right_point1;
+		float very_right_point2;
 
 };
