@@ -1,4 +1,7 @@
-#include <PinAllocation.h>
+#ifndef UltrasonicSensor_h
+#define UltrasonicSensor_h
+
+#include "PinAllocation.h"
 #include <Arduino.h>
 
 class UltrasonicSensor {
@@ -9,3 +12,5 @@ class UltrasonicSensor {
         //functions
         float ReadUltraSonic(void);
 };
+
+#endif

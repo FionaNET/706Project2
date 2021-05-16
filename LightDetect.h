@@ -3,10 +3,12 @@
 * Purpose: Track a detected light using a servo and phototransistors arranged in a line
 * Date created: 3/May/2021
 ***********************************/
+#ifndef LightDetect_h
+#define LightDetect_h
 
 #include <Arduino.h>
-#include <PinAllocation.h>
-#include <Phototransistor.h>
+#include "PinAllocation.h"
+#include "Phototransistor.h"
 // #include <Motions.h>
 
 class LightDetect {
@@ -52,3 +54,5 @@ class LightDetect {
 		float very_right_point2;
 
 };
+
+#endif

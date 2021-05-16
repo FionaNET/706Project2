@@ -1,4 +1,7 @@
-#include <PinAllocation.h>
+#ifndef Phototransistor_h
+#define Phototransistor_h
+
+#include "PinAllocation.h"
 #include <Arduino.h>
 
 
@@ -21,3 +24,5 @@ class Phototransistor {
         float average;
        
 }
+
+#endif

@@ -1,6 +1,9 @@
-#include <RobotBase.h>
-#include <LightDetect.h>
+#ifndef Motions_h
+#define Motions_h
 
+#include "RobotBase.h"
+#include "LightDetect.h"
+#include <Arduino.h>
 class Motions {
     public:
         void rotate_while_scan();
@@ -9,10 +12,12 @@ class Motions {
 
 
     private: 
-        LightDetect* lightInfo = LightDetect();
+        LightDetect* lightInfo = new LightDetect();
         float obsticalThresh;
         bool backTracker;   //Tracks position of back wheels in regards to obsitcal
 
 
 
 }
+
+#endif
