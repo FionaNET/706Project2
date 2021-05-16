@@ -19,3 +19,7 @@ float IR_Sensor::getReading(){
         //Return formular for calibrated ir long range
     }
 }
+
+bool IR_Sensor::isObject(){
+    return this->getReading() < this->objectThresh;
+}
