@@ -21,19 +21,24 @@ Robot::Robot(){
 }
 
 void Robot::rotate_while_scan(){
-    bool front = lightInfo->detect_front();
+
+    //bool front = lightInfo->detect_front();
     float timeStart = millis();
-    float timeout = 2000; // 2 sec for a full rotation, need calibration
+    float timeout = 10000; // 10 sec for a full rotation, need calibration
+    bool front = false;
     while (!front) {
-        this->wheels.Turn(true, 10); // trun right 360 deg and scan
+        Serial.println("Rotate while scanning loop");
+        this->wheels.Turn(true, 1); // trun right 360 deg and scan
         front = lightInfo->detect_front();
         if (millis()-timeStart > timeout) {
+          Serial.println("10 seconds, STOP");
             break;
         }
     }
-    this->wheels.Stop();
+    Serial.println("Found light, should change motion to go target");
+    //this->wheels.Stop();
     // alternative:
-    // this->wheels.Disable();  
+    //this->wheels.Disable();  
 
 }
 
@@ -292,6 +297,7 @@ void Robot::obstical_avoid(){
 
 
       void Robot::go_target(){
+        wheels.Move(0,80);
         int tar_arrive = 0;
         
 

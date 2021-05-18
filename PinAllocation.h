@@ -10,6 +10,8 @@
 #define PHOTOTRANSISTOR3 A10 // RC
 #define PHOTOTRANSISTOR4 A11 // RR
 
+#define FILTERLENGTH_P 5
+
 // Servo motor definitions ? 
 #define SERVO_PIN 45
 #define SERVO_MAX 160
@@ -23,10 +25,10 @@
 #define IR_LF A6
 
 // Motor pins
-#define FL_MOTOR_PIN 46
-#define FR_MOTOR_PIN 51
-#define BL_MOTOR_PIN 47
-#define BR_MOTOR_PIN 50
+#define FL_MOTOR_PIN 46 // Front left
+#define FR_MOTOR_PIN 51 // Front right
+#define BL_MOTOR_PIN 47 // back left
+#define BR_MOTOR_PIN 50 // back right
 
 // Ultrasonic pins
 #define TRIG_PIN 48 //out

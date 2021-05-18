@@ -19,10 +19,11 @@ class Robot{
         float Forward_Rules(float LeftN, float RightN, float CenterN);
         float min3(float a, float b, float c);
         void go_target();
+        LightDetect* lightInfo = new  LightDetect(); 
+        
     
     private:
         RobotBase  wheels;
-        LightDetect* lightInfo = new  LightDetect(); 
         IR_Sensor LF_IR, RF_IR, RR_IR, LR_IR;
         Gyroscope gyro;
         UltrasonicSensor sonar;
