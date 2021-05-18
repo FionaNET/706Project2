@@ -1,5 +1,6 @@
 #include <LightDetect.h>
-
+#include <Arduino.h>
+#include <math.h>
 
 LightDetect::LightDetect(){
 
@@ -7,10 +8,10 @@ LightDetect::LightDetect(){
 
 	
 	this->filterlenth = 5;
-	this->PT_LL = new Phototransistor(PT[0],filterlenth);
-	this->PT_LC = new Phototransistor(PT[1],filterlenth);
-	this->PT_RC = new Phototransistor(PT[2],filterlenth);
-	this->PT_RR = new Phototransistor(PT[3],filterlenth);
+	this->PT_LL = new Phototransistor(PTPins[0],filterlenth);
+	this->PT_LC = new Phototransistor(PTPins[1],filterlenth);
+	this->PT_RC = new Phototransistor(PTPins[2],filterlenth);
+	this->PT_RR = new Phototransistor(PTPins[3],filterlenth);
 
 	this-> very_left_point1 = -100;
 	this-> very_left_point2 = -80;
@@ -30,10 +31,10 @@ LightDetect::LightDetect(){
 
 LightDetect::~LightDetect(void)
 {
-	delete this.PT_LL;
-	delete this.PT_LC;
-	delete this.PT_RC;
-	delete this.PT_RR;
+	delete this->PT_LL;
+	delete this->PT_LC;
+	delete this->PT_RC;
+	delete this->PT_RR;
 }
 
 bool LightDetect::detect_front(){
@@ -44,13 +45,6 @@ bool LightDetect::detect_front(){
 	}
 }
 
-bool LightDetect::detect_front(){
-	if (PT_LC->getAverageReading()+PT_RC->getAverageReading() > this->thr1){
-		return true;
-	} else {
-		return false;
-	}
-}
 
 float LightDetect::detect_dir(){
 	// should use fuzzy logic

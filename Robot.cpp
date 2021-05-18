@@ -1,27 +1,32 @@
 #include "Robot.h"
+#include <Arduino.h>
+#include <math.h>
+
+
 #define obsticalThresh 8
 
-void Robot::Robot(){
+Robot::Robot(){
     this->LF_IR = IR_Sensor(LONG,IR_LF);
     this->RF_IR = IR_Sensor(LONG,IR_RF);
     this->LR_IR = IR_Sensor(MID,IR_LR);
     this->RR_IR = IR_Sensor(MID,IR_RR);
 
-    this->wheels = RobotBase(LFpin, RFpin, LRpin, RRpin);
+    this->wheels = RobotBase();
 
     this->gyro = Gyroscope();
-    this->sonar = Ultrasonic();
+    this->sonar = UltrasonicSensor();
     this->PassFlagOn = false;
     this->Strafed = false;
+    this->thr_sonar = 10; // need to adjust
 }
 
 void Robot::rotate_while_scan(){
-    bool front = lightInfo.detect_front();
+    bool front = lightInfo->detect_front();
     float timeStart = millis();
     float timeout = 2000; // 2 sec for a full rotation, need calibration
     while (!front) {
         this->wheels.Turn(true, 10); // trun right 360 deg and scan
-        front = lightInfo.detect_front();
+        front = lightInfo->detect_front();
         if (millis()-timeStart > timeout) {
             break;
         }
@@ -77,7 +82,7 @@ void Robot::obstical_avoid(){
 
   if(LF_IR.isObject() && RF_IR.isObject() && sonar.isObject()){
     //All three sensors are reading objects so it is a wall
-    wheels.CL_Turn(90);
+    this->CL_Turn(90);
 
   }else {
     //1 or more objects detected so it is a cyclindar
@@ -117,7 +122,7 @@ void Robot::obstical_avoid(){
         stopTime = millis();
         Strafed = false;
       }
-      wheels.Straight();
+      wheels.Straight(50);
       PassFlagOn = true;
     }
 
@@ -237,6 +242,9 @@ void Robot::obstical_avoid(){
     float kp_angle = 4;
     float ki_angle = 0.8;
     float cumulation;
+    bool CCW = false;
+    bool CW = true;
+    float angle_thres = 5;
     //speed value added to the motors 
     float rot_change, angle_error; 
 
@@ -299,9 +307,9 @@ void Robot::obstical_avoid(){
 
 
             float speed = fuzzy_var * this->speed_step;
-            this->turn(direction,speed);
+            this->wheels.Turn(direction,speed);
             delay(10); // allow rotation to happen
-            this->wheels->forward();
+            this->wheels.Move(0,80);
             
             // check if meet target
             if ((this->sonar.ReadUltraSonic() < this->thr_sonar) && this->lightInfo->detect_front()){

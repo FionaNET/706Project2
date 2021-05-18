@@ -1,12 +1,20 @@
 //Control the motion and all four wheels of the robot base
 
 #include "RobotBase.h"
+#include <Arduino.h>
+#include <math.h>
+#include "PinAllocation.h"
 
-RobotBase::RobotBase(int LFpin, int RFpin, int LRpin, int RRpin) {
+RobotBase::RobotBase() {
   LFcurrent = 1500;
   RFcurrent = 1500;
   LRcurrent = 1500;
   RRcurrent = 1500;
+
+  LFpin = FL_MOTOR_PIN;
+  RFpin =  FR_MOTOR_PIN;
+  LRpin =  BL_MOTOR_PIN;
+  RRpin =  BR_MOTOR_PIN;
 
   LF.attach(LFpin);
   RF.attach(RFpin);
@@ -39,7 +47,7 @@ void RobotBase::Move(int angle, float speed) {
   }
 }
 
-void RobotBase::Straight(int speed){
+void RobotBase::Straight(float speed){
 
   LFcurrent = 1500 + (speed - 20);
   LRcurrent = 1500 + speed;
@@ -49,20 +57,20 @@ void RobotBase::Straight(int speed){
   setMotors();
 }
 
-void RobotBase::Norm(){
-  int max_speed = 500;
-  float norm = max(speed_changeLF, speed_changeRR);
-  float norm2 = max(speed_changeRF, speed_changeLR);
-  float max_speed = speed_val;
-  norm = max(norm, norm2);
-  speed_changeLF = (speed_changeLF / norm) * max_speed;
-  speed_changeRR = (speed_changeRR / norm) * max_speed;
-  speed_changeRF = (speed_changeRF / norm) * max_speed;
-  speed_changeLR = (speed_changeLR / norm) * max_speed;
-}
+//void RobotBase::Norm(){
+// int max_speed = 500;
+//  float norm = max(speed_changeLF, speed_changeRR);
+//  float norm2 = max(speed_changeRF, speed_changeLR);
+//  float max_speed = speed_val;
+//  norm = max(norm, norm2);
+//  speed_changeLF = (speed_changeLF / norm) * max_speed;
+//  speed_changeRR = (speed_changeRR / norm) * max_speed;
+//  speed_changeRF = (speed_changeRF / norm) * max_speed;
+//  speed_changeLR = (speed_changeLR / norm) * max_speed;
+//}
 
 //Turns on the spot
-void RobotBase::Turn(bool direction, int speed) {
+void RobotBase::Turn(bool direction, float speed) {
 	
   if (direction){   //true = turn right (clockwise direction)
     int speed_change = speed;
@@ -101,7 +109,7 @@ void RobotBase::Strafe(bool direction, unsigned long time){
     }
   }else{
     start_time = millis();
-    while(millis() - startTime < time){
+    while(millis() - start_time < time){
         if(direction){  //strafe right
         LFcurrent = 1500 + speed;
         RFcurrent = 1500 + speed;

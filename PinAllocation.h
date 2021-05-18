@@ -29,8 +29,8 @@
 #define BR_MOTOR_PIN 50
 
 // Ultrasonic pins
-#define ULTRASONIC_OUT 48
-#define ULTRASONIC_IN 49
+#define TRIG_PIN 48 //out
+#define ECHO_PIN 49 // in
 
 // Definitions used for WallDetected() function
 // #define SIDE_WALL true

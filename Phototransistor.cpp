@@ -1,5 +1,6 @@
 #include <Phototransistor.h>
-
+#include <Arduino.h>
+#include <math.h>
 Phototransistor::Phototransistor(uint8_t setSensorPin, int filterlenth){
     pinMode(setSensorPin, INPUT);
     this->currentVar = analogRead(setSensorPin);
@@ -19,7 +20,7 @@ float Phototransistor::getRawReading(){
 float Phototransistor::getAverageReading(){
 
     this->sum = this->sum - this->queue[indx];
-    this.getRawReading();
+    this->getRawReading();
     this->queue[this->indx] = this->currentVar;
     this->sum = this->sum + this->currentVar;
     this->indx = (this->indx +1) % this->filterlenth;
@@ -31,12 +32,12 @@ float Phototransistor::getAverageReading(){
 
 float Phototransistor::getDistance(){
     float distance;
-    this.getRawReading();
+    this->getRawReading();
 
     if (this->setSensorPin == A9) {       //Centre left phototransistor
-        distance = power( this->currentVar / (1.429*10^6), -(1 / 1.736));
+        distance = pow( this->currentVar / 1.429*pow(10,6), -(1 / 1.736)) ;
     } else {                              //Centre right phototransistor
-        distance = power( this->currentVar / (9.441*10^5), -(1 / 1.663));
+        distance = pow( this->currentVar / 9.441*pow(10,5), -(1 / 1.663)) ;
     }
 
 }

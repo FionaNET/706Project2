@@ -19,11 +19,11 @@ class Phototransistor {
 
 
         float currentVar;
-        float queue[filterlenth]; 
+        float* queue; 
         int indx;
         float sum;
         float average;
        
-}
+};
 
 #endif

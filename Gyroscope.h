@@ -1,5 +1,5 @@
-#ifndef Gyroscope_h
-#define Gyroscope_h
+//#ifndef Gyroscope_h
+//#define Gyroscope_h
 
 #include <Arduino.h>
 #include <Servo.h>
@@ -28,4 +28,4 @@ class Gyroscope {
    float GyroRawRead(void);
 };
 
-#ifndef
+//#ifndef

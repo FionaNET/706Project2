@@ -11,7 +11,7 @@
 class RobotBase {
   public:
     // Constructor
-    RobotBase(int LFpin, int RFpin, int LRpin, int RFpin);
+    RobotBase();
 
     // Methods that control robot movement
     //void Init(int LFpin, int RFpin, int LRpin, int RRpin);
@@ -20,13 +20,15 @@ class RobotBase {
     void norm(int speed);
     void Move(int angle, float speed);
     void Turn(bool direction, float speed);
-    void Straight();
+    void Straight(float speed);
     void Strafe(bool direction, unsigned long time);
     void Print();
+    //void Norm();
 
   private:
     // Private members
     Servo LF, RF, LR, RR;
+    int LFpin, RFpin, LRpin, RRpin;
     int LFcurrent, RFcurrent, LRcurrent, RRcurrent;
     void setMotors(); 
 };

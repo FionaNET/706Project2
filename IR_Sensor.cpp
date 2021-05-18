@@ -1,7 +1,13 @@
 
 #include "IR_Sensor.h"
-
+#include <Arduino.h>
+#include <math.h> 
 //constructor
+
+IR_Sensor::IR_Sensor(){
+
+}
+
 IR_Sensor::IR_Sensor(bool range, int pin){
     this->range = range;
     this->pin = pin;
@@ -16,17 +22,17 @@ float IR_Sensor::getReading(){
 
     if(this->pin == A5){                //IR Right Rear
         //Return formula for calibration
-        distance = pow(voltage / (1.463*10^4), -(1 / 0.8801));
+        distance = pow(voltage / 1.463*pow(10,4), -(1 / 0.8801));
 
     }else if (this->pin == A4){         //IR Left Rear
         //Return formular for calibration
-        distance = pow(voltage / (1.29*10^4), -(1 / 0.8457));
+        distance = pow(voltage / 1.29*pow(10,4), -(1 / 0.8457));
 
     } else if (this->pin == A6){        //IR Right Front
-        distance = pow(voltage / (1.638*10^4), -(1 / 0.8053));
+        distance = pow(voltage / 1.638*pow(10,4), -(1 / 0.8053));
 
     } else {                           //IR Left Front (pin A7)
-        distance = pow(voltage / (1.638*10^4), -(1 / 0.7698));
+        distance = pow(voltage / 1.638*pow(10,4), -(1 / 0.7698));
     }
 
     return distance;
