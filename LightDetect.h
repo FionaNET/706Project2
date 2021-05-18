@@ -14,7 +14,7 @@
 class LightDetect {
 	public:
 
-		LightDetect(float thr_front, float thr_dir_close, float thr_dir_far);
+		LightDetect();
 
 		//public functions
 		bool detect_front();
