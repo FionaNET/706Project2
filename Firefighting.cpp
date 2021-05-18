@@ -1,10 +1,12 @@
 #include <Firefighting.h>
+#include <Arduino.h>
+#include <math.h>
 
 Firefighting::Firefighting(int ThreshholdVal)
 {
     pinMode(FAN_PIN, OUTPUT); //set as output
     digitalWrite(FAN_PIN, LOW); // set fan to low by default
-    this.Fire_extinguish = 0;
+    this->Fire_extinguish = 0;
     this->LightDetector = new LightDetect(); 
     this->fireThreshhold = ThreshholdVal;
 }
@@ -29,7 +31,7 @@ bool Firefighting::ExtinguishFire(void)
     this->FanOn(); //turn fan on
     while (this->Fire_extinguish == 0)
     {
-        if (this.LightDetector->getPTAvg() > this->fireThreshhold)
+        if (this->LightDetector->getPTAvg() > this->fireThreshhold)
         {
             this->Fire_extinguish = 1;
         }

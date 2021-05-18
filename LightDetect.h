@@ -18,7 +18,7 @@ class LightDetect {
 
 		//public functions
 		bool detect_front();
-		int detect_dir();
+		float detect_dir();
 		int getPTAvg(void);
 
 

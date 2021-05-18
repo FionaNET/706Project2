@@ -8,6 +8,7 @@
 
 class IR_Sensor{
     public:
+    IR_Sensor();
     IR_Sensor(bool range, int pin);
     float getReading();
     bool isObject();

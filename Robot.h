@@ -7,7 +7,7 @@
 
 class Robot{
     public:
-        void Robot();
+        Robot();
         void rotate_while_scan();
         void obstical_avoid();
         void CL_Turn(int angle);
@@ -21,12 +21,13 @@ class Robot{
         void go_target();
     
     private:
-        RobotBase wheels;
-        LightDetect* lightInfo = LightDetect(); 
+        RobotBase  wheels;
+        LightDetect* lightInfo = new  LightDetect(); 
         IR_Sensor LF_IR, RF_IR, RR_IR, LR_IR;
         Gyroscope gyro;
         UltrasonicSensor sonar;
 
+        float thr_sonar;
         bool backPass;
         bool PassFlagOn;
         bool Strafed;

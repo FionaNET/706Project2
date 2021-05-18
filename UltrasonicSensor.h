@@ -11,6 +11,10 @@ class UltrasonicSensor {
 
         //functions
         float ReadUltraSonic(void);
+        bool isObject();
+
+    private:
+        float objectThresh;
 };
 
 #endif

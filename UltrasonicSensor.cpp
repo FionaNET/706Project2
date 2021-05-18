@@ -1,8 +1,16 @@
 #include <UltrasonicSensor.h>
+#include <Arduino.h>
+#include <math.h>
+#define MAX_DIST 400
+
 
 UltrasonicSensor::UltrasonicSensor(void)
 {
-    //empty constructor
+    this->objectThresh = 5;// need to adjust
+}
+
+bool UltrasonicSensor::isObject(){
+  return this->ReadUltraSonic() < this->objectThresh;
 }
 
 float UltrasonicSensor::ReadUltraSonic(void)
@@ -23,7 +31,7 @@ float UltrasonicSensor::ReadUltraSonic(void)
     t2 = micros();
     pulse_width = t2 - t1;
     if ( pulse_width > (MAX_DIST + 1000)) {
-      SerialCom->println("HC-SR04: NOT found");
+//      SerialCom->println("HC-SR04: NOT found");
       return MAX_DIST;
     }
   }
@@ -37,7 +45,7 @@ float UltrasonicSensor::ReadUltraSonic(void)
     t2 = micros();
     pulse_width = t2 - t1;
     if ( pulse_width > (MAX_DIST + 1000) ) {
-      SerialCom->println("HC-SR04: Out of range");
+ //     SerialCom->println("HC-SR04: Out of range");
       return MAX_DIST;
     }
   }
@@ -52,12 +60,12 @@ float UltrasonicSensor::ReadUltraSonic(void)
 
   // Print out results
   if ( pulse_width > MAX_DIST ) {
-    SerialCom->println("HC-SR04: Out of range");
+//    SerialCom->println("HC-SR04: Out of range");
     return MAX_DIST;
   } else {
-    SerialCom->print("HC-SR04:");
-    SerialCom->print(cm);
-    SerialCom->println("cm");
+//    SerialCom->print("HC-SR04:");
+//    SerialCom->print(cm);
+//    SerialCom->println("cm");
     return cm;
   }
 }
