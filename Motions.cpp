@@ -25,7 +25,7 @@ void Motions::rotate_while_scan(){
     }
     Robot->Stop();
     // alternative:
-    // Robot.Disable();  
+    Robot->Disable();  
 
 }
 

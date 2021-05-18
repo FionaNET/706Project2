@@ -1,11 +1,10 @@
 #include <Phototransistor.h>
 #include <Arduino.h>
 #include <math.h>
-Phototransistor::Phototransistor(uint8_t setSensorPin, int filterlenth){
-    pinMode(setSensorPin, INPUT);
-    this->currentVar = analogRead(setSensorPin);
-
-    this->queue[filterlenth] = {};
+Phototransistor::Phototransistor(int _setSensorPin){
+    //pinMode(setSensorPin, INPUT);
+    this->setSensorPin = _setSensorPin;
+    this->currentVar = analogRead(this->setSensorPin);
     this->indx = 0;
     this->sum = 0;
     this->average = 0;
@@ -13,20 +12,26 @@ Phototransistor::Phototransistor(uint8_t setSensorPin, int filterlenth){
 }
 
 float Phototransistor::getRawReading(){
-    this->currentVar = analogRead(setSensorPin);
+    this->currentVar = analogRead(this->setSensorPin);
     return this->currentVar;
 }
 
-float Phototransistor::getAverageReading(){
+int Phototransistor::getAverageReading(){
 
     this->sum = this->sum - this->queue[indx];
     this->getRawReading();
     this->queue[this->indx] = this->currentVar;
-    this->sum = this->sum + this->currentVar;
-    this->indx = (this->indx +1) % this->filterlenth;
-
-    this->average = this->sum / this->filterlenth;
-
+    this->sum = (this->sum + this->currentVar);
+    Serial.println("Current sum of middle two phtotransistor:");
+    Serial.println(sum);
+    //Serial.println("Current index:");
+    //Serial.println(indx);
+    this->indx = ((this->indx +1) % FILTERLENGTH_P);
+    Serial.println("Current index after divisinon by filterlengths:");
+    //Serial.println(indx);
+    this->average = (this->sum / FILTERLENGTH_P);
+    Serial.println("Returned average:");
+    Serial.println(average);
     return this->average;
 }
 

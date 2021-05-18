@@ -21,13 +21,6 @@ class LightDetect {
 		float detect_dir();
 		int getPTAvg(void);
 
-
-		//deconstructor
-		~LightDetect();
-
-
-	private:
-
 		// Array of phototransistor pins
 		int PTPins[4] = { PHOTOTRANSISTOR1, PHOTOTRANSISTOR2, PHOTOTRANSISTOR3, PHOTOTRANSISTOR4 };
 		Phototransistor* PT_LL; // left left phototransistor
@@ -35,7 +28,15 @@ class LightDetect {
 		Phototransistor* PT_RC; // right center phototransistor
 		Phototransistor* PT_RR; // right right phototransistor
 
-		int filterlenth;
+		//deconstructor
+		~LightDetect();
+
+
+	private:
+
+		
+
+
 
 		float thr1; // threshold for the front
 		// shape parameters

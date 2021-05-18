@@ -4,14 +4,13 @@
 
 LightDetect::LightDetect(){
 
-	this->thr1 = 0.1;
+	this->thr1 = 50;
 
-	
-	this->filterlenth = 5;
-	this->PT_LL = new Phototransistor(PTPins[0],filterlenth);
-	this->PT_LC = new Phototransistor(PTPins[1],filterlenth);
-	this->PT_RC = new Phototransistor(PTPins[2],filterlenth);
-	this->PT_RR = new Phototransistor(PTPins[3],filterlenth);
+
+	this->PT_LL = new Phototransistor(PTPins[0]);
+	this->PT_LC = new Phototransistor(PTPins[1]);
+	this->PT_RC = new Phototransistor(PTPins[2]);
+	this->PT_RR = new Phototransistor(PTPins[3]);
 
 	this-> very_left_point1 = -100;
 	this-> very_left_point2 = -80;
@@ -38,7 +37,32 @@ LightDetect::~LightDetect(void)
 }
 
 bool LightDetect::detect_front(){
-	if (PT_LC->getAverageReading()+PT_RC->getAverageReading() > this->thr1){
+	//Serial.println("Dettected sum of two center phototransistor:");
+	//Serial.println(PT_LC->getRawReading()+PT_RC->getRawReading());
+	float ave;
+
+	ave =(PT_LC->getRawReading()+PT_RC->getRawReading()+PT_LL->getRawReading()+PT_RR->getRawReading())/4;
+	Serial.println("Raw reading of 4 phototransistor:");
+	Serial.print(PT_LL->getRawReading());
+	Serial.print("		");
+	Serial.print(PT_LC->getRawReading());
+	Serial.print("		");
+	Serial.print(PT_RC->getRawReading());
+	Serial.print("		");
+	Serial.println(PT_RR->getRawReading());
+
+	
+
+	// Serial.print("Average reading of 4 phototransistor:		");
+	// Serial.println(ave);
+	// if ((PT_LC->getRawReading()+PT_RC->getRawReading())/2 > 40){
+	// 	ave = (PT_LC->getRawReading()+PT_RC->getRawReading())/2;
+	// 	this->thr1 = 10;
+	// }else{
+	// 	ave = (PT_LL->getRawReading()+PT_RR->getRawReading())/2;
+	// }
+
+	if ( ave > this->thr1){
 		return true;
 	} else {
 		return false;

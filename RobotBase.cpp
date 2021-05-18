@@ -35,6 +35,11 @@ void RobotBase::Disable() {   //completelly disable the motors
   RF.detach();
   LR.detach();
   RR.detach();
+
+  pinMode(LFpin, INPUT);
+  pinMode(RFpin, INPUT);
+  pinMode(RRpin, INPUT);
+  pinMode(LRpin, INPUT);
 }
 
 // Angle from 0-360, speed from 0-100
