@@ -88,22 +88,26 @@ void Robot::obstacle_Avoid(){
   if(LF_IR.isObject() && RF_IR.isObject() && sonar.isObject()){
     //All three sensors are reading objects so it is a wall
     this->CL_Turn(90);
+    Serial.println("There is a wall so we are turning");
 
   }else {
     //1 or more objects detected so it is a cyclindar
     //get all distance readings
 
-    if(!PassFlagOn){      //Only do this once when no obsticals have been previously detected
+    if(!PassFlagOn){      //Only do this once when no obsticles have been previously detected
       d1 = LF_IR.getReading();
       d2 = RF_IR.getReading();
       d3 = sonar.ReadUltraSonic();
+      Serial.println("D1 = " + d1 + "  D2 = " + d2 + "  D3 = " + d3);
 
       float LeftMax = Left_Rules(NEAR(d1), FAR(d1), NEAR(d2), FAR(d2), NEAR(d3), FAR(d3));
       float RightMax = Right_Rules(NEAR(d1), FAR(d2), NEAR(d3), FAR(d3));
       float ForwardMax = Forward_Rules(NEAR(d1), NEAR(d2), NEAR(d3));
+      Serial.println("LeftMax = " + LeftMax + "  RightMax = " + RightMax + "  ForwardMax = " + ForwardMax);
 
       //take weighted average
       this->direction = LeftMax*-50 + ForwardMax*10 + RightMax*50;    //get direction
+      Serial.println("Direction = " + direction);
     }
     
     if (direction > 25){          //Strafe right
@@ -113,6 +117,7 @@ void Robot::obstacle_Avoid(){
       }
       wheels.Strafe(RIGHT, 0);
       Strafed = true;
+      Serial.println("obsticle avoid strafe right");
 
     }else if(direction < -25){    //Strafe left
       if(!Strafed){
@@ -121,6 +126,7 @@ void Robot::obstacle_Avoid(){
       }
       wheels.Strafe(LEFT, 0);
       Strafed = true;
+      Serial.println("obsticle avoid strafe left");
 
     }else{
       if(Strafed){                //On previous loop the car had strafed
@@ -129,6 +135,7 @@ void Robot::obstacle_Avoid(){
       }
       wheels.Straight(300);
       PassFlagOn = true;
+      Serial.println("no obsticle go straight");
     }
 
     if(PassFlagOn){
@@ -136,13 +143,15 @@ void Robot::obstacle_Avoid(){
       if(memory < 0){   //Strafed left at start
         PassFlagOn = !(RR_IR.getReading() < obstacleThresh);
         if(!PassFlagOn){
-          wheels.Strafe(RIGHT, (stopTime - startTime)); 
+          wheels.Strafe(RIGHT, (stopTime - startTime));
+          Serial.println("strafe back right"); 
         }
       }else
       {
         PassFlagOn = !(LR_IR.getReading() < obstacleThresh);
         if(!PassFlagOn){  //Once obstical has passed
           wheels.Strafe(LEFT, (stopTime - startTime));    //Strafe back
+          Serial.println("strafe back left");
         }
       }
     }
