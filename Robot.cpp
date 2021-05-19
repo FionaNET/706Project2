@@ -3,7 +3,7 @@
 #include <math.h>
 
 
-#define obsticalThresh 8
+#define obstacleThresh 8
 
 Robot::Robot(){
     this->LF_IR = IR_Sensor(LONG,IR_LF);
@@ -47,10 +47,10 @@ void Robot::rotate_while_scan(){
 //     //Read all IR_Sensors and decide if any is too much
 //     unsigned long startTime, strafeTime;
 
-//     if(LF_IR.getReading() < obsticalThresh){
+//     if(LF_IR.getReading() < obstacleThresh){
 //         backPass = false;
 //         //Strafe right until the path is clear in front of robot
-//         while(LF_IR.getReading() < obsticalThresh){
+//         while(LF_IR.getReading() < obstacleThresh){
 //             startTime = millis();
 //             wheels.Strafe(RIGHT, 0);
 //         }
@@ -58,29 +58,29 @@ void Robot::rotate_while_scan(){
 //         //Keep going forward until the back has passed
 //         while(!backPass){
 //             wheels.Straight(400);
-//             backPass = (LR_IR.getReading() < obsticalThresh);
+//             backPass = (LR_IR.getReading() < obstacleThresh);
 //         }
 //         //Go back left
 //         wheels.Strafe(LEFT, strafeTime);
 
-//     }else if (RF_IR.getReading() < obsticalThresh){
+//     }else if (RF_IR.getReading() < obstacleThresh){
 //         backPass = false;
 //         //Strafe right until the path is clear in front of robot
-//         while(RF_IR.getReading() < obsticalThresh){
+//         while(RF_IR.getReading() < obstacleThresh){
 //             startTime = millis();
 //             wheels.Strafe(LEFT, 0);
 //         }
 //         strafeTime = millis() - startTime;
 //         while(!backPass){
 //             wheels.Straight(400);
-//             backPass = (LR_IR.getReading() < obsticalThresh);
+//             backPass = (LR_IR.getReading() < obstacleThresh);
 //         }
 //         //Go back to correct path once object is passed
 //         wheels.Strafe(RIGHT, strafeTime);
 //     }
 
     //obstical avoidance with fuzzy logic
-void Robot::obstical_avoid(){
+void Robot::obstacle_Avoid(){
   int far_thresh = 10;
   int close_thresh = 3;
   float d1, d2, d3;
@@ -127,20 +127,20 @@ void Robot::obstical_avoid(){
         stopTime = millis();
         Strafed = false;
       }
-      wheels.Straight(50);
+      wheels.Straight(300);
       PassFlagOn = true;
     }
 
     if(PassFlagOn){
       //turn flag off once the back IR sensors read the obstical (meaning we have passed it)
       if(memory < 0){   //Strafed left at start
-        PassFlagOn = !(RR_IR.getReading() < obsticalThresh);
+        PassFlagOn = !(RR_IR.getReading() < obstacleThresh);
         if(!PassFlagOn){
           wheels.Strafe(RIGHT, (stopTime - startTime)); 
         }
       }else
       {
-        PassFlagOn = !(LR_IR.getReading() < obsticalThresh);
+        PassFlagOn = !(LR_IR.getReading() < obstacleThresh);
         if(!PassFlagOn){  //Once obstical has passed
           wheels.Strafe(LEFT, (stopTime - startTime));    //Strafe back
         }
@@ -297,14 +297,14 @@ void Robot::obstical_avoid(){
 
 
       void Robot::go_target(){
-        wheels.Move(0,80);
+        //wheels.Move(0,80);
         int tar_arrive = 0;
         
 
         while (tar_arrive != 1) {
             bool direction; 
 
-            this->obstical_avoid();
+            this->obstacle_Avoid();
 
             float fuzzy_var = this->lightInfo->detect_dir();
             if (fuzzy_var <0){

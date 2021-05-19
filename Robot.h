@@ -9,7 +9,7 @@ class Robot{
     public:
         Robot();
         void rotate_while_scan();
-        void obstical_avoid();
+        void obstacle_Avoid();
         void CL_Turn(int angle);
         float NEAR(float dist);
         float FAR(float dist);
@@ -20,10 +20,11 @@ class Robot{
         float min3(float a, float b, float c);
         void go_target();
         LightDetect* lightInfo = new  LightDetect(); 
+        RobotBase  wheels;
         
     
     private:
-        RobotBase  wheels;
+        
         IR_Sensor LF_IR, RF_IR, RR_IR, LR_IR;
         Gyroscope gyro;
         UltrasonicSensor sonar;
@@ -41,5 +42,5 @@ class Robot{
 
         float* fuzzify(float e);
         
-        //float obsticalThresh
+        //float obstacleThresh
 };

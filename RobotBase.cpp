@@ -1,45 +1,45 @@
 //Control the motion and all four wheels of the robot base
 
 #include "RobotBase.h"
-#include <Arduino.h>
-#include <math.h>
-#include "PinAllocation.h"
 
 RobotBase::RobotBase() {
-  LFcurrent = 1500;
-  RFcurrent = 1500;
-  LRcurrent = 1500;
-  RRcurrent = 1500;
+  this->LFcurrent = 1500;
+  this->RFcurrent = 1500;
+  this->LRcurrent = 1500;
+  this->RRcurrent = 1500;
 
-  LFpin = FL_MOTOR_PIN;
-  RFpin =  FR_MOTOR_PIN;
-  LRpin =  BL_MOTOR_PIN;
-  RRpin =  BR_MOTOR_PIN;
+  this->LFpin = FL_MOTOR_PIN;
+  this->RFpin =  FR_MOTOR_PIN;
+  this->LRpin =  BL_MOTOR_PIN;
+  this->RRpin =  BR_MOTOR_PIN;
+}
 
-  LF.attach(LFpin);
-  RF.attach(RFpin);
-  LR.attach(LRpin);
-  RR.attach(RRpin);
+void RobotBase::Attach() {
+  LF.attach(this->LFpin);
+  RF.attach(this->RFpin);
+  LR.attach(this->LRpin);
+  RR.attach(this->RRpin);
 }
 
 void RobotBase::Stop() {
-  LFcurrent = 1500;
-  RFcurrent = 1500;
-  LRcurrent = 1500;
-  RRcurrent = 1500;
+  this->LFcurrent = 1500;
+  this->RFcurrent = 1500;
+  this->LRcurrent = 1500;
+  this->RRcurrent = 1500;
   setMotors();
 }
 
+ 
 void RobotBase::Disable() {   //completelly disable the motors
   LF.detach();
   RF.detach();
   LR.detach();
   RR.detach();
 
-  pinMode(LFpin, INPUT);
-  pinMode(RFpin, INPUT);
-  pinMode(RRpin, INPUT);
-  pinMode(LRpin, INPUT);
+  pinMode(this->LFpin, INPUT);
+  pinMode(this->RFpin, INPUT);
+  pinMode(this->RRpin, INPUT);
+  pinMode(this->LRpin, INPUT);
 }
 
 // Angle from 0-360, speed from 0-100
@@ -55,11 +55,11 @@ void RobotBase::Move(int angle, float speed) {
 void RobotBase::Straight(float speed){
 
   LFcurrent = 1500 + (speed - 20);
-  LRcurrent = 1500 + speed;
+  this->LRcurrent = 1500 + speed;
   RFcurrent = 1500 - (speed-60);
-  RRcurrent = 1500 - speed;
+  this->RRcurrent = 1500 - speed;
     
-  setMotors();
+  this->setMotors();
 }
 
 //void RobotBase::Norm(){
@@ -83,18 +83,19 @@ void RobotBase::Turn(bool direction, float speed) {
     int speed_change = -speed;
   }
 
-  LFcurrent = 1500 + speed;
-  RFcurrent = 1500 + speed;
-  LRcurrent = 1500 + speed;
-  RRcurrent = 1500 + speed;
+  this->LFcurrent = 1500 + speed;
+  this->RFcurrent = 1500 + speed;
+  this->LRcurrent = 1500 + speed;
+  this->RRcurrent = 1500 + speed;
+
   setMotors();
 }
 
 void RobotBase::setMotors(){
-  LF.writeMicroseconds(LFcurrent);
-  RF.writeMicroseconds(RFcurrent);
-  LR.writeMicroseconds(LRcurrent);
-  RR.writeMicroseconds(RRcurrent);
+  LF.writeMicroseconds(this->LFcurrent);
+  RF.writeMicroseconds(this->RFcurrent);
+  LR.writeMicroseconds(this->LRcurrent);
+  RR.writeMicroseconds(this->RRcurrent);
 }
 
 void RobotBase::Strafe(bool direction, unsigned long time){

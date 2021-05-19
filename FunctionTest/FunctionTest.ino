@@ -8,7 +8,6 @@
 Firefighting fighter = Firefighting(2);
 LightDetect lightInfo = LightDetect();
 Robot robot = Robot();
-RobotBase wheels = RobotBase();
 Phototransistor LL = Phototransistor(PHOTOTRANSISTOR1);
 Phototransistor LC = Phototransistor(PHOTOTRANSISTOR2);
 Phototransistor RC = Phototransistor(PHOTOTRANSISTOR3);
@@ -17,14 +16,16 @@ Phototransistor RR = Phototransistor(PHOTOTRANSISTOR4);
 void setup(){
   Serial.begin(9600);
   Serial.println("Setting up");
+  //NEED TO ATTACH
+  robot.wheels.Attach(); //Must call within setup or loop
   
 
 }
 
 void loop(){
 
-robot.rotate_while_scan();
-robot.go_target();
+//robot.rotate_while_scan();
+//robot.go_target();
 //   Serial.print(LL.getRawReading());
 //   Serial.print("   ");
 //   Serial.print(LC.getRawReading());
@@ -53,4 +54,10 @@ robot.go_target();
 
     //firefighting 
     //fighter.ExtinguishFire();
+
+    robot.obstacle_Avoid();
+
+    
+    
+
 }
