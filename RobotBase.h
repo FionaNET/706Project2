@@ -5,6 +5,8 @@
 
 #include <Arduino.h>
 #include <Servo.h>
+#include <math.h>
+#include "PinAllocation.h"
 #define LEFT false
 #define RIGHT true
 
@@ -23,6 +25,8 @@ class RobotBase {
     void Straight(float speed);
     void Strafe(bool direction, unsigned long time);
     void Print();
+    void setMotors();
+    void Attach();
     //void Norm();
 
   private:
@@ -30,7 +34,7 @@ class RobotBase {
     Servo LF, RF, LR, RR;
     int LFpin, RFpin, LRpin, RRpin;
     int LFcurrent, RFcurrent, LRcurrent, RRcurrent;
-    void setMotors(); 
+     
 };
 
 #endif
