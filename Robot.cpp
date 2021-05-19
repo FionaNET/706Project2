@@ -18,9 +18,12 @@ Robot::Robot(){
     this->PassFlagOn = false;
     this->Strafed = false;
     this->thr_sonar = 10; // need to adjust
+    this->speed_step = 200;
 }
 
-void Robot::rotate_while_scan(){
+//return 1 = successfully detected light
+//return 2 = stopped due to timeout
+int Robot::rotate_while_scan(){
 
     //bool front = lightInfo->detect_front();
     float timeStart = millis();
@@ -32,10 +35,12 @@ void Robot::rotate_while_scan(){
         front = lightInfo->detect_front();
         if (millis()-timeStart > timeout) {
           Serial.println("10 seconds, STOP");
-            break;
+            return 2;
         }
     }
-    Serial.println("Found light, should change motion to go target");
+    Serial.println("Found light, should go target");
+    return 1;
+
     //this->wheels.Stop();
     // alternative:
     //this->wheels.Disable();  
@@ -79,7 +84,7 @@ void Robot::rotate_while_scan(){
 //         wheels.Strafe(RIGHT, strafeTime);
 //     }
 
-    //obstical avoidance with fuzzy logic
+//obstical avoidance with fuzzy logic
 void Robot::obstacle_Avoid(){
   int far_thresh = 10;
   int close_thresh = 3;
@@ -296,35 +301,36 @@ void Robot::obstacle_Avoid(){
   }
 
 
-      void Robot::go_target(){
-        //wheels.Move(0,80);
-        int tar_arrive = 0;
-        
+int Robot::go_target(){
+  //wheels.Move(0,80);
+  int tar_arrive = 0;
+   bool direction; 
 
-        while (tar_arrive != 1) {
-            bool direction; 
+  while (tar_arrive != 1) {
+    
+    this->obstacle_Avoid();
 
-            this->obstacle_Avoid();
-
-            float fuzzy_var = this->lightInfo->detect_dir();
-            if (fuzzy_var <0){
-                direction = false;
-            }    
+    float fuzzy_var = this->lightInfo->detect_dir();
+    if (fuzzy_var <0){
+        direction = false;
+    }    
 
 
-            float speed = fuzzy_var * this->speed_step;
-            this->wheels.Turn(direction,speed);
-            delay(10); // allow rotation to happen
-            this->wheels.Move(0,80);
-            
-            // check if meet target
-            if ((this->sonar.ReadUltraSonic() < this->thr_sonar) && this->lightInfo->detect_front()){
-                tar_arrive = 1;
-            } 
-        }
+    float speed = fuzzy_var * this->speed_step;
+    this->wheels.Turn(direction,speed);
+    delay(10); // allow rotation to happen
+    this->wheels.Straight(200);
+    
+    // check if meet target
+    if ((this->sonar.ReadUltraSonic() < this->thr_sonar) && this->lightInfo->detect_front()){
+      tar_arrive = 1;
+    } 
+  }
 
-        // arrived at the target
-         this->wheels.Stop();
-        // alternative:
-        // this->wheels.Disable(); 
-    }
+  // arrived at the target
+  // this->wheels.Stop();
+  // alternative:
+  // this->wheels.Disable(); 
+
+  return tar_arrive;
+}

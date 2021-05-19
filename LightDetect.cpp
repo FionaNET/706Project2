@@ -73,7 +73,9 @@ bool LightDetect::detect_front(){
 float LightDetect::detect_dir(){
 	// should use fuzzy logic
 
-	// left - right
+	// right-left
+	// +ve go right
+	// -ve go left
 	float error =  (PT_RC->getAverageReading() + PT_RR->getAverageReading()) - (PT_LL->getAverageReading()+PT_LC->getAverageReading()); 
 
 

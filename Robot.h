@@ -8,7 +8,7 @@
 class Robot{
     public:
         Robot();
-        void rotate_while_scan();
+        int rotate_while_scan();
         void obstacle_Avoid();
         void CL_Turn(int angle);
         float NEAR(float dist);
@@ -18,7 +18,7 @@ class Robot{
         float Right_Rules(float LeftN, float RightF, float CenterN, float CenterF);
         float Forward_Rules(float LeftN, float RightN, float CenterN);
         float min3(float a, float b, float c);
-        void go_target();
+        int go_target();
         LightDetect* lightInfo = new  LightDetect(); 
         RobotBase  wheels;
         
