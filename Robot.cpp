@@ -333,42 +333,99 @@ void Robot::obstacle_Avoid(){
   }
 
 
-int Robot::go_target(){
-  //wheels.Move(0,80);
-  int tar_arrive = 0;
-   bool direction; 
+// int Robot::go_target(){
+//   //wheels.Move(0,80);
+//   int tar_arrive = 0;
+//    bool direction; 
 
-  while (tar_arrive != 1) {
-    Serial.println("Going ot target");
-    Serial.println("Abstacle avoid");
-    this->obstacle_Avoid();
+//   while (tar_arrive != 1) {
+//     Serial.println("Going ot target");
+//     Serial.println("Abstacle avoid");
+//     this->obstacle_Avoid();
 
-    float fuzzy_var = this->lightInfo->detect_dir();
-    Serial.print("fuzzy reading:  ");
-    Serial.println(fuzzy_var);
-    if (fuzzy_var <0){
-        direction = false;
-    }    
+//     float fuzzy_var = this->lightInfo->detect_dir();
+//     Serial.print("fuzzy reading:  ");
+//     Serial.println(fuzzy_var);
+//     if (fuzzy_var <0){
+//         direction = false;
+//     }    
 
 
-    float speed = fuzzy_var * this->speed_step;
-    Serial.print("Speed:   ");
-    Serial.println(speed);
-    this->wheels.Turn(direction,speed);
-    delay(10); // allow rotation to happen
-    this->wheels.Straight(200);
+//     float speed = fuzzy_var * this->speed_step;
+//     Serial.print("Speed:   ");
+//     Serial.println(speed);
+//     this->wheels.Turn(direction,speed);
+//     delay(10); // allow rotation to happen
+//     this->wheels.Straight(200);
     
-    // check if meet target
-    if ((this->sonar.ReadUltraSonic() < this->thr_sonar) && this->lightInfo->detect_front()){
-      Serial.println("Target found!");
-      tar_arrive = 1;
-    } 
-  }
+//     // check if meet target
+//     if ((this->sonar.ReadUltraSonic() < this->thr_sonar) && this->lightInfo->detect_front()){
+//       Serial.println("Target found!");
+//       tar_arrive = 1;
+//     } 
+//   }
 
-  // arrived at the target
-  // this->wheels.Stop();
-  // alternative:
-  // this->wheels.Disable(); 
+//   // arrived at the target
+//   // this->wheels.Stop();
+//   // alternative:
+//   // this->wheels.Disable(); 
 
-  return tar_arrive;
-}
+//   return tar_arrive;
+// }
+
+    bool Robot::go_target(){
+
+      int tar_arrive = 0;
+      float Kp = 5;
+
+      while (tar_arrive != 1){
+
+        float LLAve = this->lightInfo->PT_LL->getAverageReading();
+        float LCAve = this->lightInfo->PT_LC->getAverageReading();
+        float RCAve = this->lightInfo->PT_RC->getAverageReading();
+        float RRAve = this->lightInfo->PT_RR->getAverageReading();
+        
+
+        if (((RCAve+RRAve+LCAve+LLAve)/4) <500) {
+          this->obstical_avoid();
+          
+          LLAve = this->lightInfo->PT_LL->getAverageReading();
+          LCAve = this->lightInfo->PT_LC->getAverageReading();
+          RCAve = this->lightInfo->PT_RC->getAverageReading();
+          RRAve = this->lightInfo->PT_RR->getAverageReading();
+
+          if (((RCAve+RRAve+LCAve+LLAve)/4) < 10){ // if light disappear
+            this->rotate_while_scan();
+          } else {
+            float error = RCAve+RRAve - LCAve-LLAve;  
+            while  (error > 50) {
+              float speed = Kp*error;
+              bool dir;
+              if (error>0){
+                dir = true;
+              } else {
+                  dir = false;
+              }
+              this->wheels.Turn(dir, speed);
+              LLAve = this->lightInfo->PT_LL->getAverageReading();
+              LCAve = this->lightInfo->PT_LC->getAverageReading();
+              RCAve = this->lightInfo->PT_RC->getAverageReading();
+              RRAve = this->lightInfo->PT_RR->getAverageReading();
+              error = RCAve+RRAve - LCAve-LLAve;
+            }
+
+             this->wheels.Straight(200);
+            
+          }
+
+         
+        } else {
+          Serial.println("Target arrived!");
+          tar_arrive = 1;
+          return  true;
+        }
+
+      }
+  
+    }
+
