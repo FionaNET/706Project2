@@ -387,7 +387,7 @@ void Robot::obstacle_Avoid(){
         
 
         if (((RCAve+RRAve+LCAve+LLAve)/4) <500) {
-          this->obstical_avoid();
+          this->obstacle_Avoid();
           
           LLAve = this->lightInfo->PT_LL->getAverageReading();
           LCAve = this->lightInfo->PT_LC->getAverageReading();
