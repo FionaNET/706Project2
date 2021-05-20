@@ -17,6 +17,7 @@ class IR_Sensor{
     bool range;
     int pin;
     int objectThresh;
+    int offset;
 };
 
 #endif

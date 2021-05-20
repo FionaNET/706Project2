@@ -19,10 +19,10 @@
 #define SERVO_MIDDLE 135
 
 // Infrared rangefinder pins
-#define IR_RR A5
-#define IR_LR A4
-#define IR_RF A7
-#define IR_LF A6
+#define IR_RR A5   //40 to 300mm
+#define IR_LR A4   //40 to 300mm
+#define IR_RF A7   //100 to 800mm
+#define IR_LF A6   //100 to 800mm
 
 // Motor pins
 #define FL_MOTOR_PIN 46 // Front left
@@ -31,8 +31,8 @@
 #define BR_MOTOR_PIN 50 // back right
 
 // Ultrasonic pins
-#define TRIG_PIN 48 //out
-#define ECHO_PIN 49 // in
+#define TRIG_PIN 49 //out
+#define ECHO_PIN 48 // in
 
 // Definitions used for WallDetected() function
 // #define SIDE_WALL true

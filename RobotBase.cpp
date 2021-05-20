@@ -99,24 +99,12 @@ void RobotBase::setMotors(){
 }
 
 void RobotBase::Strafe(bool direction, unsigned long time){
-  int speed = 400;
+  int speed = 200;
   int start_time;
-  if(time != 0){
-    if(direction){  //strafe right
-      LFcurrent = 1500 + speed;
-      RFcurrent = 1500 + speed;
-      LRcurrent = 1500 - speed;
-      RRcurrent = 1500 - speed;
-    }else{        //strafe left
-      LFcurrent = 1500 - speed;
-      RFcurrent = 1500 - speed;
-      LRcurrent = 1500 + speed;
-      RRcurrent = 1500 + speed;
-    }
-  }else{
+  if(time != 0){        //want to strafe with a time requirement 
     start_time = millis();
-    while(millis() - start_time < time){
-        if(direction){  //strafe right
+    while((millis() - start_time) < time){
+      if(direction){  //strafe right
         LFcurrent = 1500 + speed;
         RFcurrent = 1500 + speed;
         LRcurrent = 1500 - speed;
@@ -129,9 +117,22 @@ void RobotBase::Strafe(bool direction, unsigned long time){
       }
       setMotors();
     }
-    Stop();
-    setMotors();
-  }
+    
+  }else{      //just strafing
+    if(direction){  //strafe right
+      LFcurrent = 1500 + speed;
+      RFcurrent = 1500 + speed;
+      LRcurrent = 1500 - speed;
+      RRcurrent = 1500 - speed;
+    }else{        //strafe left
+      LFcurrent = 1500 - speed;
+      RFcurrent = 1500 - speed;
+      LRcurrent = 1500 + speed;
+      RRcurrent = 1500 + speed;
+    }
+      setMotors();
+    }
+  
 }
 
 void RobotBase::Print() {
