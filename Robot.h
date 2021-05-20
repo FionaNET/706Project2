@@ -18,7 +18,7 @@ class Robot{
         float Right_Rules(float LeftN, float LeftF, float RightF, float CenterN, float CenterF);
         float Forward_Rules(float LeftN, float RightN, float CenterN);
         float min3(float a, float b, float c);
-        int go_target();
+        bool go_target();
         LightDetect* lightInfo = new  LightDetect(); 
         RobotBase  wheels;
         IR_Sensor LF_IR, RF_IR, RR_IR, LR_IR;
