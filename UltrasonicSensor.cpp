@@ -1,24 +1,28 @@
 #include <UltrasonicSensor.h>
 #include <Arduino.h>
 #include <math.h>
-#define MAX_DIST 400
+#define MAX_DIST 4000
 
 
 UltrasonicSensor::UltrasonicSensor(void)
 {
-    this->objectThresh = 5;// need to adjust
+    this->objectThresh = 70;// need to adjust
+    pinMode(TRIG_PIN, OUTPUT);
+    digitalWrite(TRIG_PIN, LOW);
+    
 }
 
 bool UltrasonicSensor::isObject(){
   return this->ReadUltraSonic() < this->objectThresh;
 }
 
+//OUTPUTS mm
 float UltrasonicSensor::ReadUltraSonic(void)
 {
   unsigned long t1;
   unsigned long t2;
   unsigned long pulse_width;
-  float cm;
+  float mm;
 
   // Hold the trigger pin high for at least 10 us
   digitalWrite(TRIG_PIN, HIGH);
@@ -56,8 +60,7 @@ float UltrasonicSensor::ReadUltraSonic(void)
   // Calculate distance in centimeters and inches. The constants
   // are found in the datasheet, and calculated from the assumed speed
   //of sound in air at sea level (~340 m/s).
-  cm = pulse_width / 58.0;
-
+  mm = (pulse_width / 58.0)*10;
   // Print out results
   if ( pulse_width > MAX_DIST ) {
 //    SerialCom->println("HC-SR04: Out of range");
@@ -66,6 +69,6 @@ float UltrasonicSensor::ReadUltraSonic(void)
 //    SerialCom->print("HC-SR04:");
 //    SerialCom->print(cm);
 //    SerialCom->println("cm");
-    return cm;
+    return mm;
   }
 }
