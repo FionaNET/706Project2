@@ -86,8 +86,8 @@ int Robot::rotate_while_scan(){
 
 //obstical avoidance with fuzzy logic
 void Robot::obstacle_Avoid(){
-  int far_thresh = 10;
-  int close_thresh = 3;
+  //int far_thresh = 10;
+  //int close_thresh = 3;
   float d1, d2, d3;
 
   Serial.println("LF_IR dist: " + String(LF_IR.getReading()) + "RF_IR dist: " + String(RF_IR.getReading()) + "Sonar dist: " + String(sonar.ReadUltraSonic()));
@@ -124,7 +124,7 @@ void Robot::obstacle_Avoid(){
         startTime = millis();     //Count how long we have strafed for
         memory = direction;       //Store initial strafe direction (so we know where to strafe back)
       }
-      wheels.Strafe(RIGHT, 0);
+      wheels.Strafe(LEFT, 0);
       delay(200);
       Strafed = true;
       Serial.println("obsticle avoid strafe right");
@@ -134,7 +134,7 @@ void Robot::obstacle_Avoid(){
         startTime = millis();
         memory = direction;     //Store initial strafe direction (so we know where to strafe back)
       }
-      wheels.Strafe(LEFT, 0);
+      wheels.Strafe(RIGHT, 0);
       delay(200);
       Strafed = true;
       Serial.println("obsticle avoid strafe left");
@@ -155,7 +155,7 @@ void Robot::obstacle_Avoid(){
         PassFlagOn = !(RR_IR.getReading() < obstacleThresh);
         if(!PassFlagOn){
           delay(400);
-          wheels.Strafe(RIGHT, (stopTime - startTime));
+          wheels.Strafe(LEFT, (stopTime - startTime));
           Serial.println("strafe back right"); 
         }
       }else
@@ -163,7 +163,7 @@ void Robot::obstacle_Avoid(){
         PassFlagOn = !(LR_IR.getReading() < obstacleThresh);
         if(!PassFlagOn){  //Once obstical has passed
           delay(400);
-          wheels.Strafe(LEFT, (stopTime - startTime));    //Strafe back
+          wheels.Strafe(RIGHT, (stopTime - startTime));    //Strafe back
           Serial.println("strafe back left");
         }
       }
