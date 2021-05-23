@@ -115,7 +115,7 @@ void Robot::obstacle_Avoid(){
       Serial.println("LeftMax = " + String(LeftMax) + "  RightMax = " + String(RightMax) + "  ForwardMax = " + String(ForwardMax));
 
       //take weighted average
-      this->direction = LeftMax*-50 + ForwardMax*10 + RightMax*50;    //get direction
+      this->direction = LeftMax*(-50) + ForwardMax*10 + RightMax*50;    //get direction
       Serial.println("Direction = " + String(direction));
     }
     
@@ -333,6 +333,7 @@ void Robot::obstacle_Avoid(){
   }
 
 
+// using fuzzy logic
 // int Robot::go_target(){
 //   //wheels.Move(0,80);
 //   int tar_arrive = 0;
@@ -384,7 +385,9 @@ void Robot::obstacle_Avoid(){
         float LCAve = this->lightInfo->PT_LC->getAverageReading();
         float RCAve = this->lightInfo->PT_RC->getAverageReading();
         float RRAve = this->lightInfo->PT_RR->getAverageReading();
-        
+        Serial.print('LLAve: ');
+
+        Serial.print('LCAve: ');
 
         if (((RCAve+RRAve+LCAve+LLAve)/4) <500) {
           this->obstacle_Avoid();
