@@ -24,7 +24,7 @@ Robot::Robot(){
 //return 1 = successfully detected light
 //return 2 = stopped due to timeout
 int Robot::rotate_while_scan(){
-
+  Serial.println("Rotating while scan...");
     //bool front = lightInfo->detect_front();
     float timeStart = millis();
     float timeout = 10000; // 10 sec for a full rotation, need calibration
@@ -88,7 +88,7 @@ int Robot::rotate_while_scan(){
 void Robot::obstacle_Avoid(){
   //int far_thresh = 10;
   //int close_thresh = 3;
-  float d1, d2, d3;
+  float d1, d2, d3, LeftMax, ForwardMax, RightMax;
 
   Serial.println("LF_IR dist: " + String(LF_IR.getReading()) + "RF_IR dist: " + String(RF_IR.getReading()) + "Sonar dist: " + String(sonar.ReadUltraSonic()));
 
@@ -109,13 +109,18 @@ void Robot::obstacle_Avoid(){
       d3 = sonar.ReadUltraSonic();
       Serial.println("D1 = " + String(d1) + "  D2 = " + String(d2) + "  D3 = " + String(d3));
 
-      float LeftMax = Left_Rules(NEAR(d1, true), FAR(d1, true), NEAR(d2, true), FAR(d2, true), NEAR(d3, false), FAR(d3, false));
-      float RightMax = Right_Rules(NEAR(d1, true), FAR(d1, true), FAR(d2, true), NEAR(d3, false), FAR(d3, false));
-      float ForwardMax = Forward_Rules(NEAR(d1, true), NEAR(d2, true), NEAR(d3, false));
+      LeftMax = Left_Rules(NEAR(d1, true), FAR(d1, true), NEAR(d2, true), FAR(d2, true), NEAR(d3, false), FAR(d3, false));
+      RightMax = Right_Rules(NEAR(d1, true), FAR(d1, true), FAR(d2, true), NEAR(d3, false), FAR(d3, false));
+      ForwardMax = Forward_Rules(NEAR(d1, true), NEAR(d2, true), NEAR(d3, false));
       Serial.println("LeftMax = " + String(LeftMax) + "  RightMax = " + String(RightMax) + "  ForwardMax = " + String(ForwardMax));
 
       //take weighted average
-      this->direction = LeftMax*(-50) + ForwardMax*10 + RightMax*50;    //get direction
+      this->direction = LeftMax*(-30) + RightMax*30;    //get direction
+      if(ForwardMax > LeftMax){
+        this->direction += ForwardMax*20; 
+      }else{
+        this->direction += ForwardMax*(-20);
+      }
       Serial.println("Direction = " + String(direction));
     }
     
@@ -124,18 +129,27 @@ void Robot::obstacle_Avoid(){
         startTime = millis();     //Count how long we have strafed for
         memory = direction;       //Store initial strafe direction (so we know where to strafe back)
       }
-      wheels.Strafe(LEFT, 0);
-      delay(200);
+      wheels.Strafe(RIGHT, 0);
+      if(ForwardMax > 0.5){
+        delay(300);
+      }else{
+        delay(200);
+      }
+      
       Strafed = true;
       Serial.println("obsticle avoid strafe right");
 
-    }else if(direction < -25){    //Strafe left
+    }else if(direction < (-25)){    //Strafe left
       if(!Strafed){
         startTime = millis();
         memory = direction;     //Store initial strafe direction (so we know where to strafe back)
       }
-      wheels.Strafe(RIGHT, 0);
-      delay(200);
+      wheels.Strafe(LEFT, 0);
+      if(ForwardMax > 0.5){
+        delay(300);
+      }else{
+        delay(200);
+      }
       Strafed = true;
       Serial.println("obsticle avoid strafe left");
 
@@ -155,7 +169,7 @@ void Robot::obstacle_Avoid(){
         PassFlagOn = !(RR_IR.getReading() < obstacleThresh);
         if(!PassFlagOn){
           delay(400);
-          wheels.Strafe(LEFT, (stopTime - startTime));
+          wheels.Strafe(RIGHT, (stopTime - startTime));
           Serial.println("strafe back right"); 
         }
       }else
@@ -163,7 +177,7 @@ void Robot::obstacle_Avoid(){
         PassFlagOn = !(LR_IR.getReading() < obstacleThresh);
         if(!PassFlagOn){  //Once obstical has passed
           delay(400);
-          wheels.Strafe(RIGHT, (stopTime - startTime));    //Strafe back
+          wheels.Strafe(LEFT, (stopTime - startTime));    //Strafe back
           Serial.println("strafe back left");
         }
       }
@@ -177,18 +191,21 @@ void Robot::obstacle_Avoid(){
         thresh1 = 100;
         thresh2 = 200;
       }else{
-        thresh1 = 70;
-        thresh2 = 140;
+        thresh1 = 120;
+        thresh2 = 220;
       }
       
       float g = -1/(thresh2 - thresh1);
-      float c = 1 + g*thresh1;
+      float c = 1 + (-g)*thresh1;
 
       if(dist <= thresh1){
+        Serial.println("In NEAR: 1"); 
         return 1.0;
       }else if(dist < thresh2 && dist > thresh1){
+        Serial.println("In NEAR: " + String(g*dist + c)); 
         return (g*dist + c);
       }else{
+        Serial.println("In NEAR: 0"); 
         return 0.0;
       }
     }
@@ -199,17 +216,20 @@ void Robot::obstacle_Avoid(){
         thresh1 = 100;
         thresh2 = 200;
       }else{
-        thresh1 = 100;
-        thresh2 = 200;
+        thresh1 = 120;
+        thresh2 = 220;
       }
       float g = 1/(thresh2 - thresh1);
-      float c = -g*thresh1;
+      float c = (-g)*thresh1;
 
       if(dist <= thresh1){
+        Serial.println("In FAR: 0"); 
         return 0.0;
       }else if(dist < thresh2 && dist > thresh1){
+        Serial.println("In FAR: " + String(g*dist + c));
         return (g*dist + c);
       }else{
+        Serial.println("In FAR: 1"); 
         return 1.0;
       }
     }
@@ -377,32 +397,57 @@ void Robot::obstacle_Avoid(){
     bool Robot::go_target(){
 
       int tar_arrive = 0;
-      float Kp = 5;
-
+      float Kp = 0.15;
+      float Ki = 0.01;
+      float accumulation = 0;
       while (tar_arrive != 1){
+        Serial.println("Target not found, going in the loop..."); 
+        float LLAve = this->lightInfo->PT_LL->getRawReading();
+        float LCAve = this->lightInfo->PT_LC->getRawReading();
+        float RCAve = this->lightInfo->PT_RC->getRawReading();
+        float RRAve = this->lightInfo->PT_RR->getRawReading();
+        int search;
+        Serial.print("LLAve: ");
+        Serial.print(LLAve);
+        Serial.print("  LCAve: ");
+        Serial.print(LCAve);
+        Serial.print("  RCAve: ");
+        Serial.print(RCAve);
+        Serial.print("  RRAve: ");
+        Serial.println(RRAve);
 
-        float LLAve = this->lightInfo->PT_LL->getAverageReading();
-        float LCAve = this->lightInfo->PT_LC->getAverageReading();
-        float RCAve = this->lightInfo->PT_RC->getAverageReading();
-        float RRAve = this->lightInfo->PT_RR->getAverageReading();
-        Serial.print('LLAve: ');
+        Serial.print("Average of the middle 2 phototransistors:    ");
+        Serial.println((RCAve+LCAve)/2);
 
-        Serial.print('LCAve: ');
 
-        if (((RCAve+RRAve+LCAve+LLAve)/4) <500) {
-          this->obstacle_Avoid();
+        if ( (RCAve+LCAve)/2 < 50 ) {
+         // this->obstacle_Avoid();
           
-          LLAve = this->lightInfo->PT_LL->getAverageReading();
-          LCAve = this->lightInfo->PT_LC->getAverageReading();
-          RCAve = this->lightInfo->PT_RC->getAverageReading();
-          RRAve = this->lightInfo->PT_RR->getAverageReading();
+          LLAve = this->lightInfo->PT_LL->getRawReading();
+          LCAve = this->lightInfo->PT_LC->getRawReading();
+          RCAve = this->lightInfo->PT_RC->getRawReading();
+          RRAve = this->lightInfo->PT_RR->getRawReading();
 
           if (((RCAve+RRAve+LCAve+LLAve)/4) < 10){ // if light disappear
-            this->rotate_while_scan();
-          } else {
-            float error = RCAve+RRAve - LCAve-LLAve;  
-            while  (error > 50) {
-              float speed = Kp*error;
+            search = this->rotate_while_scan();
+          }
+            
+            float error = RCAve+RRAve - LCAve-LLAve; 
+                
+            while  (abs(error) > 350) {
+              if(abs(error) < 20){
+                   accumulation = accumulation + error;
+              }
+              Serial.println("Correcting direction..");
+              Serial.print("Current error:    "); 
+              Serial.println(error);
+              float speed = Kp*error + Ki*accumulation;
+              
+              Serial.println(speed);
+              constrain(speed, -500 , 500);
+              Serial.print("Speed turning:");
+              Serial.println(speed);
+
               bool dir;
               if (error>0){
                 dir = true;
@@ -410,16 +455,18 @@ void Robot::obstacle_Avoid(){
                   dir = false;
               }
               this->wheels.Turn(dir, speed);
-              LLAve = this->lightInfo->PT_LL->getAverageReading();
-              LCAve = this->lightInfo->PT_LC->getAverageReading();
-              RCAve = this->lightInfo->PT_RC->getAverageReading();
-              RRAve = this->lightInfo->PT_RR->getAverageReading();
+              LLAve = this->lightInfo->PT_LL->getRawReading();
+              LCAve = this->lightInfo->PT_LC->getRawReading();
+              RCAve = this->lightInfo->PT_RC->getRawReading();
+              RRAve = this->lightInfo->PT_RR->getRawReading();
               error = RCAve+RRAve - LCAve-LLAve;
+              Serial.print("Updated error:    "); 
+              Serial.println(error);
             }
 
              this->wheels.Straight(200);
             
-          }
+          
 
          
         } else {

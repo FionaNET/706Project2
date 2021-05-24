@@ -25,7 +25,7 @@ void setup(){
 void loop(){
 
 //robot.rotate_while_scan();
-//robot.go_target();
+robot.go_target();
 //   Serial.print(LL.getRawReading());
 //   Serial.print("   ");
 //   Serial.print(LC.getRawReading());
