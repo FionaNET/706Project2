@@ -4,6 +4,7 @@
 
 
 #define obstacleThresh 150
+#define directionThresh 15
 
 Robot::Robot(){
     this->LF_IR = IR_Sensor(LONG,IR_LF);
@@ -15,10 +16,12 @@ Robot::Robot(){
 
     this->gyro = Gyroscope();
     this->sonar = UltrasonicSensor();
-    this->PassFlagOn = false;
+    this->passWait = false;
     this->Strafed = false;
     this->thr_sonar = 10; // need to adjust
     this->speed_step = 500;
+
+    this->avoidanceOn = false;
 }
 
 //return 1 = successfully detected light
@@ -86,85 +89,118 @@ int Robot::rotate_while_scan(){
 
 //obstical avoidance with fuzzy logic
 void Robot::obstacle_Avoid(){
-  //int far_thresh = 10;
-  //int close_thresh = 3;
-  float d1, d2, d3;
+  float d1, d2, d3, d4, d5, LeftMax, ForwardMax, RightMax;
 
   Serial.println("LF_IR dist: " + String(LF_IR.getReading()) + "RF_IR dist: " + String(RF_IR.getReading()) + "Sonar dist: " + String(sonar.ReadUltraSonic()));
-
-  Serial.println("  LF OBject: " + String(LF_IR.isObject()) + "  RF object: " + String(LR_IR.isObject()) + "  center object: " + String(sonar.isObject()));
+  Serial.println("  LF OBject: " + String(LF_IR.isObject()) + "  RF object: " + String(RF_IR.isObject()) + "  center object: " + String(sonar.isObject()));
+  
   if(LF_IR.isObject() && RF_IR.isObject() && sonar.isObject()){
     //All three sensors are reading objects so it is a wall
     this->CL_Turn(90);
-    Serial.println("There is a wall so we are turning");
+    Serial.println("There is a wall in front so we are turning");
 
-  }else {
+  }else if(LF_IR.isObject() && (LR_IR.isObject()) {
+    this->CL_Turn(45);
+    Serial.println("There is a wall on left so we are turning");
+  }else if(RF_IR.isObject() && (RR_IR.isObject())){
+    this->CL_Turn(-45);
+    Serial.println("There is a wall on right so we are turning");
+  }
+  else {
     //1 or more objects detected so it is a cyclindar
     //get all distance readings
 
-    if(!PassFlagOn){      //Only do this once when no obsticles have been previously detected
+    //if(!this->passWait){      //Only do this once when no obsticles have been previously detected
       d1 = LF_IR.getReading();
       d2 = RF_IR.getReading();
 
       d3 = sonar.ReadUltraSonic();
       Serial.println("D1 = " + String(d1) + "  D2 = " + String(d2) + "  D3 = " + String(d3));
 
-      float LeftMax = Left_Rules(NEAR(d1, true), FAR(d1, true), NEAR(d2, true), FAR(d2, true), NEAR(d3, false), FAR(d3, false));
-      float RightMax = Right_Rules(NEAR(d1, true), FAR(d1, true), FAR(d2, true), NEAR(d3, false), FAR(d3, false));
-      float ForwardMax = Forward_Rules(NEAR(d1, true), NEAR(d2, true), NEAR(d3, false));
+      LeftMax = Left_Rules(NEAR(d1, true), FAR(d1, true), NEAR(d2, true), FAR(d2, true), NEAR(d3, false), FAR(d3, false));
+      RightMax = Right_Rules(NEAR(d1, true), FAR(d1, true), FAR(d2, true), NEAR(d3, false), FAR(d3, false));
+      ForwardMax = Forward_Rules(NEAR(d1, true), NEAR(d2, true), NEAR(d3, false));
       Serial.println("LeftMax = " + String(LeftMax) + "  RightMax = " + String(RightMax) + "  ForwardMax = " + String(ForwardMax));
 
       //take weighted average
-      this->direction = LeftMax*-50 + ForwardMax*10 + RightMax*50;    //get direction
+      //this->direction = LeftMax*-30 + ForwardMax*15 + RightMax*30;    //get direction
+      //New method of including the forward readings
+      if((ForwardMax > LeftMax) || ForwardMax > RightMax){
+        this->direction = 0;
+      }else if(ForwardMax > LeftMax){
+        this->direction = (RightMax - ForwardMax)*50;
+      }else if(ForwardMax > RightMax){
+        this->direction = (LeftMax - ForwardMax)* -50;
+      }else {
+        this->direction = (LeftMax - ForwardMax)*-50 + (RightMax - ForwardMax)*50;
+      }
+      
+    //}
+      //Contstrain direction so it doesn't hit into a side wall by incorporating the readings from back
+      //sensors
+      if(((LR_IR.getReading() < 130) && (direction < 0)) || ((RR_IR.getReading() < 130) && (direction > 0))){
+        this->direction = this->direction*-1;
+      }
       Serial.println("Direction = " + String(direction));
-    }
     
-    if (direction > 25){          //Strafe right
-      if(!Strafed){
+
+    //Movement commands
+    if(direction > directionThresh){                          //Strafe right
+      avoidanceOn = true;           
+      if(!Strafed){              //Went straight last time or strafed in opposite direction
         startTime = millis();     //Count how long we have strafed for
-        memory = direction;       //Store initial strafe direction (so we know where to strafe back)
+      }else if(memory < -directionThresh){
+        wheels.Strafe(LEFT, (millis() - startTime + 50))  //Strafe back and give momentum to strafe left
+        startTime = millis() - 50;     //Count how long we have strafed for
       }
       wheels.Strafe(LEFT, 0);
-      delay(200);
+      //delay(200);
       Strafed = true;
-      Serial.println("obsticle avoid strafe right");
+      Serial.println("obstacle avoid strafe left");
 
-    }else if(direction < -25){    //Strafe left
+    }else if(direction < -directionThresh){    //Strafe left
+      this->avoidanceOn = true;
       if(!Strafed){
         startTime = millis();
-        memory = direction;     //Store initial strafe direction (so we know where to strafe back)
+      }else if(memory > directionThresh){
+        wheels.Strafe(RIGHT, (millis() - startTime + 50))  //Strafe back and give momentum to strafe right
+        startTime = millis() - 50;     //Count how long we have strafed for
       }
       wheels.Strafe(RIGHT, 0);
-      delay(200);
+      //delay(200);
       Strafed = true;
-      Serial.println("obsticle avoid strafe left");
+      Serial.println("obstacle avoid strafe right");
 
-    }else{
-      if(Strafed){                //On previous loop the car had strafed
+    }else{                        //Going forward
+      if(Strafed){                //On previous loop the car had strafed to avoid
         stopTime = millis();
         Strafed = false;
-        PassFlagOn = true;
+        passWait = true;
       }
       wheels.Straight(200);    
       Serial.println("no obsticle go straight");
     }
+    memory = direction;       //Store initial strafe direction (so we know where to strafe back)
 
-    if(PassFlagOn){
+    //Waiting for car to pass the obstacal and strafe back
+    if(passWait){
       //turn flag off once the back IR sensors read the obstical (meaning we have passed it)
-      if(memory < 0){   //Strafed left at start
-        PassFlagOn = !(RR_IR.getReading() < obstacleThresh);
-        if(!PassFlagOn){
-          delay(400);
-          wheels.Strafe(LEFT, (stopTime - startTime));
-          Serial.println("strafe back right"); 
+      if(memory < -directionThresh){   //Strafed left at start
+        passWait = !(RR_IR.getReading() < obstacleThresh);
+        if(!passWait){
+          delay(400);               //wait for back wheel to pass obstical
+          wheels.Strafe(LEFT, (stopTime - startTime));      //Strafe to correct path
+          this->avoidanceOn = false;
+          Serial.println("strafe back left"); 
         }
       }else
       {
-        PassFlagOn = !(LR_IR.getReading() < obstacleThresh);
-        if(!PassFlagOn){  //Once obstical has passed
-          delay(400);
+        passWait = !(LR_IR.getReading() < obstacleThresh);
+        if(!passWait){  //Once obstical has passed
+          delay(400);                                      //wait for back wheel to pass obstical
           wheels.Strafe(RIGHT, (stopTime - startTime));    //Strafe back
-          Serial.println("strafe back left");
+          this->avoidanceOn = false;
+          Serial.println("strafe back right");
         }
       }
     }
@@ -215,15 +251,15 @@ void Robot::obstacle_Avoid(){
     }
 
     float Robot::Left_Rules(float LeftN, float LeftF, float RightN, float RightF, float CenterN, float CenterF){
-      float A = min3(LeftN, CenterN, RightN);
+      //float A = min3(LeftN, CenterN, RightN);    rule taken away as it may give too much power to left
       float C = min3(LeftN, CenterF, RightN);
       float E = min3(LeftF, CenterN, RightN);
       //float F = min3(LeftF, CenterN, RightF);
       float G = min3(LeftF, CenterF, RightN);
 
-      float temp1 = max(A,C);
+      //float temp1 = max(A,C);
       float temp2 = max(E,G);
-      return max(temp1, temp2);           //Return max of the same rules
+      return max(C, temp2);           //Return max of the same rules
       
     }
 
@@ -297,7 +333,7 @@ void Robot::obstacle_Avoid(){
 
     angle_error = ref_angle - gyro.GyroRead();
 
-    while (abs(angle_error) > angle_thres && turn_time <= 2000) {       //will exit while loop if the time in the while loop exceeds 2sec
+    while ((abs(angle_error) > angle_thres) && (turn_time <= 2000)) {       //will exit while loop if the time in the while loop exceeds 2sec
     
     if(abs(angle_error) < 12.0){
       cumulation = cumulation + angle_error;
