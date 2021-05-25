@@ -22,6 +22,7 @@ Robot::Robot(){
     this->speed_step = 500;
 
     this->avoidanceOn = false;
+    this->invDirection = false;
 }
 
 //return 1 = successfully detected light
@@ -101,7 +102,7 @@ void Robot::obstacle_Avoid(){
     this->CL_Turn(90);
     Serial.println("There is a wall in front so we are turning");
 
-  }else if(LF_IR.isObject() && (LR_IR.isObject()) {
+  }else if(LF_IR.isObject() && LR_IR.isObject()) {
     this->CL_Turn(45);
     Serial.println("There is a wall on left so we are turning");
   }else if(RF_IR.isObject() && (RR_IR.isObject())){
@@ -141,9 +142,9 @@ void Robot::obstacle_Avoid(){
     //}
       //Contstrain direction so it doesn't hit into a side wall by incorporating the readings from back
       //sensors
-      if(((LR_IR.getReading() < 130) && (direction < 0)) || ((RR_IR.getReading() < 130) && (direction > 0))){
-        this->direction = this->direction*-1;
-      }
+      // if(((LR_IR.getReading() < 130) && (direction < 0)) || ((RR_IR.getReading() < 130) && (direction > 0))){
+      //   this->direction = this->direction*-1;
+      // }
       Serial.println("Direction = " + String(direction));
     
 
@@ -152,38 +153,83 @@ void Robot::obstacle_Avoid(){
       avoidanceOn = true;           
       if(!Strafed){              //Went straight last time or strafed in opposite direction
         startTime = millis();     //Count how long we have strafed for
-      }else if(memory < -directionThresh){
-        wheels.Strafe(LEFT, (millis() - startTime + 50))  //Strafe back and give momentum to strafe left
-        startTime = millis() - 50;     //Count how long we have strafed for
-      }
+        Serial.println("detect object left = " + String(LF_IR.isObject()));
+        if(LF_IR.isObject()){
+          Serial.println("sonar object = " + String(sonar.isObject()));
+          Serial.println("RR IR = " + String(RR_IR.getReading()));
+          if(sonar.isObject() && (RR_IR.getReading() < ObstacleSizeMax)){
+            invDirection = true;
+            wheels.Strafe(LEFT, 100);
+          }else if(!sonar.isObject() && (RR_IR.getReading() < (ObstacleSizeMax))){
+            invDirection = true;
+            wheels.Strafe(LEFT, 200);
+          }else{
+            invDirection = false;
+            wheels.Strafe(RIGHT, 0);
+          }
+       }else if (sonar.isObject())
+       {
+          if((RR_IR.getReading() < (200))){
+            invDirection = true;
+            wheels.Strafe(LEFT, 200);
+          }else{
+            invDirection = false;
+            wheels.Strafe(RIGHT, 0);
+          }
+       }else{
+          wheels.Strafe(RIGHT, 0);
+       }
+      }//else if(memory < -directionThresh){
+      //   wheels.Strafe(LEFT, (millis() - startTime + 100));  //Strafe back and give momentum to strafe left
+      //   startTime = millis() - 100;     //Count how long we have strafed for
+      // }
 
-      wheels.Strafe(RIGHT, 0);
-//       if(ForwardMax > 0.5){
-//         delay(300);
-//       }else{
-//         delay(200);
-//       }
+      
   
       Strafed = true;
       Serial.println("obstacle avoid strafe left");
+      memory = this->direction;
 
     }else if(direction < -directionThresh){    //Strafe left
       this->avoidanceOn = true;
       if(!Strafed){
         startTime = millis();
-      }else if(memory > directionThresh){
-        wheels.Strafe(RIGHT, (millis() - startTime + 50))  //Strafe back and give momentum to strafe right
-        startTime = millis() - 50;     //Count how long we have strafed for
-      }
-      wheels.Strafe(LEFT, 0);
-//       if(ForwardMax > 0.5){
-//         delay(300);
-//       }else{
-//         delay(200);
-//       }
+        Serial.println("detect object right = " + String(RF_IR.isObject()));
+        if(RF_IR.isObject()){
+          Serial.println("sonar object = " + String(sonar.isObject()));
+          Serial.println("LR IR = " + String(LR_IR.getReading()));
+          if(sonar.isObject() && (LR_IR.getReading() < ObstacleSizeMax)){
+            invDirection = true;
+            wheels.Strafe(RIGHT, 100);
+          }else if(!sonar.isObject() && (LR_IR.getReading() < (ObstacleSizeMax/2))){
+            invDirection = true;
+            wheels.Strafe(RIGHT, 200);
+          }else{
+            invDirection = false;
+            wheels.Strafe(LEFT, 0);
+          }
+        }else if (sonar.isObject()) {
+          if((LR_IR.getReading() < 200)){
+            invDirection = true;
+            wheels.Strafe(RIGHT, 200);
+          }else{
+            invDirection = false;
+            wheels.Strafe(LEFT, 0);
+          }
+       }else
+        {
+          wheels.Strafe(LEFT, 0);
+        }
+        
+      }//else if(memory > directionThresh){
+      //   wheels.Strafe(RIGHT, (millis() - startTime + 100));  //Strafe back and give momentum to strafe right
+      //   startTime = millis() - 100;     //Count how long we have strafed for
+      // }
+      
 
       Strafed = true;
-      Serial.println("obstacle avoid strafe right");
+      Serial.println("obstacle avoid strafe left");
+      memory = this->direction;
 
     }else{                        //Going forward
       if(Strafed){                //On previous loop the car had strafed to avoid
@@ -194,13 +240,15 @@ void Robot::obstacle_Avoid(){
       wheels.Straight(200);    
       Serial.println("no obsticle go straight");
     }
-    memory = direction;       //Store initial strafe direction (so we know where to strafe back)
-
+    //memory = direction;       //Store initial strafe direction (so we know where to strafe back)
+  Serial.println("Passwait = " + String(passWait));
     //Waiting for car to pass the obstacal and strafe back
     if(passWait){
       //turn flag off once the back IR sensors read the obstical (meaning we have passed it)
-
-       if(memory < -directionThresh){   //Strafed left at start
+      Serial.println(String(memory));
+      if(memory < -directionThresh){   //Strafed left at start
+        Serial.println("Obstacle on left IR");
+        Serial.println("RR ir reading = " + String(RR_IR.getReading()));
         passWait = !(RR_IR.getReading() < obstacleThresh);
         if(!passWait){
           delay(400);               //wait for back wheel to pass obstical
@@ -208,10 +256,12 @@ void Robot::obstacle_Avoid(){
           this->avoidanceOn = false;
           Serial.println("strafe back left"); 
         }
-      }else
+      }else if(memory > directionThresh)
       {
         passWait = !(LR_IR.getReading() < obstacleThresh);
+        Serial.println("Obstacle on right IR");
         if(!passWait){  //Once obstical has passed
+        Serial.println("Passwait back right");
           delay(400);                                      //wait for back wheel to pass obstical
           wheels.Strafe(LEFT, (stopTime - startTime));    //Strafe back
           this->avoidanceOn = false;
@@ -219,6 +269,7 @@ void Robot::obstacle_Avoid(){
         }
       }
     }
+    //memory = direction;       //Store initial strafe direction (so we know where to strafe back)
   }
 }
 

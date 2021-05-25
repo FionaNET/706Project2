@@ -43,3 +43,6 @@
 
 //Gyorscope Pin
 #define GYRO_PIN A3
+
+//Threshholds for obstacle avoidance
+#define ObstacleSizeMax 200

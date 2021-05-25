@@ -43,9 +43,9 @@ float IR_Sensor::getReading(){
 
 bool IR_Sensor::isObject(){
     if(range == LONG){
-        return ttReading() < this->objectThresh;
+        return getReading() < this->objectThresh;
     }else{
-        return ttReading() < this->wallThresh;
+        return getReading() < this->wallThresh;
     }
     
 
