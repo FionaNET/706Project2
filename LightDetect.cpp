@@ -4,7 +4,7 @@
 
 LightDetect::LightDetect(){
 
-	this->thr1 = 50;
+	this->thr1 = 50; // front detect threshold
 
 
 	this->PT_LL = new Phototransistor(PTPins[0]);
@@ -39,17 +39,30 @@ LightDetect::~LightDetect(void)
 bool LightDetect::detect_front(){
 	//Serial.println("Dettected sum of two center phototransistor:");
 	//Serial.println(PT_LC->getRawReading()+PT_RC->getRawReading());
+
+	float dist_LC = PT_LC->getDistance();
+	float dist_RC = PT_RC->getDistance(); 		
+
+
+	if ((dist_LC+dist_RC)/2 < 1000){
+		// far
+		this->thr1 = 30;
+	} else{
+		//close
+		this->thr1 = 50;
+	}
+
 	float ave;
 
 	ave =(PT_LC->getRawReading()+PT_RC->getRawReading()+PT_LL->getRawReading()+PT_RR->getRawReading())/4;
-	Serial.println("Raw reading of 4 phototransistor:");
-	Serial.print(PT_LL->getRawReading());
-	Serial.print("		");
-	Serial.print(PT_LC->getRawReading());
-	Serial.print("		");
-	Serial.print(PT_RC->getRawReading());
-	Serial.print("		");
-	Serial.println(PT_RR->getRawReading());
+	// Serial.println("Raw reading of 4 phototransistor:");
+	// Serial.print(PT_LL->getRawReading());
+	// Serial.print("		");
+	// Serial.print(PT_LC->getRawReading());
+	// Serial.print("		");
+	// Serial.print(PT_RC->getRawReading());
+	// Serial.print("		");
+	// Serial.println(PT_RR->getRawReading());
 
 	
 

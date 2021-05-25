@@ -23,6 +23,7 @@ void Firefighting::FanOn(void)
 
 void Firefighting::FanOff(void)
 {
+    Serial.println("Calling Fan Off in Firefighting cpp");
     digitalWrite(FAN_PIN, LOW); // set fan to low by default
 }
 
@@ -31,11 +32,14 @@ bool Firefighting::ExtinguishFire(void)
     this->FanOn(); //turn fan on
     while (this->Fire_extinguish == 0)
     {
-        if (this->LightDetector->getPTAvg() > this->fireThreshhold)
+        if (this->LightDetector->getPTAvg() < this->fireThreshhold)
         {
             this->Fire_extinguish = 1;
+        
         }
     }
     this->FanOff(); //turn fan off
+    delay(2500);
+    
     return true;
 }
