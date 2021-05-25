@@ -18,6 +18,7 @@ class IR_Sensor{
     int pin;
     int objectThresh;
     int offset;
+    int wallThresh;
 };
 
 #endif
