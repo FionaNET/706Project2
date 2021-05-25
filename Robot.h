@@ -17,6 +17,7 @@ class Robot{
         float Left_Rules(float LeftN, float LeftF, float RightN, float RightF, float CenterN, float CenterF);
         float Right_Rules(float LeftN, float LeftF, float RightF, float CenterN, float CenterF);
         float Forward_Rules(float LeftN, float RightN, float CenterN);
+        //int Defuzz(float direction);
         float min3(float a, float b, float c);
         bool go_target();
         LightDetect* lightInfo = new  LightDetect(); 
@@ -25,13 +26,14 @@ class Robot{
         Gyroscope gyro;
         UltrasonicSensor sonar;
         
+        bool avoidanceOn;
     
     private:
     
 
         float thr_sonar;
         bool backPass;
-        bool PassFlagOn;
+        bool passWait;  
         bool Strafed;
         float direction;
         unsigned long startTime;
