@@ -27,18 +27,29 @@ Robot::Robot(){
 
 //return 1 = successfully detected light
 //return 2 = stopped due to timeout
-int Robot::rotate_while_scan(){
+int Robot::rotate_while_scan(bool dir){
+  // search the light
+
+  int speed;
+  if (dir){ // true, turn right, CW
+    speed = 200;
+  }else{
+    // false, turn left, CCW
+    speed = -200;
+  }
+
   Serial.println("Rotating while scan...");
     //bool front = lightInfo->detect_front();
     float timeStart = millis();
-    float timeout = 10000; // 10 sec for a full rotation, need calibration
+    float timeout = 5000; // 5 sec for a full rotation, need calibration
     bool front = false;
     while (!front) {
         Serial.println("Rotate while scanning loop");
-        this->wheels.Turn(true, 200); // trun right 360 deg and scan
+        this->wheels.Turn(true, speed); // trun right 360 deg and scan
         front = lightInfo->detect_front();
         if (millis()-timeStart > timeout) {
-          Serial.println("10 seconds, STOP");
+          // Serial.println("10 seconds, STOP");
+
             return 2;
         }
     }
@@ -112,7 +123,6 @@ void Robot::obstacle_Avoid(){
   else {
     //1 or more objects detected so it is a cyclindar
     //get all distance readings
-
     //if(!this->passWait){      //Only do this once when no obsticles have been previously detected
       d1 = LF_IR.getReading();
       d2 = RF_IR.getReading();
@@ -421,8 +431,8 @@ void Robot::obstacle_Avoid(){
 
     rot_change = constrain(rot_change, -500, 500);
     
-    Serial.print("The rot_change is: ");
-    Serial.println(rot_change);
+    // Serial.print("The rot_change is: ");
+    // Serial.println(rot_change);
     
     //set the motors
     if(rot_change < 0){
@@ -434,8 +444,8 @@ void Robot::obstacle_Avoid(){
 
     //read the gyro sensor and get current angle
     angle_error = ref_angle - gyro.GyroRead();
-    Serial.print("The angle error is: ");
-    Serial.println(angle_error);
+    // Serial.print("The angle error is: ");
+    // Serial.println(angle_error);
     turn_time = millis() - turn_start;
   }
   }
@@ -483,32 +493,39 @@ void Robot::obstacle_Avoid(){
 // }
 
     bool Robot::go_target(){
-
+      bool dir; 
       int tar_arrive = 0;
       float Kp = 0.15;
       float Ki = 0.01;
       float accumulation = 0;
+      float distLC = 0;
+      float distRC = 0;
+      int search;
+
+      //search = this->rotate_while_scan(true); // initial searhing
       while (tar_arrive != 1){
         Serial.println("Target not found, going in the loop..."); 
         float LLAve = this->lightInfo->PT_LL->getRawReading();
         float LCAve = this->lightInfo->PT_LC->getRawReading();
         float RCAve = this->lightInfo->PT_RC->getRawReading();
         float RRAve = this->lightInfo->PT_RR->getRawReading();
-        int search;
-        Serial.print("LLAve: ");
-        Serial.print(LLAve);
-        Serial.print("  LCAve: ");
-        Serial.print(LCAve);
-        Serial.print("  RCAve: ");
-        Serial.print(RCAve);
-        Serial.print("  RRAve: ");
-        Serial.println(RRAve);
+        
+        // Serial.print("LLAve: ");
+        // Serial.print(LLAve);
+        // Serial.print("  LCAve: ");
+        // Serial.print(LCAve);
+        // Serial.print("  RCAve: ");
+        // Serial.print(RCAve);
+        // Serial.print("  RRAve: ");
+        // Serial.println(RRAve);
 
-        Serial.print("Average of the middle 2 phototransistors:    ");
-        Serial.println((RCAve+LCAve)/2);
+        // Serial.print("Average of the middle 2 phototransistors:    ");
+        // Serial.println((RCAve+LCAve)/2);
 
+        distLC = this->lightInfo->PT_LC->getDistance();
+        distRC = this->lightInfo->PT_RC->getDistance();
 
-        if ( (RCAve+LCAve)/2 < 50 ) {
+        if ( (distLC+distRC)/2 > 275 ) { // distance 
          // this->obstacle_Avoid();
           
           LLAve = this->lightInfo->PT_LL->getRawReading();
@@ -517,24 +534,38 @@ void Robot::obstacle_Avoid(){
           RRAve = this->lightInfo->PT_RR->getRawReading();
 
           if (((RCAve+RRAve+LCAve+LLAve)/4) < 10){ // if light disappear
-            search = this->rotate_while_scan();
+            
+            dir = true; // turn right
+            search = this->rotate_while_scan(dir);
+          }
+          
+          else if (((RCAve+RRAve+LCAve+LLAve)/4) < 30){ // light is somewhere but we might be very off
+            
+            if (RRAve>LLAve){
+                dir = true; // turn right
+            } else{
+              dir = false; // turn left
+            }
+  
+            search = this->rotate_while_scan(dir);
           }
             
             float error = RCAve+RRAve - LCAve-LLAve; 
-                
-            while  (abs(error) > 350) {
+
+            float start_time = millis();    
+            while  (abs(error) > 350 || ((millis()-startTime)<2000)) {
               if(abs(error) < 20){
                    accumulation = accumulation + error;
               }
-              Serial.println("Correcting direction..");
-              Serial.print("Current error:    "); 
-              Serial.println(error);
+              // Serial.println("Correcting direction..");
+              // Serial.print("Current error:    "); 
+              // Serial.println(error);
               float speed = Kp*error + Ki*accumulation;
               
-              Serial.println(speed);
+              // Serial.println(speed);
               constrain(speed, -500 , 500);
-              Serial.print("Speed turning:");
-              Serial.println(speed);
+              // Serial.print("Speed turning:");
+              // Serial.println(speed);
 
               bool dir;
               if (error>0){
@@ -548,8 +579,8 @@ void Robot::obstacle_Avoid(){
               RCAve = this->lightInfo->PT_RC->getRawReading();
               RRAve = this->lightInfo->PT_RR->getRawReading();
               error = RCAve+RRAve - LCAve-LLAve;
-              Serial.print("Updated error:    "); 
-              Serial.println(error);
+              // Serial.print("Updated error:    "); 
+              // Serial.println(error);
             }
 
              this->wheels.Straight(200);
