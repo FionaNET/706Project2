@@ -25,7 +25,7 @@ class Robot{
         IR_Sensor LF_IR, RF_IR, RR_IR, LR_IR;
         Gyroscope gyro;
         UltrasonicSensor sonar;
-        
+        bool invDirection;
         bool avoidanceOn;
     
     private:
