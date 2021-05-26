@@ -4,8 +4,8 @@
 #include "RobotBase.h"
 #include "Robot.h"
 
-int search = 0;
-Firefighting fighter = Firefighting(15);
+
+Firefighting fighter = Firefighting(2);
 LightDetect lightInfo = LightDetect();
 Robot robot = Robot();
 Phototransistor LL = Phototransistor(PHOTOTRANSISTOR1);
@@ -23,30 +23,13 @@ void setup(){
 }
 
 void loop(){
-  
-  search = robot.rotate_while_scan();
-  while (search != 1){
-    // search the light at current position,
-    // if light is not found, go straight and re-search
- 
-    robot.wheels.wheels.Straight(200);
-    delay(1000);
-    search = robot.rotate_while_scan();
-  }
-  
-  if (robot.go_target()){
-      robot.wheels.Disable();
-      delay(1000);     
-      if (fighter.ExtinguishFire()){
-//        Serial.println("Extinguish fire in the main code is called");
-          //delay(1000);
-        robot.wheels.Attach();
-        robot.wheels.Strafe(true, 0);
-        delay(1000);
-      }
-      
-      
-  }
+
+//robot.rotate_while_scan();
+robot.go_target();
+if (robot.go_target()){
+  Serial.println("Done should STOP");
+  robot.wheels.Disable();
+}
 //   Serial.print(LL.getRawReading());
 //   Serial.print("   ");
 //   Serial.print(LC.getRawReading());
@@ -54,16 +37,6 @@ void loop(){
 //   Serial.print(RC.getRawReading());
 //   Serial.print("   ");
 //   Serial.println(RR.getRawReading());
-
-
- 
-//   Serial.print(LC.getDistance());
-//   //Serial.print(distance);
-//   Serial.print("   ");
-//   Serial.println(RC.getDistance());
-
-   
-
 
     //robot.rotate_while_scan();
     //wheels.Turn(true, 5);
@@ -86,7 +59,7 @@ void loop(){
     //firefighting 
     //fighter.ExtinguishFire();
 
-   // robot.obstacle_Avoid();
+    //robot.obstacle_Avoid();
 
     
     
