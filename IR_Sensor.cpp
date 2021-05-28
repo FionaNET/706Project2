@@ -11,9 +11,9 @@ IR_Sensor::IR_Sensor(){
 IR_Sensor::IR_Sensor(bool range, int pin){
     this->range = range;
     this->pin = pin;
-    this->objectThresh = 100;
+    this->objectThresh = 140;
     this->offset = 10;
-    this->wallThresh = 130;
+    this->wallThresh = 120;
 }
 
 //Get the reading in mm
@@ -43,9 +43,9 @@ float IR_Sensor::getReading(){
 
 bool IR_Sensor::isObject(){
     if(range == LONG){
-        return getReading() < this->objectThresh;
+        return (getReading() < this->objectThresh);
     }else{
-        return getReading() < this->wallThresh;
+        return (getReading() < this->wallThresh);
     }
     
 

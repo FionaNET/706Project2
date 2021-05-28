@@ -6,7 +6,7 @@
 
 UltrasonicSensor::UltrasonicSensor(void)
 {
-    this->objectThresh = 70;// need to adjust
+    this->objectThresh = 220;// need to adjust
     pinMode(TRIG_PIN, OUTPUT);
     digitalWrite(TRIG_PIN, LOW);
     
