@@ -4,7 +4,6 @@
 #include "RobotBase.h"
 #include "Robot.h"
 
-int search = 0;
 Firefighting fighter = Firefighting(15);
 LightDetect lightInfo = LightDetect();
 Robot robot = Robot();
@@ -20,10 +19,16 @@ void setup(){
   robot.wheels.Attach(); //Must call within setup or loop
   robot.gyro.GyroscopeCalibrate();
   //robot.gyro.currentAngle = 0;
-  delay(4000);
+  //delay(4000); UNCOMMENT LATER
   Serial.println("Start main loop");
 
 }
+
+int search = 0;
+bool target_reached = false;
+bool start = true;
+float time_start = 0;
+int fire = 0;                 //
 
 void loop(){
   
@@ -48,6 +53,52 @@ void loop(){
 //        delay(1000);
 //      }
 //      
+
+  //blowing out 2 fires take highest priority
+  if (fire == 2) {
+    robot.wheels.Disable();
+
+  //blowing out the fire is second priority because it might trigger obstacle avoidance
+  } else if (target_reached) {
+     robot.wheels.Disable();
+     delay(1000); //give time for the motors to actually stop before turning on fan
+
+     //extinguish the fire
+     if (fighter.ExtinguishFire()) {
+      delay(1000); //give time for the fan to fully turn off
+      robot.wheels.Attach();
+      //robot.wheels.Strafe(true, 0);
+      //delay(1000);
+
+      //reinitialise so we can extinguish the next fire
+      fighter.Fire_extinguish = 0;
+
+      //search again
+      start = true;
+      search = 0;
+
+      //find the next target
+      target_reached = false;
+      
+      //increase the number of fires we put out
+      fire = fire + 1;
+     }
+     
+  // ADD ANOTHER ELSE IF FOR OBSTACLE AVOIDANCE WHICH IS THIRD HIGHEST PRIORITY
+  // Based on if any of the range sensors detect an object
+  
+  } else if (search != 1) {
+    //rotate at the start or after 1 second of going straight
+    if ((start == true) || (millis()-time_start) > 1000){
+      search = robot.rotate_while_scan(true);
+      time_start = millis(); 
+      start = false;
+    }
+    //go straight for 1 sec
+    robot.wheels.Straight(200);
+  } else if (!target_reached) {
+    target_reached = robot.go_target();
+  } 
       
   //}
 //   Serial.print(LL.getRawReading());
@@ -89,7 +140,7 @@ void loop(){
     //firefighting 
     //fighter.ExtinguishFire();
 
-    robot.obstacle_Avoid();
+    //robot.obstacle_Avoid();
     //robot.wheels.Straight(200);
 //    robot.CL_Turn(-45);
 //    robot.wheels.Disable();

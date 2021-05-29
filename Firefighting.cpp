@@ -30,12 +30,10 @@ void Firefighting::FanOff(void)
 bool Firefighting::ExtinguishFire(void) 
 {
     this->FanOn(); //turn fan on
-    while (this->Fire_extinguish == 0)
-    {
-        if (this->LightDetector->getPTAvg() < this->fireThreshhold)
-        {
+    float start_time = millis();
+    while (this->Fire_extinguish == 0){
+        if ((this->LightDetector->getPTAvg() < this->fireThreshhold) ||((millis() - start_time) > 5000) ){
             this->Fire_extinguish = 1;
-        
         }
     }
     this->FanOff(); //turn fan off
