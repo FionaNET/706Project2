@@ -18,35 +18,38 @@ void setup(){
   Serial.println("Setting up");
   //NEED TO ATTACH
   robot.wheels.Attach(); //Must call within setup or loop
-  
+  robot.gyro.GyroscopeCalibrate();
+  //robot.gyro.currentAngle = 0;
+  delay(4000);
+  Serial.println("Start main loop");
 
 }
 
 void loop(){
   
-  search = robot.rotate_while_scan();
-  while (search != 1){
-    // search the light at current position,
-    // if light is not found, go straight and re-search
- 
-    robot.wheels.wheels.Straight(200);
-    delay(1000);
-    search = robot.rotate_while_scan();
-  }
-  
-  if (robot.go_target()){
-      robot.wheels.Disable();
-      delay(1000);     
-      if (fighter.ExtinguishFire()){
-//        Serial.println("Extinguish fire in the main code is called");
-          //delay(1000);
-        robot.wheels.Attach();
-        robot.wheels.Strafe(true, 0);
-        delay(1000);
-      }
+//  search = robot.rotate_while_scan();
+//  while (search != 1){
+//    // search the light at current position,
+//    // if light is not found, go straight and re-search
+// 
+//    robot.wheels.Straight(200);
+//    delay(1000);
+//    search = robot.rotate_while_scan();
+//  }
+//  
+//  if (robot.go_target()){
+//      robot.wheels.Disable();
+//      delay(1000);     
+//      if (fighter.ExtinguishFire()){
+////        Serial.println("Extinguish fire in the main code is called");
+//          //delay(1000);
+//        robot.wheels.Attach();
+//        robot.wheels.Strafe(true, 0);
+//        delay(1000);
+//      }
+//      
       
-      
-  }
+  //}
 //   Serial.print(LL.getRawReading());
 //   Serial.print("   ");
 //   Serial.print(LC.getRawReading());
@@ -86,9 +89,21 @@ void loop(){
     //firefighting 
     //fighter.ExtinguishFire();
 
-   // robot.obstacle_Avoid();
-
-    
-    
-
+    robot.obstacle_Avoid();
+    //robot.wheels.Straight(200);
+//    robot.CL_Turn(-45);
+//    robot.wheels.Disable();
+//    //Serial.println(robot.gyro.GyroRead());
+//    delay(3000);
+//    robot.wheels.Attach();
+//    robot.CL_Turn(-45);
+//    robot.wheels.Disable();
+//    delay(3000);
+//    robot.wheels.Attach();
+//    robot.CL_Turn(180);
+//    robot.wheels.Disable();
+//    delay(3000);
+      //robot.wheels.Turn(false, 300);
+     // robot.wheels.Disable();
+      //delay(3000);
 }

@@ -54,10 +54,13 @@ float Gyroscope::GyroRead(void)
     this->currentAngle += angleChange;
   }
 
-  if (this->currentAngle < 0) {
-    this->currentAngle += 360;
-  } else if (this->currentAngle > 359) {
+  // if (this->currentAngle < 0) {
+  //   this->currentAngle += 360;
+  // } else 
+  if (this->currentAngle > 359) {
     this->currentAngle -= 360;
+  }else if(this->currentAngle < -359){
+    this->currentAngle += 360;
   }
   delay(this->T);
   return this->currentAngle;

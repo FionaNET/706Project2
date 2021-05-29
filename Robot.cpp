@@ -15,6 +15,7 @@ Robot::Robot(){
     this->wheels = RobotBase();
 
     this->gyro = Gyroscope();
+    //gyro.GyroscopeCalibrate();
     this->sonar = UltrasonicSensor();
     this->passWait = false;
     this->Strafed = false;
@@ -111,14 +112,17 @@ void Robot::obstacle_Avoid(){
   if(LF_IR.isObject() && RF_IR.isObject() && sonar.isObject()){
     //All three sensors are reading objects so it is a wall
     this->CL_Turn(90);
-    Serial.println("There is a wall in front so we are turning");
+    delay(100);
+    //Serial.println("There is a wall in front so we are turning");
 
-  }else if(LF_IR.isObject() && LR_IR.isObject()) {
+  }else if((LF_IR.getReading() < 100) && (LR_IR.getReading() < 150) && (sonar.ReadUltraSonic() < 200)) {
     this->CL_Turn(45);
-    Serial.println("There is a wall on left so we are turning");
-  }else if(RF_IR.isObject() && (RR_IR.isObject())){
+    delay(100);
+    //Serial.println("There is a wall on left so we are turning");
+  }else if((RF_IR.getReading() < 100) && (RR_IR.getReading() < 150) && (sonar.ReadUltraSonic() < 200)){
     this->CL_Turn(-45);
-    Serial.println("There is a wall on right so we are turning");
+    delay(100);
+   // Serial.println("There is a wall on right so we are turning");
   }
   else {
     //1 or more objects detected so it is a cyclindar
@@ -129,12 +133,12 @@ void Robot::obstacle_Avoid(){
       d2 = RF_IR.getReading();
 
       d3 = sonar.ReadUltraSonic();
-      Serial.println("D1 = " + String(d1) + "  D2 = " + String(d2) + "  D3 = " + String(d3));
+      //Serial.println("D1 = " + String(d1) + "  D2 = " + String(d2) + "  D3 = " + String(d3));
 
       LeftMax = Left_Rules(NEAR(d1, true), FAR(d1, true), NEAR(d2, true), FAR(d2, true), NEAR(d3, false), FAR(d3, false));
       RightMax = Right_Rules(NEAR(d1, true), FAR(d1, true), FAR(d2, true), NEAR(d3, false), FAR(d3, false));
       ForwardMax = Forward_Rules(NEAR(d1, true), NEAR(d2, true), NEAR(d3, false));
-      Serial.println("LeftMax = " + String(LeftMax) + "  RightMax = " + String(RightMax) + "  ForwardMax = " + String(ForwardMax));
+      //Serial.println("LeftMax = " + String(LeftMax) + "  RightMax = " + String(RightMax) + "  ForwardMax = " + String(ForwardMax));
 
       //take weighted average
 
@@ -160,7 +164,7 @@ void Robot::obstacle_Avoid(){
     
 
     //Movement commands
-    if(direction > directionThresh){                          //Strafe right
+    if(direction > directionThresh){     //Strafe right
       avoidanceOn = true;           
       if(!Strafed){              //Went straight last time or strafed in opposite direction
         startTime = millis();     //Count how long we have strafed for
@@ -170,19 +174,19 @@ void Robot::obstacle_Avoid(){
           Serial.println("RR IR = " + String(RR_IR.getReading()));
           if(sonar.isObject() && (RR_IR.getReading() < ObstacleSizeMax)){
             invDirection = true;
-            wheels.Strafe(LEFT, 100);
+            wheels.Strafe(LEFT, momentumTime/2);
           }else if(!sonar.isObject() && (RR_IR.getReading() < (ObstacleSizeMax))){
             invDirection = true;
-            wheels.Strafe(LEFT, 200);
+            wheels.Strafe(LEFT, momentumTime);
           }else{
             invDirection = false;
             wheels.Strafe(RIGHT, 0);
           }
        }else if (sonar.isObject())
        {
-          if((RR_IR.getReading() < (200))){
+          if(RR_IR.getReading() < (ObstacleSizeMax)){
             invDirection = true;
-            wheels.Strafe(LEFT, 200);
+            wheels.Strafe(LEFT, momentumTime/2);
           }else{
             invDirection = false;
             wheels.Strafe(RIGHT, 0);
@@ -190,16 +194,21 @@ void Robot::obstacle_Avoid(){
        }else{
           wheels.Strafe(RIGHT, 0);
        }
-      }//else if(memory < -directionThresh){
-      //   wheels.Strafe(LEFT, (millis() - startTime + 100));  //Strafe back and give momentum to strafe left
-      //   startTime = millis() - 100;     //Count how long we have strafed for
-      // }
+      }else{
+        Strafed = true;
+        Serial.println("obstacle avoid strafe right");
+        memory = this->direction;
+      }
 
-      
+      if(invDirection){
+        memory = -(this->direction);
+      }else{
+        memory = this->direction;
+      }
   
       Strafed = true;
-      Serial.println("obstacle avoid strafe left");
-      memory = this->direction;
+      // Serial.println("obstacle avoid strafe right");
+      // memory = this->direction;
 
     }else if(direction < -directionThresh){    //Strafe left
       this->avoidanceOn = true;
@@ -211,36 +220,46 @@ void Robot::obstacle_Avoid(){
           Serial.println("LR IR = " + String(LR_IR.getReading()));
           if(sonar.isObject() && (LR_IR.getReading() < ObstacleSizeMax)){
             invDirection = true;
-            wheels.Strafe(RIGHT, 100);
+            wheels.Strafe(RIGHT, momentumTime/2);
           }else if(!sonar.isObject() && (LR_IR.getReading() < (ObstacleSizeMax/2))){
             invDirection = true;
-            wheels.Strafe(RIGHT, 200);
+            wheels.Strafe(RIGHT, momentumTime);
+            Serial.println("Inversing direction - Only RF on object");
           }else{
             invDirection = false;
             wheels.Strafe(LEFT, 0);
+            Serial.println("Keep direction - Only RF on object");
           }
-        }else if (sonar.isObject()) {
-          if((LR_IR.getReading() < 200)){
+        }else if (sonar.ReadUltraSonic() < 220) {
+          if(LR_IR.getReading() < ObstacleSizeMax){
             invDirection = true;
-            wheels.Strafe(RIGHT, 200);
+            wheels.Strafe(RIGHT, momentumTime/2);
+            Serial.println("Inversing direction - Both sonar and RF on object");
           }else{
             invDirection = false;
             wheels.Strafe(LEFT, 0);
+            Serial.println("Keep direction - Both sonar and RF on object");
           }
        }else
         {
           wheels.Strafe(LEFT, 0);
         }
         
-      }//else if(memory > directionThresh){
-      //   wheels.Strafe(RIGHT, (millis() - startTime + 100));  //Strafe back and give momentum to strafe right
-      //   startTime = millis() - 100;     //Count how long we have strafed for
-      // }
+      }else{
+        Strafed = true;
+        Serial.println("obstacle avoid strafe left");
+        memory = this->direction;
+      }
+      if(invDirection){
+        memory = -(this->direction);
+      }else{
+        memory = this->direction;
+      }
       
 
       Strafed = true;
-      Serial.println("obstacle avoid strafe left");
-      memory = this->direction;
+      // Serial.println("obstacle avoid strafe left");
+      // memory = this->direction;
 
     }else{                        //Going forward
       if(Strafed){                //On previous loop the car had strafed to avoid
@@ -298,13 +317,13 @@ void Robot::obstacle_Avoid(){
       float c = 1 + (-g)*thresh1;
 
       if(dist <= thresh1){
-        Serial.println("In NEAR: 1"); 
+        //Serial.println("In NEAR: 1"); 
         return 1.0;
       }else if(dist < thresh2 && dist > thresh1){
-        Serial.println("In NEAR: " + String(g*dist + c)); 
+        //Serial.println("In NEAR: " + String(g*dist + c)); 
         return (g*dist + c);
       }else{
-        Serial.println("In NEAR: 0"); 
+        //Serial.println("In NEAR: 0"); 
         return 0.0;
       }
     }
@@ -322,13 +341,13 @@ void Robot::obstacle_Avoid(){
       float c = (-g)*thresh1;
 
       if(dist <= thresh1){
-        Serial.println("In FAR: 0"); 
+        //Serial.println("In FAR: 0"); 
         return 0.0;
       }else if(dist < thresh2 && dist > thresh1){
-        Serial.println("In FAR: " + String(g*dist + c));
+        //Serial.println("In FAR: " + String(g*dist + c));
         return (g*dist + c);
       }else{
-        Serial.println("In FAR: 1"); 
+        //Serial.println("In FAR: 1"); 
         return 1.0;
       }
     }
@@ -424,11 +443,13 @@ void Robot::obstacle_Avoid(){
 
     //noticed the robot had a problem where at the start of turning, it would think it'll need to turn CCW due to a negative angle error
     //since the robot is always turning CW, we absolute the rot_change for large angle_error 
-    if(abs(angle_error) > 80){
+    if((ref_angle > 0) && abs(angle_error) > 30){
       rot_change = abs(kp_angle * angle_error + ki_angle*cumulation);
+    }else if((ref_angle < 0) && abs(angle_error) > 30){
+      rot_change = -1 * abs(kp_angle * angle_error + ki_angle*cumulation);
     }else{
       rot_change = kp_angle * angle_error + ki_angle*cumulation;
-    }
+    } 
 
     rot_change = constrain(rot_change, -500, 500);
     
@@ -445,11 +466,14 @@ void Robot::obstacle_Avoid(){
 
     //read the gyro sensor and get current angle
     angle_error = ref_angle - gyro.GyroRead();
-    // Serial.print("The angle error is: ");
-    // Serial.println(angle_error);
+    Serial.print("The currentAngle is: ");
+     Serial.println(gyro.GyroRead());
+
+     Serial.print("The angle error is: ");
+     Serial.println(angle_error);
     turn_time = millis() - turn_start;
   }
-  }
+}
 
 
 // using fuzzy logic

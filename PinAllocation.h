@@ -45,4 +45,5 @@
 #define GYRO_PIN A3
 
 //Threshholds for obstacle avoidance
-#define ObstacleSizeMax 200
+#define ObstacleSizeMax 250
+#define momentumTime 800

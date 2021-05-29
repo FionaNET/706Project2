@@ -54,9 +54,9 @@ void RobotBase::Move(int angle, float speed) {
 
 void RobotBase::Straight(float speed){
 
-  LFcurrent = 1500 + (speed - 20);
+  this->LFcurrent = 1500 + (speed - 20);
   this->LRcurrent = 1500 + speed;
-  RFcurrent = 1500 - (speed-60);
+  this->RFcurrent = 1500 - (speed-40);    //-60
   this->RRcurrent = 1500 - speed;
     
   this->setMotors();
@@ -76,17 +76,17 @@ void RobotBase::Straight(float speed){
 
 //Turns on the spot
 void RobotBase::Turn(bool direction, float speed) {
-	
+	int speed_change;
   if (direction){   //true = turn right (clockwise direction)
-    int speed_change = speed;
+    speed_change = speed;
   }else{
-    int speed_change = -speed;
+    speed_change = -speed;
   }
 
-  this->LFcurrent = 1500 + speed;
-  this->RFcurrent = 1500 + speed;
-  this->LRcurrent = 1500 + speed;
-  this->RRcurrent = 1500 + speed;
+  this->LFcurrent = 1500 + speed_change;
+  this->RFcurrent = 1500 + speed_change;
+  this->LRcurrent = 1500 + speed_change;
+  this->RRcurrent = 1500 + speed_change;
 
   setMotors();
 }
