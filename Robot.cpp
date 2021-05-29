@@ -127,7 +127,6 @@ void Robot::obstacle_Avoid(){
   else {
     //1 or more objects detected so it is a cyclindar
     //get all distance readings
-
     //if(!this->passWait){      //Only do this once when no obsticles have been previously detected
       d1 = LF_IR.getReading();
       d2 = RF_IR.getReading();
