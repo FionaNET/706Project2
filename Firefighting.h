@@ -12,6 +12,7 @@ class Firefighting {
     Firefighting(int ThreshholdVal);
 
     //public variables
+    bool Fire_extinguish;
     
     //public functions
     bool ExtinguishFire(void); //Main function to extinguish fire
@@ -22,7 +23,6 @@ class Firefighting {
     private: 
     //private variables 
     int fireThreshhold;
-    bool Fire_extinguish;
     LightDetect* LightDetector;
 
     //private functions
