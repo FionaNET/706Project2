@@ -8,6 +8,7 @@
 class Robot{
     public:
         Robot();
+        int check();
         int rotate_while_scan(bool dir);
         void obstacle_Avoid();
         void CL_Turn(int angle);

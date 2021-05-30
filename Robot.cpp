@@ -94,6 +94,121 @@ int Robot::rotate_while_scan(bool dir){
 //         wheels.Strafe(RIGHT, strafeTime);
 //     }
 
+int Robot::check(){
+  int flag;
+  float d1, d2, d3, d4, d5, LeftMax, ForwardMax, RightMax;
+  
+  if(LF_IR.isObject() && RF_IR.isObject() && sonar.isObject()){
+    //All three sensors are reading objects so it is a wall
+    flag = 1;
+  }else if((LF_IR.getReading() < 100) && (LR_IR.getReading() < 150) && (sonar.ReadUltraSonic() < 200)) {
+    flag = 2;
+    //Serial.println("There is a wall on left so we are turning");
+  }else if((RF_IR.getReading() < 100) && (RR_IR.getReading() < 150) && (sonar.ReadUltraSonic() < 200)){
+    flag = 3;
+  }else{
+    //1 or more objects detected so it is a cyclindar
+  
+    //if(!this->passWait){      //Only do this once when no obsticles have been previously detected
+    //get all distance readings
+    d1 = LF_IR.getReading();
+    d2 = RF_IR.getReading();
+    d3 = sonar.ReadUltraSonic();
+    //Serial.println("D1 = " + String(d1) + "  D2 = " + String(d2) + "  D3 = " + String(d3));
+
+    LeftMax = Left_Rules(NEAR(d1, true), FAR(d1, true), NEAR(d2, true), FAR(d2, true), NEAR(d3, false), FAR(d3, false));
+    RightMax = Right_Rules(NEAR(d1, true), FAR(d1, true), FAR(d2, true), NEAR(d3, false), FAR(d3, false));
+    ForwardMax = Forward_Rules(NEAR(d1, true), NEAR(d2, true), NEAR(d3, false));
+    //Serial.println("LeftMax = " + String(LeftMax) + "  RightMax = " + String(RightMax) + "  ForwardMax = " + String(ForwardMax));
+
+    //take weighted average
+
+    //this->direction = LeftMax*-30 + ForwardMax*15 + RightMax*30;    //get direction
+    //New method of including the forward readings
+    if((ForwardMax > LeftMax) || ForwardMax > RightMax){
+      this->direction = 0;
+    }else if(ForwardMax > LeftMax){
+      this->direction = (RightMax - ForwardMax)*50;
+    }else if(ForwardMax > RightMax){
+      this->direction = (LeftMax - ForwardMax)*(-50);
+    }else {
+      this->direction = (LeftMax - ForwardMax)*(-50) + (RightMax - ForwardMax)*50;
+    }
+    
+    //Contstrain direction so it doesn't hit into a side wall by incorporating the readings from back
+    //sensors
+    // if(((LR_IR.getReading() < 130) && (direction < 0)) || ((RR_IR.getReading() < 130) && (direction > 0))){
+    //   this->direction = this->direction*-1;
+    // }
+    Serial.println("Direction = " + String(direction));
+  
+
+    //Movement commands
+    if(direction > directionThresh){     //Strafe right
+      avoidanceOn = true;           
+      if(!Strafed){               //Went straight last time or strafed in opposite direction
+        startTime = millis();     //Count how long we have strafed for
+        Serial.println("detect object left = " + String(LF_IR.isObject()));
+        if(LF_IR.isObject()){
+          flag = 4;
+          if(sonar.isObject() && (RR_IR.getReading() < ObstacleSizeMax)){
+            flag = 5;
+          }else if(!sonar.isObject() && (RR_IR.getReading() < (ObstacleSizeMax))){
+            flag = 6;
+          }else{
+            flag = 7;
+          }
+        }else if (sonar.isObject()){
+          if(RR_IR.getReading() < (ObstacleSizeMax)){
+            flag = 8;
+          }else{
+            flag = 9;
+          }
+        }else{
+          flag = 10;
+        }
+      }else{
+        flag = 11;
+        Strafed = false;
+      }
+      Strafed = true;
+    }else if(direction < -directionThresh){    //Strafe left
+      this->avoidanceOn = true;
+      if(!Strafed){
+        startTime = millis();
+        Serial.println("detect object right = " + String(RF_IR.isObject()));
+        if(RF_IR.isObject()){
+          flag = 12;
+          if(sonar.isObject() && (LR_IR.getReading() < ObstacleSizeMax)){
+            flag = 13;
+          }else if(!sonar.isObject() && (LR_IR.getReading() < (ObstacleSizeMax/2))){
+            flag = 14;
+          }else{
+            flag = 15;
+          }
+        }else if (sonar.ReadUltraSonic() < 220) {
+          if(LR_IR.getReading() < ObstacleSizeMax){
+            flag = 16;
+          }else{
+            flag = 17;
+          }
+        }else{
+          flag = 18;
+        }
+      }else{      //no obstical on the right but strafing left
+        Strafed = true;
+        Serial.println("obstacle avoid strafe left");
+        memory = this->direction;
+      }
+      Strafed = true;
+    }else{                        //Going forward
+      flag = 0;
+      Strafed = false;
+    }
+  }
+  return flag;
+}
+
 //obstacle avoidance with fuzzy logic
 void Robot::obstacle_Avoid(){
 
@@ -232,15 +347,16 @@ void Robot::obstacle_Avoid(){
           }
         }else{
           wheels.Strafe(LEFT, 0);
+          invDirection = false;
         }
         
-      }else{
+      }else{      //no obstical on the right but strafing left
         Strafed = true;
         Serial.println("obstacle avoid strafe left");
         memory = this->direction;
       }
 
-      if(invDirection){
+      if(invDirection){   
         memory = -(this->direction);
       }else{
         memory = this->direction;
