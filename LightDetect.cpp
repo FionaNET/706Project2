@@ -41,7 +41,8 @@ bool LightDetect::detect_front(){
 	//Serial.println(PT_LC->getRawReading()+PT_RC->getRawReading());
 
 	float dist_LC = PT_LC->getDistance();
-	float dist_RC = PT_RC->getDistance(); 		
+	float dist_RC = PT_RC->getDistance(); 	
+	float ave = 0;	
 
 
 	if ((dist_LC+dist_RC)/2 < 1000){
@@ -51,8 +52,6 @@ bool LightDetect::detect_front(){
 		//close
 		this->thr1 = 50;
 	}
-
-	float ave;
 
 	ave =(PT_LC->getRawReading()+PT_RC->getRawReading()+PT_LL->getRawReading()+PT_RR->getRawReading())/4;
 	// Serial.println("Raw reading of 4 phototransistor:");
