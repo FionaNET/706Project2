@@ -550,21 +550,13 @@ bool Robot::go_target(){
     RCAve = this->lightInfo->PT_RC->getRawReading();
     RRAve = this->lightInfo->PT_RR->getRawReading();
 
-    // Commented out the check if light disappears, need to check if our robot will veer off for long distance
-    // if (((RCAve+RRAve+LCAve+LLAve)/4) < 10){ // light disappear
-    //   dir = true; // turn right
-    //   search = this->rotate_while_scan(dir);
-    // } else if (((RCAve+RRAve+LCAve+LLAve)/4) < 30){ // light is somewhere but we might be very off
-    //   if (RRAve>LLAve){
-    //     dir = true; // turn right
-    //   } else{
-    //     dir = false; // turn left
-    //   }
-    //   search = this->rotate_while_scan(dir);
-    // }
+    RLerror = RRAve - LLAve;
 
-    // Fixes trajectory when light is somewhere but we might be off
-    if (((RCAve+RRAve+LCAve+LLAve)/4) < 20){ 
+    // Commented out the check if light disappears, need to check if our robot will veer off for long distance
+    if (((RCAve+RRAve+LCAve+LLAve)/4) < 10){ // light disappear
+      dir = true; // turn right
+      search = this->rotate_while_scan(dir);
+    } else if (((RCAve+RRAve+LCAve+LLAve)/4) < 20){ // Fixes trajectory when light is somewhere but we might be off
       // Rotate to the highest light value
       if (RRAve>LLAve){
         dir = true;  // turn right
@@ -572,13 +564,9 @@ bool Robot::go_target(){
         dir = false; // turn left
       }
       search = this->rotate_while_scan(dir);
-    }
-      
-    RLerror = RRAve - LLAve;
-
-    // Fixes problem when the robot is placed centre between two lights and starts driving straight to the centre
-    // RR and LL reads very high at similar values and LC and RC reads low
-    if ((abs(RLerror) < 60) && (RCAve < 20) && (LCAve < 20)) {   
+    } else if ((abs(RLerror) < 60) && (RCAve < 20) && (LCAve < 20)) {   
+      // Fixes problem when the robot is placed centre between two lights and starts driving straight to the centre
+      // RR and LL reads very high at similar values and LC and RC reads low
       // Rotate to the highest light value
       if (RRAve>LLAve){
         dir = true;  // turn right
