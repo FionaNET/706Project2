@@ -15,45 +15,24 @@ Phototransistor RR = Phototransistor(PHOTOTRANSISTOR4);
 void setup(){
   Serial.begin(9600);
   Serial.println("Setting up");
-  //NEED TO ATTACH
-  robot.wheels.Attach(); //Must call within setup or loop
-  robot.gyro.GyroscopeCalibrate();
+  
+  robot.wheels.Attach();           //must call within setup or loop to attach the wheels
+  robot.gyro.GyroscopeCalibrate(); //call to remove the bias from gyroscope
   //robot.gyro.currentAngle = 0;
-  //delay(4000); UNCOMMENT LATER
+  delay(1000);
   Serial.println("Start main loop");
-
 }
 
-int search = 0;
-bool target_reached = false;
-bool start = true;
-float time_start = 0;
-int fire = 0;                 //
+int search = 0;               //variable to determine if we need to search for a light
+bool target_reached = false;  //variable to store if the light has been reached
+bool start = true;            //lets us know we are at the beginning of the run and will reset after every fire has been blow out
+float time_start = 0;         //store the time at which we finised the rotate_while_scan
+int fire = 0;                 //variable to keep track of how many fires to blow out
 
 void loop(){
+  //Serial.print("READING ULTRASONIC: ");
+  //Serial.println(robot.sonar.ReadUltraSonic());
   
-//  search = robot.rotate_while_scan();
-//  while (search != 1){
-//    // search the light at current position,
-//    // if light is not found, go straight and re-search
-// 
-//    robot.wheels.Straight(200);
-//    delay(1000);
-//    search = robot.rotate_while_scan();
-//  }
-//  
-//  if (robot.go_target()){
-//      robot.wheels.Disable();
-//      delay(1000);     
-//      if (fighter.ExtinguishFire()){
-////        Serial.println("Extinguish fire in the main code is called");
-//          //delay(1000);
-//        robot.wheels.Attach();
-//        robot.wheels.Strafe(true, 0);
-//        delay(1000);
-//      }
-//      
-
   //blowing out 2 fires take highest priority
   if (fire == 2) {
     robot.wheels.Disable();
@@ -61,7 +40,7 @@ void loop(){
   //blowing out the fire is second priority because it might trigger obstacle avoidance
   } else if (target_reached) {
      robot.wheels.Disable();
-     delay(1000); //give time for the motors to actually stop before turning on fan
+     delay(1000); //give time for the motors to stop before turning on fan
 
      //extinguish the fire
      if (fighter.ExtinguishFire()) {
@@ -88,19 +67,47 @@ void loop(){
   // Based on if any of the range sensors detect an object
   
   } else if (search != 1) {
-    //rotate at the start or after 1 second of going straight
-    if ((start == true) || (millis()-time_start) > 1000){
+    //rotate at the start or after 1.5 second of going straight
+    if ((start == true) || (millis()-time_start) > 1500){
       search = robot.rotate_while_scan(true);
       time_start = millis(); 
       start = false;
     }
-    //go straight for 1 sec
+    //go straight for 1.5 sec
     robot.wheels.Straight(200);
-  } else if (!target_reached) {
+  } else {
+    //by default the robot should go to target
     target_reached = robot.go_target();
-  } 
-      
-  //}
+  }
+
+//  else if (!target_reached) {
+//    target_reached = robot.go_target();
+//  } 
+
+
+//  search = robot.rotate_while_scan();
+//  while (search != 1){
+//    // search the light at current position,
+//    // if light is not found, go straight and re-search
+// 
+//    robot.wheels.Straight(200);
+//    delay(1000);
+//    search = robot.rotate_while_scan();
+//  }
+//  
+//  if (robot.go_target()){
+//      robot.wheels.Disable();
+//      delay(1000);     
+//      if (fighter.ExtinguishFire()){
+//        Serial.println("Extinguish fire in the main code is called");
+//          //delay(1000);
+//        robot.wheels.Attach();
+//        robot.wheels.Strafe(true, 0);
+//        delay(1000);
+//      }
+//}
+
+
 //   Serial.print(LL.getRawReading());
 //   Serial.print("   ");
 //   Serial.print(LC.getRawReading());
@@ -112,15 +119,8 @@ void loop(){
 
  
 //   Serial.print(LC.getDistance());
-//   //Serial.print(distance);
 //   Serial.print("   ");
 //   Serial.println(RC.getDistance());
-
-   
-
-
-    //robot.rotate_while_scan();
-    //wheels.Turn(true, 5);
 
     
 //    Serial.println("Raw reading");
@@ -134,7 +134,6 @@ void loop(){
 //    Serial.println(robot.lightInfo->PT_LC->getAverageReading());
 //    Serial.println(robot.lightInfo->PT_RC->getAverageReading());
 //    Serial.println(robot.lightInfo->PT_RR->getAverageReading());
-    //robot.obstical_avoid();
     
 
     //firefighting 
