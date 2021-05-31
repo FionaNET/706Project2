@@ -28,12 +28,13 @@ bool target_reached = false;  //variable to store if the light has been reached
 bool start = true;            //lets us know we are at the beginning of the run and will reset after every fire has been blow out
 float time_start = 0;         //store the time at which we finised the rotate_while_scan
 int fire = 0;                 //variable to keep track of how many fires to blow out
+bool obstacle_done = false;
 
 void loop(){
   //Serial.print("READING ULTRASONIC: ");
   //Serial.println(robot.sonar.ReadUltraSonic());
-  
-  //blowing out 2 fires take highest priority
+
+    //blowing out 2 fires take highest priority
   if (fire == 2) {
     robot.wheels.Disable();
 
@@ -63,10 +64,9 @@ void loop(){
       fire = fire + 1;
      }
      
-  // ADD ANOTHER ELSE IF FOR OBSTACLE AVOIDANCE WHICH IS THIRD HIGHEST PRIORITY
   // Based on if any of the range sensors detect an object
-  
-  } else if (search != 1) {
+    robot.obstacle_Avoid();
+  }else if (search != 1) {
     //rotate at the start or after 1.5 second of going straight
     if ((start == true) || (millis()-time_start) > 1500){
       search = robot.rotate_while_scan(true);
@@ -80,10 +80,8 @@ void loop(){
     target_reached = robot.go_target();
   }
 
-//  else if (!target_reached) {
-//    target_reached = robot.go_target();
-//  } 
-
+  
+ 
 
 //  search = robot.rotate_while_scan();
 //  while (search != 1){
@@ -138,8 +136,13 @@ void loop(){
 
     //firefighting 
     //fighter.ExtinguishFire();
-
-    //robot.obstacle_Avoid();
+//    obstacle_done =  robot.obstacle_Avoid();
+//    while (!obstacle_done){
+//      obstacle_done =  robot.obstacle_Avoid();
+//    }
+//
+//    robot.wheels.Disable();
+    
     //robot.wheels.Straight(200);
 //    robot.CL_Turn(-45);
 //    robot.wheels.Disable();
