@@ -13,6 +13,7 @@ Robot::Robot(){
   this->RR_IR = IR_Sensor(MID,IR_RR);
 
   this->wheels = RobotBase();
+ // this->fighter = Firefighting(15);
 
   this->gyro = Gyroscope();
   //gyro.GyroscopeCalibrate();
@@ -42,14 +43,13 @@ int Robot::rotate_while_scan(bool dir){
   //bool front = lightInfo->detect_front();
 
   float timeStart = millis();
-  float timeout = 5000; // 5 sec for a full rotation, need calibration
+  float timeout = 5000; // 5 sec for a full rotation
   bool front = lightInfo->detect_front();
   while (!front) {
     Serial.println("Rotate while scanning loop");
     this->wheels.Turn(true, speed); // turn right 360 deg and scan
     front = lightInfo->detect_front();
     if (millis()-timeStart > timeout) {
-      // Serial.println("10 seconds, STOP");
       return 2;
     }
   }
@@ -186,7 +186,7 @@ int Robot::check(){
           }else{
             flag = 15;
           }
-        }else if (sonar.ReadUltraSonic() < 220) {
+        }else if (sonar.ReadUltraSonic() < 200) {
           if(LR_IR.getReading() < ObstacleSizeMax){
             flag = 16;
           }else{
@@ -210,32 +210,47 @@ int Robot::check(){
 }
 
 //obstacle avoidance with fuzzy logic
-bool Robot::obstacle_Avoid(){
+void Robot::obstacle_Avoid(){
 
   float d1, d2, d3, d4, d5, LeftMax, ForwardMax, RightMax;
-  
-  bool retFlag = false;
+  float LCAve = this->lightInfo->PT_LC->getRawReading();
+  float RCAve = this->lightInfo->PT_RC->getRawReading();
+
+  float distLC = this->lightInfo->PT_LC->getDistance();
+  float distRC = this->lightInfo->PT_RC->getDistance();
+  bool close = true;
+  bool retFlag = false; //Determines when obstacle avoid has been completed
+
+  //Closer to the light, higher the ADC value
+  //We want to adjust the direction of the robot the robot is far from the light
+  if ( ((distLC+distRC)/2 < 400) || ((LCAve +RCAve)/2 > 600)) {
+    close = false;
+    retFlag = true;
+  }
+
   Serial.println("LF_IR dist: " + String(LF_IR.getReading()) + "RF_IR dist: " + String(RF_IR.getReading()) + "Sonar dist: " + String(sonar.ReadUltraSonic()));
   Serial.println("LF OBject: " + String(LF_IR.isObject()) + "  RF object: " + String(RF_IR.isObject()) + "  center object: " + String(sonar.isObject()));
   
   while (!retFlag) {
     //All three sensors are reading objects so it is a wall
-     if(LF_IR.isObject() && RF_IR.isObject() && sonar.isObject()){
-       this->CL_Turn(90);
-       delay(100);
-       retFlag = true;
-    // //Both left sensors and front sensor
-    // }else if((LF_IR.getReading() < 100) && (LR_IR.getReading() < 150) && (sonar.ReadUltraSonic() < 200)) {
-    //   this->CL_Turn(45);
-    //   delay(100);
-    //   retFlag = true;
-    // //Both right sensors and front sensor
-    // }else if((RF_IR.getReading() < 100) && (RR_IR.getReading() < 150) && (sonar.ReadUltraSonic() < 200)){
-    //   this->CL_Turn(-45);
-    //   delay(100);
-    //   retFlag = true;
-    // //No or multiple sensosrs (strafe or straight motion only)
-     }else{
+    if(LF_IR.isObject() && RF_IR.isObject() && sonar.isObject()){
+      this->CL_Turn(80); //at 90, robot rotates too much
+      delay(100);
+      retFlag = true;
+    //Both left sensors and front sensor
+    }else if((LF_IR.getReading() < 100) && (LR_IR.getReading() < 180) && (sonar.ReadUltraSonic() < 220)) {
+    //}else if((LF_IR.getReading() < 100) && (LR_IR.getReading() < 100) && (sonar.ReadUltraSonic() < 200)) {
+      this->CL_Turn(45);
+      delay(100);
+      retFlag = true;
+    //Both right sensors and front sensor
+    }else if((RF_IR.getReading() < 100) && (RR_IR.getReading() < 180) && (sonar.ReadUltraSonic() < 220)){
+    //}else if((RF_IR.getReading() < 100) && (RR_IR.getReading() < 100) && (sonar.ReadUltraSonic() < 200)){
+      this->CL_Turn(-45);
+      delay(100);
+      retFlag = true;
+    //No or multiple sensosrs (strafe or straight motion only)
+    }else{
       //get all distance readings
       d1 = LF_IR.getReading();
       d2 = RF_IR.getReading();
@@ -266,7 +281,7 @@ bool Robot::obstacle_Avoid(){
       this->avoidanceOn = true;
           //Went straight last time or strafed in opposite direction
           Serial.println("detect object left = " + String(LF_IR.isObject()));
-          if(LF_IR.isObject()){
+          if(LF_IR.isObject() && !close){
             Serial.println("sonar object = " + String(sonar.isObject()));
             Serial.println("RR IR = " + String(RR_IR.getReading()));
             if (sonar.isObject() && (RR_IR.getReading() < ObstacleSizeMax)){
@@ -276,7 +291,7 @@ bool Robot::obstacle_Avoid(){
             }else{
               wheels.Strafe(RIGHT, 0);
             }
-          }else if (sonar.isObject()){
+          }else if (sonar.isObject() && !close){
             if(RR_IR.getReading() < (ObstacleSizeMax)){
               wheels.Strafe(LEFT, momentumTime/2);
             }else{
@@ -285,10 +300,11 @@ bool Robot::obstacle_Avoid(){
           }else{
             wheels.Strafe(RIGHT, 0);
           }
+
       }else if(direction < -directionThresh){    //Strafe left
         this->avoidanceOn = true;
           Serial.println("detect object right = " + String(RF_IR.isObject()));
-          if(RF_IR.isObject()){
+          if(RF_IR.isObject() && !close){
             Serial.println("sonar object = " + String(sonar.isObject()));
             Serial.println("LR IR = " + String(LR_IR.getReading()));
             if(sonar.isObject() && (LR_IR.getReading() < ObstacleSizeMax)){
@@ -300,7 +316,7 @@ bool Robot::obstacle_Avoid(){
               wheels.Strafe(LEFT, 0);
               Serial.println("Keep direction - Only RF on object");
             }
-          }else if (sonar.ReadUltraSonic() < 220) {
+          }else if (sonar.ReadUltraSonic() < 100 && !close) {
             if(LR_IR.getReading() < ObstacleSizeMax){
               wheels.Strafe(RIGHT, momentumTime/2);
               Serial.println("Inversing direction - Both sonar and RF on object");
@@ -312,39 +328,39 @@ bool Robot::obstacle_Avoid(){
             wheels.Strafe(LEFT, 0);
             invDirection = false;
           }
+
       //no obstacle, go straight  
       }else{              
         //bool goStraightFlag = false;  
         wheels.Straight(200);
-        Serial.println("GO STRAIGHT");
 
-         // while ((!goStraightFlag)  && (avoidanceOn)){
-            while (avoidanceOn){
-          if(LR_IR.isObject() || RR_IR.isObject() || LF_IR.isObject() ||  RF_IR.isObject()){
+        // while ((!goStraightFlag)  && (avoidanceOn)){
+        while (this->avoidanceOn){
+          if(LR_IR.isObject() || RR_IR.isObject() || LF_IR.isObject() ||  RF_IR.isObject() || sonar.isObject()){
             //goStraightFlag = true; //finished going straight
-            avoidanceOn = false;
-            Serial.println("IN LOOP TO TURN OFF STRAIGHT");
+            this->avoidanceOn = false;
+            Serial.println("Stopped going straight in obstacle avoidance");
           }
         }
-      
-        retFlag = true;
+
+        retFlag = true; //going straight finished, get out of while loop
       }
 
     }
 
   }
-  return retFlag;
+  //return retFlag;
 }
 
 
 float Robot::NEAR(float dist, bool isIR){    //Fuzzificaiton
   float thresh1,thresh2;
   if (isIR){
-    thresh1 = 100;
-    thresh2 = 200;
+    thresh1 = IRNearThresh1;
+    thresh2 = IRNearThresh2;
   }else{
-    thresh1 = 120;
-    thresh2 = 220;
+    thresh1 = USNearThresh1;
+    thresh2 = USNearThresh2;
   }
   
   float g = -1/(thresh2 - thresh1);
@@ -365,11 +381,11 @@ float Robot::NEAR(float dist, bool isIR){    //Fuzzificaiton
 float Robot::FAR(float dist, bool isIR){     //Fuzzification
   float thresh1,thresh2;
   if (isIR){
-    thresh1 = 100;
-    thresh2 = 200;
+    thresh1 = IRNearThresh1;
+    thresh2 = IRNearThresh2;
   }else{
-    thresh1 = 120;
-    thresh2 = 220;
+    thresh1 = USNearThresh1;
+    thresh2 = USNearThresh2;
   }
   float g = 1/(thresh2 - thresh1);
   float c = (-g)*thresh1;
@@ -551,7 +567,6 @@ void Robot::CL_Turn(int ref_angle){
 
 // return false = haven't arrived to target
 // return true = have arrived to target
-// closer to the light, higher the ADC value
 bool Robot::go_target(){
   bool dir; 
   float Kp = 0.15;
@@ -586,8 +601,10 @@ bool Robot::go_target(){
   distLC = this->lightInfo->PT_LC->getDistance();
   distRC = this->lightInfo->PT_RC->getDistance();
 
-  if ( ((distLC+distRC)/2 > 450) && ((LCAve +RCAve)/2 < 600)) { // distance from the centre phototransistor values
-    this->obstacle_Avoid();
+  //Closer to the light, higher the ADC value
+  //We want to adjust the direction of the robot the robot is far from the light
+  if ( ((distLC+distRC)/2 > 400) && ((LCAve +RCAve)/2 < 600)) { // distance from the centre phototransistor values
+    // this->obstacle_Avoid();
     
     LLAve = this->lightInfo->PT_LL->getRawReading();
     LCAve = this->lightInfo->PT_LC->getRawReading();
@@ -602,7 +619,7 @@ bool Robot::go_target(){
     //   search = this->rotate_while_scan(dir);
     // } 
     
-    if (((RCAve+RRAve+LCAve+LLAve)/4) < 30){ // Fixes trajectory when light is somewhere but we might be off
+    if (((RCAve+RRAve+LCAve+LLAve)/4) < 40){ // Fixes trajectory when light is somewhere but we might be off
       // Rotate to the highest light value
       if (RRAve>LLAve){
         dir = true;  // turn right
@@ -610,7 +627,7 @@ bool Robot::go_target(){
         dir = false; // turn left
       }
       search = this->rotate_while_scan(dir);
-    } else if ((abs(RLerror) < 30) && (RCAve < 20) && (LCAve < 20)) {   
+    } else if ((abs(RLerror) < 40) && (RCAve < 15) && (LCAve < 15)) {   
       // Fixes problem when the robot is placed centre between two lights and starts driving straight to the centre
       // RR and LL reads very high at similar values and LC and RC reads low
       // Rotate to the highest light value
@@ -628,7 +645,7 @@ bool Robot::go_target(){
     // Change direction if the error is too higher or the time spent in the loop is less than 2 sec
     while  ((abs(error) > 350) || ((millis()-startTime)<2000)) { 
       // Only accumulate error if it is small
-      if(abs(error) < 365){   // Previously we had a value of 20, but it would never enter the while loop with 20
+      if(abs(error) < 380){   // Previously we had a value of 20, but it would never enter the while loop with 20
         accumulation = accumulation + error;
       }
       speed = Kp*error + Ki*accumulation;
