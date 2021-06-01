@@ -4,13 +4,13 @@
 #include "RobotBase.h"
 #include "Robot.h"
 
-//Firefighting fighter = Firefighting(15);
-LightDetect lightInfo = LightDetect();
+Firefighting fighter = Firefighting(15);
 Robot robot = Robot();
-Phototransistor LL = Phototransistor(PHOTOTRANSISTOR1);
-Phototransistor LC = Phototransistor(PHOTOTRANSISTOR2);
-Phototransistor RC = Phototransistor(PHOTOTRANSISTOR3);
-Phototransistor RR = Phototransistor(PHOTOTRANSISTOR4);
+//LightDetect lightInfo = LightDetect();
+//Phototransistor LL = Phototransistor(PHOTOTRANSISTOR1);
+//Phototransistor LC = Phototransistor(PHOTOTRANSISTOR2);
+//Phototransistor RC = Phototransistor(PHOTOTRANSISTOR3);
+//Phototransistor RR = Phototransistor(PHOTOTRANSISTOR4);
 
 void setup(){
   Serial.begin(9600);
@@ -19,6 +19,8 @@ void setup(){
   robot.wheels.Attach();           //must call within setup or loop to attach the wheels
   robot.gyro.GyroscopeCalibrate(); //call to remove the bias from gyroscope
   //robot.gyro.currentAngle = 0;
+  robot.fanServo.attach(SERVO_PIN);
+  robot.servoReset();
   delay(1000);
   Serial.println("Start main loop");
 }
@@ -37,8 +39,8 @@ void loop(){
   //Serial.println(robot.sonar.ReadUltraSonic());
 
   //Test obstacle avoidance when obstacle avoidance is a while loop
-  robot.obstacle_Avoid();
-  robot.wheels.Straight(200);
+  //robot.obstacle_Avoid();
+  //robot.wheels.Straight(200);
   
 //  if (robot.check() != 0) {
 //    robot.obstacle_Avoid();
@@ -73,7 +75,7 @@ void loop(){
 //    case 2:
 //      Serial.println("In case 2, go to light");
 //      //Find the going to target normal routine
-//      robot.obstacle_Avoid();
+//      //robot.obstacle_Avoid();
 //      target_reached = robot.go_target();
 //  
 //      if (target_reached){
@@ -87,12 +89,12 @@ void loop(){
 //    case 3:
 //      Serial.println("In case 3, firefight");
 //      //Firefighting state
-//      fireOff = robot.fighter.ExtinguishFire();
+//      fireOff = fighter.ExtinguishFire();
 //      if (fireOff){
 //        fire = fire + 1;
 //        delay(1000);                    //Give time for the fan to fully turn off
 //        robot.wheels.Attach();
-//        robot.fighter.Fire_extinguish = 0;    //Reinitialise so we can extinguish the next fire
+//        fighter.Fire_extinguish = 0;    //Reinitialise so we can extinguish the next fire
 //        
 //        if (fire < 2) {
 //           //reverse
@@ -124,7 +126,11 @@ void loop(){
 //      robot.wheels.Disable();
 //      break;
 //  }
- 
+
+
+    robot.servoRotate();
+    fireOff = fighter.ExtinguishFire();
+    
  
 
 //  search = robot.rotate_while_scan();
