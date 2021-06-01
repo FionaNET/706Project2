@@ -6,7 +6,7 @@
 
 UltrasonicSensor::UltrasonicSensor(void)
 {
-    this->objectThresh = 80;// need to adjust
+    this->objectThresh = 70;// need to adjust
     pinMode(TRIG_PIN, OUTPUT);
     digitalWrite(TRIG_PIN, LOW);
     
@@ -69,6 +69,6 @@ float UltrasonicSensor::ReadUltraSonic(void)
     //SerialCom->print("HC-SR04:");
     //SerialCom->print(cm);
     //SerialCom->println("cm");
-    return mm;
+    return (mm + 45); //add 45 to make the distance the same as the front IR sensors
   }
 }

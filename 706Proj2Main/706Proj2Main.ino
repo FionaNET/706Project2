@@ -18,8 +18,11 @@ void setup(){
   
   robot.wheels.Attach();            //must call within setup or loop to attach the wheels
   robot.gyro.GyroscopeCalibrate();  //call to remove the bias from gyroscope
+  robot.fanServo.attach(SERVO_PIN);
+  robot.servoReset();
   delay(1000);
   Serial.println("Start main loop");
+  
 }
 
 int search = 0;               //variable to determine if we need to search for a light
@@ -62,6 +65,20 @@ switch (state) {
     if (target_reached){
       robot.wheels.Disable();
       delay(1000); //give time for the motors to stop before turning on fan
+      if (robot.stopPos == 1){
+        // center
+        // do nothing
+        robot.servoReset();
+      }else if (robot.stopPos == 2){
+        // right outside triggerd
+        // turn servo to the right
+        robot.servoRight();
+      }else if (robot.stopPos == 3){
+        // left outside triggiered
+        // turn servo to the left
+        robot.servoLeft();
+        
+      }
       state = 3;
     }
     

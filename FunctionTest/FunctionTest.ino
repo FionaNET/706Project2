@@ -37,8 +37,8 @@ void loop(){
   //Serial.println(robot.sonar.ReadUltraSonic());
 
   //Test obstacle avoidance when obstacle avoidance is a while loop
-  //robot.obstacle_Avoid();
-  //robot.wheels.Straight(200);
+  robot.obstacle_Avoid();
+  robot.wheels.Straight(200);
   
 //  if (robot.check() != 0) {
 //    robot.obstacle_Avoid();
@@ -194,16 +194,21 @@ void loop(){
 //    robot.wheels.Disable();
 //    delay(3000);
 
-  Serial.print(robot.LF_IR.getReading());
-  Serial.print("   ");
-  Serial.print(robot.RF_IR.getReading());
-  Serial.print("   ");
-  Serial.print(robot.LR_IR.getReading());
-  Serial.print("   ");
-  Serial.print(robot.RR_IR.getReading());
-  Serial.print("   ");
-  Serial.println(robot.sonar.ReadUltraSonic());
-  Serial.println("   ");
+ // Serial.println("average reading called" + String(robot.RR_IR.getAverageReading()));
+ // Serial.println("raw reading" + String(robot.RR_IR.getReading()));
+  
+//  Serial.print(robot.LF_IR.getAverageReading());
+//  Serial.print("   ");
+//  Serial.print(robot.RF_IR.getAverageReading());
+//  Serial.print("   ");
+//  Serial.print(robot.LR_IR.getAverageReading());
+//  Serial.print("   ");
+//  Serial.print(robot.RR_IR.getAverageReading());
+//  Serial.print("   ");
+//  Serial.println(robot.sonar.ReadUltraSonic());
+//  Serial.println("   ");
+//  delay(1000);
+  
 
-  delay(1000);
+
 }

@@ -30,7 +30,12 @@ class Robot{
         UltrasonicSensor sonar;
         bool invDirection;
         bool avoidanceOn;
-    
+        int stopPos;
+        Servo fanServo;
+        //servo functions
+        void servoRight();
+        void servoLeft();
+        void servoReset();
     private:
     
 

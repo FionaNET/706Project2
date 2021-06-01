@@ -22,6 +22,7 @@ Robot::Robot(){
   this->Strafed = false;
   this->thr_sonar = 10; // need to adjust
   this->speed_step = 500;
+  this->stopPos = 0;
 
   this->avoidanceOn = false;
   this->invDirection = false;
@@ -33,10 +34,10 @@ Robot::Robot(){
 int Robot::rotate_while_scan(bool dir){
   int speed;
   if (dir){ // true, turn right, CW
-    speed = 200;
+    speed = 150;
   }else{
     // false, turn left, CCW
-    speed = -200;
+    speed = -150;
   }
 
   Serial.println("Rotating while scan...");
@@ -213,8 +214,10 @@ int Robot::check(){
 void Robot::obstacle_Avoid(){
 
   float d1, d2, d3, d4, d5, LeftMax, ForwardMax, RightMax;
+  float LLAve = this->lightInfo->PT_LL->getRawReading();
   float LCAve = this->lightInfo->PT_LC->getRawReading();
   float RCAve = this->lightInfo->PT_RC->getRawReading();
+  float RRAve = this->lightInfo->PT_RR->getRawReading();
 
   float distLC = this->lightInfo->PT_LC->getDistance();
   float distRC = this->lightInfo->PT_RC->getDistance();
@@ -223,7 +226,7 @@ void Robot::obstacle_Avoid(){
 
   //Closer to the light, higher the ADC value
   //We want to adjust the direction of the robot the robot is far from the light
-  if ( ((distLC+distRC)/2 < 400) || ((LCAve +RCAve)/2 > 600)) {
+  if ( ((distLC+distRC)/2 < 400) || ((LCAve +RCAve)/2 >= TARGET_BRIGHTNESS) || (RRAve >= TARGET_BRIGHTNESS_OUT) || (LLAve >= TARGET_BRIGHTNESS_OUT)) {
     close = false;
     retFlag = true;
   }
@@ -231,21 +234,38 @@ void Robot::obstacle_Avoid(){
   // Serial.println("LF_IR dist: " + String(LF_IR.getReading()) + "RF_IR dist: " + String(RF_IR.getReading()) + "Sonar dist: " + String(sonar.ReadUltraSonic()));
   // Serial.println("LF OBject: " + String(LF_IR.isObject()) + "  RF object: " + String(RF_IR.isObject()) + "  center object: " + String(sonar.isObject()));
   
+  float RF_read = RF_IR.getReading();
+  float LF_read = LF_IR.getReading();
+  float RR_read = RR_IR.getReading();
+  float LR_read = LR_IR.getReading();
+  float sonar_read = sonar.ReadUltraSonic();
+  float front_avg = ((RF_read + LF_read + sonar_read)/3);
+
   while (!retFlag) {
     //All three sensors are reading objects so it is a wall
-    if(LF_IR.isObject() && RF_IR.isObject() && sonar.isObject()){
-      this->CL_Turn(180); 
+
+    if(front_avg < 120) {
+      this->CL_Turn(160);
       delay(100);
       retFlag = true;
+
+
+    // if(LF_IR.isObject() && RF_IR.isObject()){
+    //   Serial.println("There is a wall");
+    //   this->CL_Turn(180); 
+    //   delay(100);
+    //   retFlag = true;
     //Both left sensors and front sensor
-    }else if((LF_IR.getAverageReading() < 100) && (LR_IR.getAverageReading() < 180) && (sonar.ReadUltraSonic() < 220)) {
+    }else if((LF_IR.getReading() < 100) && (LR_IR.getReading() < 180) && (sonar.ReadUltraSonic() < 220)) {
     //}else if((LF_IR.getReading() < 100) && (LR_IR.getReading() < 100) && (sonar.ReadUltraSonic() < 200)) {
+      Serial.println("There is a left corner");
       this->CL_Turn(50);
       delay(100);
       retFlag = true;
     //Both right sensors and front sensor
     }else if((RF_IR.getReading() < 100) && (RR_IR.getReading() < 180) && (sonar.ReadUltraSonic() < 220)){
     //}else if((RF_IR.getReading() < 100) && (RR_IR.getReading() < 100) && (sonar.ReadUltraSonic() < 200)){
+      Serial.println("There is a right corner");
       this->CL_Turn(-50);
       delay(100);
       retFlag = true;
@@ -281,7 +301,7 @@ void Robot::obstacle_Avoid(){
       this->avoidanceOn = true;
           //Went straight last time or strafed in opposite direction
           Serial.println("detect object left = " + String(LF_IR.isObject()));
-          if(LF_IR.isObject() && !close){
+          if(LF_IR.isObject()){
             Serial.println("sonar object = " + String(sonar.isObject()));
             Serial.println("RR IR = " + String(RR_IR.getReading()));
             if (sonar.isObject() && (RR_IR.getReading() < ObstacleSizeMax)){
@@ -291,7 +311,7 @@ void Robot::obstacle_Avoid(){
             }else{
               wheels.Strafe(RIGHT, 0);
             }
-          }else if (sonar.isObject() && !close){
+          }else if (sonar.isObject()){
             if(RR_IR.getReading() < (ObstacleSizeMax)){
               wheels.Strafe(LEFT, momentumTime/2);
             }else{
@@ -304,7 +324,7 @@ void Robot::obstacle_Avoid(){
       }else if(direction < -directionThresh){    //Strafe left
         this->avoidanceOn = true;
           Serial.println("detect object right = " + String(RF_IR.isObject()));
-          if(RF_IR.isObject() && !close){
+          if(RF_IR.isObject()){
             Serial.println("sonar object = " + String(sonar.isObject()));
             Serial.println("LR IR = " + String(LR_IR.getReading()));
             if(sonar.isObject() && (LR_IR.getReading() < ObstacleSizeMax)){
@@ -316,7 +336,7 @@ void Robot::obstacle_Avoid(){
               wheels.Strafe(LEFT, 0);
               Serial.println("Keep direction - Only RF on object");
             }
-          }else if (sonar.ReadUltraSonic() < 100 && !close) {
+          }else if (sonar.ReadUltraSonic() < 80) {
             if(LR_IR.getReading() < ObstacleSizeMax){
               wheels.Strafe(RIGHT, momentumTime/2);
               Serial.println("Inversing direction - Both sonar and RF on object");
@@ -601,9 +621,10 @@ bool Robot::go_target(){
   distLC = this->lightInfo->PT_LC->getDistance();
   distRC = this->lightInfo->PT_RC->getDistance();
 
+
   //Closer to the light, higher the ADC value
   //We want to adjust the direction of the robot the robot is far from the light
-  if ( ((distLC+distRC)/2 > 400) && ((LCAve +RCAve)/2 < 600)) { // distance from the centre phototransistor values
+  if (  ((distLC+distRC)/2 > 400) && ((LCAve +RCAve)/2 < TARGET_BRIGHTNESS) && (RRAve <TARGET_BRIGHTNESS_OUT) && (LLAve < TARGET_BRIGHTNESS_OUT)) { // distance from the centre phototransistor values
     // this->obstacle_Avoid();
     
     LLAve = this->lightInfo->PT_LL->getRawReading();
@@ -636,7 +657,7 @@ bool Robot::go_target(){
       }else{
         dir = false; // turn left
       }
-      this->wheels.Turn(dir, 200); //turn the robot
+      this->wheels.Turn(dir, 150); //turn the robot
       delay(550);                  //give time for the robot to turn away
     }
 
@@ -682,12 +703,12 @@ bool Robot::go_target(){
   // Reached the light    
   } else {
     float sonarRead = this->sonar.ReadUltraSonic(); //read the ultrasonic sensor
-    float desDistance  = 45;                        //desired distance from the light
+    float desDistance  = 100;                        //desired distance from the light
     float distError = sonarRead - desDistance;      //if error positive we move closer otherwise we stay there
 
     // Once the light is in range, we should use the ultrasonic to get closer to the light
     while (distError > 15) {
-      ultraSpeed = distError*1.5;
+      ultraSpeed = distError*1;
       constrain(speed, -500 , 500);
       this->wheels.Straight(ultraSpeed);
       // Reread ultrasonic distance
@@ -696,9 +717,31 @@ bool Robot::go_target(){
       distError = sonarRead - desDistance;
     }
 
+     if ((distLC+distRC)/2 <= 400) {
+        this->stopPos = 1;
+     } else if((LCAve +RCAve)/2 >= TARGET_BRIGHTNESS){
+        this->stopPos = 1;
+     } else if (RRAve >= TARGET_BRIGHTNESS_OUT) {
+        this->stopPos = 2;
+     } else if (LLAve >= TARGET_BRIGHTNESS_OUT) {
+        this->stopPos = 3;
+     }
+
     // Serial.println("Target arrived!");
     return true;
   }
 
 }
 
+void Robot::servoLeft(){
+  this->fanServo.writeMicroseconds(SERVO_MAX);
+}
+
+void Robot::servoRight(){
+  this->fanServo.writeMicroseconds(SERVO_MIN);
+}
+
+void Robot::servoReset()
+{
+  this->fanServo.writeMicroseconds(SERVO_MIDDLE);
+}
