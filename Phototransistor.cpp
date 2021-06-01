@@ -5,7 +5,7 @@ Phototransistor::Phototransistor(int _setSensorPin){
     //pinMode(setSensorPin, INPUT);
     this->setSensorPin = _setSensorPin;
     this->currentVar = analogRead(this->setSensorPin);
-    this->indx = 0;
+    this->indx = 0; 
     this->sum = 0;
     this->average = 0;
 

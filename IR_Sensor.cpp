@@ -14,6 +14,10 @@ IR_Sensor::IR_Sensor(bool range, int pin){
     this->objectThresh = FrontObject;
     this->offset = 10;
     this->wallThresh = BackObject;
+
+    this->indx = 0; 
+    this->sum = 0;
+    this->average = 0;
 }
 
 //Get the reading in mm
@@ -43,8 +47,27 @@ float IR_Sensor::getReading(){
 
 bool IR_Sensor::isObject(){
     if(range == LONG){
-        return (getReading() < this->objectThresh);
+        return (getAverageReading() < this->objectThresh);
     }else{
-        return (getReading() < this->wallThresh);
+        return (getAverageReading() < this->wallThresh);
     }
+}
+
+int IR_Sensor::getAverageReading(){
+
+    this->sum = this->sum - this->queue[this->indx];
+    float currentVar = this->getReading();
+    this->queue[this->indx] = currentVar;
+    this->sum = (this->sum + currentVar);
+    // Serial.println("Current sum of middle two phtotransistor:");
+    // Serial.println(sum);
+    //Serial.println("Current index:");
+    //Serial.println(indx);
+    this->indx = ((this->indx +1) % FILTERLENGTH_IR);
+    // Serial.println("Current index after divisinon by filterlengths:");
+    //Serial.println(indx);
+    this->average = (this->sum / FILTERLENGTH_IR);
+    // Serial.println("Returned average:");
+    // Serial.println(average);
+    return this->average;
 }
