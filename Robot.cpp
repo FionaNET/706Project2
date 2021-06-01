@@ -234,19 +234,19 @@ void Robot::obstacle_Avoid(){
   while (!retFlag) {
     //All three sensors are reading objects so it is a wall
     if(LF_IR.isObject() && RF_IR.isObject() && sonar.isObject()){
-      this->CL_Turn(80); //at 90, robot rotates too much
+      this->CL_Turn(180); 
       delay(100);
       retFlag = true;
     //Both left sensors and front sensor
     }else if((LF_IR.getAverageReading() < 100) && (LR_IR.getAverageReading() < 180) && (sonar.ReadUltraSonic() < 220)) {
     //}else if((LF_IR.getReading() < 100) && (LR_IR.getReading() < 100) && (sonar.ReadUltraSonic() < 200)) {
-      this->CL_Turn(45);
+      this->CL_Turn(50);
       delay(100);
       retFlag = true;
     //Both right sensors and front sensor
     }else if((RF_IR.getReading() < 100) && (RR_IR.getReading() < 180) && (sonar.ReadUltraSonic() < 220)){
     //}else if((RF_IR.getReading() < 100) && (RR_IR.getReading() < 100) && (sonar.ReadUltraSonic() < 200)){
-      this->CL_Turn(-45);
+      this->CL_Turn(-50);
       delay(100);
       retFlag = true;
     //No or multiple sensosrs (strafe or straight motion only)
