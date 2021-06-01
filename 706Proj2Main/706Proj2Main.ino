@@ -18,8 +18,11 @@ void setup(){
   
   robot.wheels.Attach();            //must call within setup or loop to attach the wheels
   robot.gyro.GyroscopeCalibrate();  //call to remove the bias from gyroscope
-  robot.fanServo.attach(SERVO_PIN);
-  robot.servoReset();
+//  robot.fanServo.attach(SERVO_PIN);
+//  robot.servoReset();
+  
+//  robot.fanServo.detach();
+//  pinMode(SERVO_PIN, INPUT);
   delay(1000);
   Serial.println("Start main loop");
   
@@ -65,27 +68,31 @@ switch (state) {
     if (target_reached){
       robot.wheels.Disable();
       delay(1000); //give time for the motors to stop before turning on fan
-      if (robot.stopPos == 1){
-        // center
-        // do nothing
-        robot.servoReset();
-      }else if (robot.stopPos == 2){
-        // right outside triggerd
-        // turn servo to the right
-        robot.servoRight();
-      }else if (robot.stopPos == 3){
-        // left outside triggiered
-        // turn servo to the left
-        robot.servoLeft();
-        
-      }
+      
+//      if (robot.stopPos == 1){
+//        // center
+//        // do nothing
+//        robot.servoReset();
+//      }else if (robot.stopPos == 2){
+//        // right outside triggerd
+//        // turn servo to the right
+//        robot.servoRight();
+//      }else if (robot.stopPos == 3){
+//        // left outside triggiered
+//        // turn servo to the left
+//        robot.servoLeft();
+//       }
       state = 3;
     }
     
     break;
     
   case 3:
-  Serial.println("In case 3, firefight");
+    Serial.println("In case 3, firefight");
+    //robot.fanServo.attach(SERVO_PIN);
+    robot.FanServoAttach();
+    //robot.servoReset();
+    //robot.servoRotate();
     //Firefighting state
     fireOff = fighter.ExtinguishFire();
     if (fireOff){
@@ -93,6 +100,11 @@ switch (state) {
       delay(1000);                    //Give time for the fan to fully turn off
       robot.wheels.Attach();
       fighter.Fire_extinguish = 0;    //Reinitialise so we can extinguish the next fire
+      robot.servoReset();
+
+      robot.fanServo.detach();
+      pinMode(SERVO_PIN, INPUT);
+  
       
       if (fire < 2) {
          //reverse
@@ -107,6 +119,8 @@ switch (state) {
     break;
     
     case 4:
+    //change threshhold if the search failed then go back to state 1
+    
     //Go straight when searching failed
     Serial.println("In case 4, go straight");
 
@@ -114,12 +128,10 @@ switch (state) {
     //Go straight for 1.5 seconds
     while ((millis()-start) < 1500){
       //Only obstacle avoid if it does not pass the check
-      if (robot.check() != 0) {
-        robot.obstacle_Avoid(); 
-      }
- 
+      robot.obstacle_Avoid(); 
       robot.wheels.Straight(200);  
     }
+    
     state = 1; //Go back to search again
     break;
 

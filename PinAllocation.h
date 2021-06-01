@@ -63,8 +63,15 @@
 #define LFwallTurn 130
 
 // Thresholds for detection the light 
-#define TARGET_BRIGHTNESS 700
-#define TARGET_BRIGHTNESS_OUT 850
+#define TARGET_BRIGHTNESS 600
+#define TARGET_BRIGHTNESS_OUT 650
+#define TARGET_DISTANCE 300
+#define SERVO_TARGET_BRIGHTNESS 100
+#define DETECT_BRIGHTNES 30 // the sum of brightness for 4 phototransistors
+
+//Threshold for lightdetect.h
+#define LIGHT_THRESH_CLOSE 50
+#define LIGHT_THRESH_FAR 15
 
 
 

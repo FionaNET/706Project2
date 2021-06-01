@@ -45,12 +45,12 @@ bool LightDetect::detect_front(){
 	float ave = 0;	
 
 
-	if ((dist_LC+dist_RC)/2 < 100){
+	if ((dist_LC+dist_RC)/2 > 500){
 		// far
-		this->thr1 = 25;
+		this->thr1 = LIGHT_THRESH_FAR;
 	} else{
 		//close
-		this->thr1 = 50;
+		this->thr1 = LIGHT_THRESH_CLOSE;
 	}
 
 	ave =(PT_LC->getRawReading()+PT_RC->getRawReading()+PT_LL->getRawReading()+PT_RR->getRawReading())/4;
