@@ -12,6 +12,7 @@ class IR_Sensor{
     IR_Sensor(bool range, int pin);
     float getReading();
     bool isObject();
+    int getAverageReading();
 
     private:
     bool range;
@@ -19,6 +20,12 @@ class IR_Sensor{
     int objectThresh;
     int offset;
     int wallThresh;
+
+    // moving average varibles
+    float queue[FILTERLENGTH_IR] = {0}; 
+    int indx;
+    float sum;
+    float average;
 };
 
 #endif

@@ -228,8 +228,8 @@ void Robot::obstacle_Avoid(){
     retFlag = true;
   }
 
-  Serial.println("LF_IR dist: " + String(LF_IR.getReading()) + "RF_IR dist: " + String(RF_IR.getReading()) + "Sonar dist: " + String(sonar.ReadUltraSonic()));
-  Serial.println("LF OBject: " + String(LF_IR.isObject()) + "  RF object: " + String(RF_IR.isObject()) + "  center object: " + String(sonar.isObject()));
+  // Serial.println("LF_IR dist: " + String(LF_IR.getReading()) + "RF_IR dist: " + String(RF_IR.getReading()) + "Sonar dist: " + String(sonar.ReadUltraSonic()));
+  // Serial.println("LF OBject: " + String(LF_IR.isObject()) + "  RF object: " + String(RF_IR.isObject()) + "  center object: " + String(sonar.isObject()));
   
   while (!retFlag) {
     //All three sensors are reading objects so it is a wall
@@ -238,7 +238,7 @@ void Robot::obstacle_Avoid(){
       delay(100);
       retFlag = true;
     //Both left sensors and front sensor
-    }else if((LF_IR.getReading() < 100) && (LR_IR.getReading() < 180) && (sonar.ReadUltraSonic() < 220)) {
+    }else if((LF_IR.getAverageReading() < 100) && (LR_IR.getAverageReading() < 180) && (sonar.ReadUltraSonic() < 220)) {
     //}else if((LF_IR.getReading() < 100) && (LR_IR.getReading() < 100) && (sonar.ReadUltraSonic() < 200)) {
       this->CL_Turn(45);
       delay(100);

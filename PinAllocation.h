@@ -10,7 +10,9 @@
 #define PHOTOTRANSISTOR3 A10 // RC
 #define PHOTOTRANSISTOR4 A11 // RR
 
-#define FILTERLENGTH_P 5
+#define FILTERLENGTH_P 5 // phtotransistor filter length
+#define FILTERLENGTH_IR 5 // ir sensor filter length
+
 
 // Servo motor definitions ? 
 #define SERVO_PIN 45
