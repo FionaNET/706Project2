@@ -27,6 +27,10 @@ float IR_Sensor::getReading(){
 
     voltage = analogRead(this->pin);
 
+    if (voltage < 10){
+        return 800;
+    }
+
     if(this->pin == IR_RR){                //IR Right Rear
         //Return formula for calibration
         distance = pow((voltage / (1.463*pow(10,4))), (-(1 / 0.8801)));
@@ -36,7 +40,8 @@ float IR_Sensor::getReading(){
         distance = pow((voltage / (1.29*pow(10,4))), (-(1 / 0.8457)));
 
     } else if (this->pin == IR_RF){        //IR Right Front
-        distance = pow((voltage / (1.638*pow(10,4))), (-(1 / 0.8053)));
+        //distance = pow((voltage / (1.638*pow(10,4))), (-(1 / 0.8053))); OLD VERSION
+        distance = pow((voltage / (1.638*pow(10,4))), (-(1 / 0.7698)));
 
     } else {                           //IR Left Front (pin A7)
         distance = pow((voltage / (1.638*pow(10,4))), (-(1 / 0.7698)));
@@ -47,9 +52,9 @@ float IR_Sensor::getReading(){
 
 bool IR_Sensor::isObject(){
     if(range == LONG){
-        return (getAverageReading() < this->objectThresh);
+        return (this->getReading() < this->objectThresh);
     }else{
-        return (getAverageReading() < this->wallThresh);
+        return (this->getReading() < this->wallThresh);
     }
 }
 
@@ -59,13 +64,13 @@ int IR_Sensor::getAverageReading(){
     float currentVar = this->getReading();
     this->queue[this->indx] = currentVar;
     this->sum = (this->sum + currentVar);
-    // Serial.println("Current sum of middle two phtotransistor:");
+    // Serial.println("Current sum of the reading:");
     // Serial.println(sum);
-    //Serial.println("Current index:");
-    //Serial.println(indx);
+    // Serial.println("Current index:");
+    // Serial.println(indx);
     this->indx = ((this->indx +1) % FILTERLENGTH_IR);
     // Serial.println("Current index after divisinon by filterlengths:");
-    //Serial.println(indx);
+    // Serial.println(indx);
     this->average = (this->sum / FILTERLENGTH_IR);
     // Serial.println("Returned average:");
     // Serial.println(average);

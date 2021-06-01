@@ -1,6 +1,7 @@
 #include <Firefighting.h>
 #include <Arduino.h>
 #include <math.h>
+#include <PinAllocation.h>
 
 Firefighting::Firefighting(int ThreshholdVal)
 {
