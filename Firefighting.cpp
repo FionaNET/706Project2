@@ -37,7 +37,6 @@ bool Firefighting::ExtinguishFire(void)
         }
     }
     this->FanOff(); //turn fan off
-    delay(2500);
-    
+    //delay(2500);
     return true;
 }

@@ -5,20 +5,19 @@
 #include "Robot.h"
 
 Firefighting fighter = Firefighting(15);
-LightDetect lightInfo = LightDetect();
 Robot robot = Robot();
-Phototransistor LL = Phototransistor(PHOTOTRANSISTOR1);
-Phototransistor LC = Phototransistor(PHOTOTRANSISTOR2);
-Phototransistor RC = Phototransistor(PHOTOTRANSISTOR3);
-Phototransistor RR = Phototransistor(PHOTOTRANSISTOR4);
+//LightDetect lightInfo = LightDetect();
+//Phototransistor LL = Phototransistor(PHOTOTRANSISTOR1);
+//Phototransistor LC = Phototransistor(PHOTOTRANSISTOR2);
+//Phototransistor RC = Phototransistor(PHOTOTRANSISTOR3);
+//Phototransistor RR = Phototransistor(PHOTOTRANSISTOR4);
 
 void setup(){
   Serial.begin(9600);
   Serial.println("Setting up");
   
-  robot.wheels.Attach();           //must call within setup or loop to attach the wheels
-  robot.gyro.GyroscopeCalibrate(); //call to remove the bias from gyroscope
-  //robot.gyro.currentAngle = 0;
+  robot.wheels.Attach();            //must call within setup or loop to attach the wheels
+  robot.gyro.GyroscopeCalibrate();  //call to remove the bias from gyroscope
   delay(1000);
   Serial.println("Start main loop");
 }
@@ -31,25 +30,33 @@ int fire = 0;                 //variable to keep track of how many fires to blow
 int state = 1;
 bool fireOff;
 float start;
+
+
 void loop(){
 
 switch (state) {
   
   case 1:
   Serial.println("In case 1, searching the light");
-     // initial state:
+     // initial state: Seached for the light
     search = robot.rotate_while_scan(true);
 
-    if (search == 1){ // light found!!
-      state = 2; 
+    if (search == 1){    //Light found!!
+      state = 2;         //Go target state
     } else {
-      state = 4;
+      state = 4;         //Go straight if light is not found
     }
     break;
+    
   case 2:
   Serial.println("In case 2, go to light");
-    // find the going to target normal routine
-//    robot.obstacle_Avoid();
+    //Find the going to target normal routine
+    robot.obstacle_Avoid();
+    //Only obstacle avoid if it does not pass the check
+//    if (robot.check() != 0) {
+//      robot.obstacle_Avoid(); 
+//    }
+    
     target_reached = robot.go_target();
 
     if (target_reached){
@@ -57,52 +64,59 @@ switch (state) {
       delay(1000); //give time for the motors to stop before turning on fan
       state = 3;
     }
+    
     break;
+    
   case 3:
   Serial.println("In case 3, firefight");
-   // firefighting state
+    //Firefighting state
     fireOff = fighter.ExtinguishFire();
     if (fireOff){
-      fire = fire +1;
-      delay(1000); //give time for the fan to fully turn off
+      fire = fire + 1;
+      delay(1000);                    //Give time for the fan to fully turn off
       robot.wheels.Attach();
-      //reinitialise so we can extinguish the next fire
-      fighter.Fire_extinguish = 0;
+      fighter.Fire_extinguish = 0;    //Reinitialise so we can extinguish the next fire
+      
       if (fire < 2) {
-           //reverse
-           robot.wheels.Straight(-200);
-           delay(200);
-           state = 1;
+         //reverse
+         robot.wheels.Straight(-200);
+         delay(150);
+         state = 1;                   //Go back to searching again
       }else{
-        state = 5;
+        state = 5;                    //Stop the motors when 2 fires have been blown
       }
           
     }
     break;
     
     case 4:
+    //Go straight when searching failed
     Serial.println("In case 4, go straight");
-      // go straight 
 
-      start = millis();
-      while ((millis()-start)<1500){
-        robot.obstacle_Avoid();
-        robot.wheels.Straight(200);  
+    start = millis();
+    //Go straight for 1.5 seconds
+    while ((millis()-start) < 1500){
+      //Only obstacle avoid if it does not pass the check
+      if (robot.check() != 0) {
+        robot.obstacle_Avoid(); 
       }
-      state = 1; 
-      break;
+ 
+      robot.wheels.Straight(200);  
+    }
+    state = 1; //Go back to search again
+    break;
 
     case 5:
+    //Stop the motors once all fires are blown out
     Serial.println("In case 5, STOP");
-      robot.wheels.Disable();
-      break;
+    robot.wheels.Disable();
+    break;
 }
+
 }
 
   
-//  //Serial.print("READING ULTRASONIC: ");
-//  //Serial.println(robot.sonar.ReadUltraSonic());
-//  
+
 //  //blowing out 2 fires take highest priority
 //  if (fire == 2) {
 //    robot.wheels.Disable();

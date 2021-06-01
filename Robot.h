@@ -4,13 +4,14 @@
 #include "RobotBase.h"
 #include "LightDetect.h"
 #include <Arduino.h>
+#include "Firefighting.h"
 
 class Robot{
     public:
         Robot();
         int check();
         int rotate_while_scan(bool dir);
-        bool obstacle_Avoid();
+        void obstacle_Avoid();
         void CL_Turn(int angle);
         float NEAR(float dist, bool isIR);
         float FAR(float dist, bool isIR);
@@ -23,6 +24,7 @@ class Robot{
         bool go_target();
         LightDetect* lightInfo = new  LightDetect(); 
         RobotBase  wheels;
+       // Firefighting fighter;
         IR_Sensor LF_IR, RF_IR, RR_IR, LR_IR;
         Gyroscope gyro;
         UltrasonicSensor sonar;

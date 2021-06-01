@@ -45,5 +45,20 @@
 #define GYRO_PIN A3
 
 //Threshholds for obstacle avoidance
-#define ObstacleSizeMax 250
-#define momentumTime 800
+#define ObstacleSizeMax 250         //When doing the wall inverse cases
+#define momentumTime 900            //Strafing time for wall inverse cases
+
+//isObject function thresholds
+#define FrontObject 120
+#define BackObject 140
+
+#define IRNearThresh1 80
+#define IRNearThresh2 180
+#define USNearThresh1 100
+#define USNearThresh2 200
+
+//Obstacle avoid wall turning threshold
+#define LFwallTurn 130
+
+
+

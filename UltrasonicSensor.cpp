@@ -6,7 +6,7 @@
 
 UltrasonicSensor::UltrasonicSensor(void)
 {
-    this->objectThresh = 220;// need to adjust
+    this->objectThresh = 80;// need to adjust
     pinMode(TRIG_PIN, OUTPUT);
     digitalWrite(TRIG_PIN, LOW);
     
@@ -35,7 +35,7 @@ float UltrasonicSensor::ReadUltraSonic(void)
     t2 = micros();
     pulse_width = t2 - t1;
     if ( pulse_width > (MAX_DIST + 1000)) {
-//      SerialCom->println("HC-SR04: NOT found");
+      //SerialCom->println("HC-SR04: NOT found");
       return MAX_DIST;
     }
   }
@@ -49,7 +49,7 @@ float UltrasonicSensor::ReadUltraSonic(void)
     t2 = micros();
     pulse_width = t2 - t1;
     if ( pulse_width > (MAX_DIST + 1000) ) {
- //     SerialCom->println("HC-SR04: Out of range");
+      //SerialCom->println("HC-SR04: Out of range");
       return MAX_DIST;
     }
   }
@@ -59,16 +59,16 @@ float UltrasonicSensor::ReadUltraSonic(void)
 
   // Calculate distance in centimeters and inches. The constants
   // are found in the datasheet, and calculated from the assumed speed
-  //of sound in air at sea level (~340 m/s).
+  // of sound in air at sea level (~340 m/s).
   mm = (pulse_width / 58.0)*10;
   // Print out results
   if ( pulse_width > MAX_DIST ) {
-//    SerialCom->println("HC-SR04: Out of range");
+    //SerialCom->println("HC-SR04: Out of range");
     return MAX_DIST;
   } else {
-//    SerialCom->print("HC-SR04:");
-//    SerialCom->print(cm);
-//    SerialCom->println("cm");
+    //SerialCom->print("HC-SR04:");
+    //SerialCom->print(cm);
+    //SerialCom->println("cm");
     return mm;
   }
 }
