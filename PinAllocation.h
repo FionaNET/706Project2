@@ -73,5 +73,9 @@
 #define LIGHT_THRESH_CLOSE 50
 #define LIGHT_THRESH_FAR 15
 
+// Threshold for rotate_while_scan
+#define SEARCH_FINE_TUNE 500 // time of turning when light is detected
+#define OUTPT_DIFF 100 // the difference of brightness between outside phototransistors
+
 
 
