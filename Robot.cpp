@@ -41,19 +41,20 @@ int Robot::rotate_while_scan(bool dir){
     float RRAve = this->lightInfo->PT_RR->getRawReading();
   int speed;
   if (dir){ // true, turn right, CW
-    speed = 150;
+    speed = 100;
   }else{
     // false, turn left, CCW
-    speed = -150;
+    speed = -100;
   }
 
-  //Serial.println("Rotating while scan...");
+  Serial.println("Rotating while scan...");
   //bool front = lightInfo->detect_front();
 
   float timeStart = millis();
-  float timeout = 5000; // 5 sec for a full rotation
+  float timeout = 9000; // 5 sec for a full rotation
   bool front = lightInfo->detect_front();
-  while (!front && ((LLAve+LCAve+RCAve+RRAve)<DETECT_BRIGHTNES)) {
+  //while (!front && ((LLAve+LCAve+RCAve+RRAve)>DETECT_BRIGHTNES)) {
+  while (!front) {
     //Serial.println("Rotate while scanning loop");
     this->wheels.Turn(true, speed); // turn right 360 deg and scan
     front = lightInfo->detect_front();
@@ -218,7 +219,7 @@ int Robot::check(){
 }
 
 //obstacle avoidance with fuzzy logic
-void Robot::obstacle_Avoid(){
+bool Robot::obstacle_Avoid(){
 
   float d1, d2, d3, d4, d5, LeftMax, ForwardMax, RightMax;
   float LLAve = this->lightInfo->PT_LL->getRawReading();
@@ -234,7 +235,6 @@ void Robot::obstacle_Avoid(){
   //Closer to the light, higher the ADC value
   //We want to adjust the direction of the robot the robot is far from the light
   if ( ((distLC+distRC)/2 < 400) || ((LCAve +RCAve)/2 >= TARGET_BRIGHTNESS) || (RRAve >= TARGET_BRIGHTNESS_OUT) || (LLAve >= TARGET_BRIGHTNESS_OUT)) {
-    close = false;
     retFlag = true;
   }
 
@@ -376,7 +376,7 @@ void Robot::obstacle_Avoid(){
     }
 
   }
-  //return retFlag;
+  return retFlag;
 }
 
 
@@ -657,33 +657,43 @@ bool Robot::go_target(){
     //   search = this->rotate_while_scan(dir);
     // } 
     
-    if (((RCAve+RRAve+LCAve+LLAve)/4) < 300){ // Fixes trajectory when light is somewhere but we might be off
-      //Serial.println("In go_target, the light is slightly off");
+    if ((((RCAve+RRAve+LCAve+LLAve)/4) < 45) && (((RCAve+RRAve+LCAve+LLAve)/4) > 20)){ // Fixes trajectory when light is somewhere but we might be off
+      Serial.println("In go_target, the light is slightly off");
       // Rotate to the highest light value
-      if (RRAve>LLAve){
+      if (RRAve>=LLAve){
         dir = true;  // turn right
       } else{
         dir = false; // turn left
       }
-      search = this->rotate_while_scan(dir);
-    } else if ((abs(RLerror) < 35) && (RCAve < 15) && (LCAve < 15)) {   
-      //Serial.println("In go_target, the robot detects two lights far away");
-      // Fixes problem when the robot is placed centre between two lights and starts driving straight to the centre
-      // RR and LL reads very high at similar values and LC and RC reads low
-      // Rotate to the highest light value
-      if (RRAve>LLAve){
-        dir = true;  // turn right
-      }else{
-        dir = false; // turn left
+
+      while((((RCAve+RRAve+LCAve+LLAve)/4) < 45)) {
+        Serial.println("In go_target, while loop to turn from slightly off");
+        this->wheels.Turn(dir, 100);
+        LLAve = this->lightInfo->PT_LL->getRawReading();
+        LCAve = this->lightInfo->PT_LC->getRawReading();
+        RCAve = this->lightInfo->PT_RC->getRawReading();
+        RRAve = this->lightInfo->PT_RR->getRawReading();
       }
-      this->wheels.Turn(dir, 150); //turn the robot
-      delay(550);                  //give time for the robot to turn away
-    }
+      //search = this->rotate_while_scan(dir);
+    } 
+    // else if ((abs(RLerror) < 35) && (RCAve < 15) && (LCAve < 15)) {   
+    //   Serial.println("In go_target, the robot detects two lights far away");
+    //   // Fixes problem when the robot is placed centre between two lights and starts driving straight to the centre
+    //   // RR and LL reads very high at similar values and LC and RC reads low
+    //   // Rotate to the highest light value
+    //   if (RRAve>LLAve){
+    //     dir = true;  // turn right
+    //   }else{
+    //     dir = false; // turn left
+    //   }
+    //   this->wheels.Turn(dir, 100); //turn the robot
+    //   delay(5000);                  //give time for the robot to turn away
+    // }
 
     float start_time = millis();    
     error = RCAve+RRAve - LCAve-LLAve; 
     // Change direction if the error is too higher or the time spent in the loop is less than 2 sec
-    while  ((abs(error) > 320) || ((millis()-startTime)<2000)) { 
+    while  ((abs(error) > 300) || ((millis()-startTime)<2000)) { 
       // Only accumulate error if it is small
       if(abs(error) < 380){   // Previously we had a value of 20, but it would never enter the while loop with 20
         accumulation = accumulation + error;
@@ -706,6 +716,7 @@ bool Robot::go_target(){
         dir = false;
       }
 
+      Serial.println("turning the robot");
       this->wheels.Turn(dir, speed);
       LLAve = this->lightInfo->PT_LL->getRawReading();
       LCAve = this->lightInfo->PT_LC->getRawReading();
@@ -755,14 +766,18 @@ bool Robot::go_target(){
 
 void Robot::servoLeft(){
   this->fanServo.writeMicroseconds(SERVO_MAX);
+  //this->fanServo.write(120);
+  
 }
 
 void Robot::servoRight(){
   this->fanServo.writeMicroseconds(SERVO_MIN);
+  //this->fanServo.write(0);
 }
 
 void Robot::servoReset(){
   this->fanServo.writeMicroseconds(SERVO_MIDDLE);
+  //this->fanServo.write(60);
 }
 
 void Robot::servoRotate(){
@@ -805,9 +820,10 @@ void Robot::servoRotate(){
 
 void Robot::FanServoDisable() { 
   fanServo.detach();
-  pinMode(this->fanPin, INPUT);
+  //pinMode(this->fanPin, INPUT);
 }
 
 void Robot::FanServoAttach() { 
   fanServo.attach(this->fanPin);
+  //pinMode(this->fanPin, OUTPUT);
 }

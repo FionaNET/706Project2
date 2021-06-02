@@ -44,11 +44,22 @@ bool LightDetect::detect_front(){
 	float dist_RC = PT_RC->getDistance(); 	
 	float ave = 0;	
 
+	float LC = PT_LC->getRawReading();
+	float RC = PT_RC->getRawReading();
 
-	if ((dist_LC+dist_RC)/2 > 500){
+
+	// if ((dist_LC+dist_RC)/2 > 500){
+	// 	// far
+	// 	this->thr1 = LIGHT_THRESH_FAR;
+	// }else{
+	// 	//close
+	// 	this->thr1 = LIGHT_THRESH_CLOSE;
+	// }
+
+	if ((LC+RC)/2 < 40){
 		// far
 		this->thr1 = LIGHT_THRESH_FAR;
-	} else{
+	}else{
 		//close
 		this->thr1 = LIGHT_THRESH_CLOSE;
 	}

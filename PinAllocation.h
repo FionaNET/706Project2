@@ -70,8 +70,8 @@
 #define DETECT_BRIGHTNES 30 // the sum of brightness for 4 phototransistors
 
 //Threshold for lightdetect.h
-#define LIGHT_THRESH_CLOSE 50
-#define LIGHT_THRESH_FAR 15
+#define LIGHT_THRESH_CLOSE 45
+#define LIGHT_THRESH_FAR 30
 
 
 
