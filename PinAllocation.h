@@ -15,10 +15,10 @@
 
 
 // Servo motor definitions ? 
-#define SERVO_PIN 45
-#define SERVO_MAX 160
-#define SERVO_MIN 95
-#define SERVO_MIDDLE 135
+#define SERVO_PIN 48
+#define SERVO_MAX 2000
+#define SERVO_MIN 1000
+#define SERVO_MIDDLE 1500
 
 // Infrared rangefinder pins
 #define IR_RR A5   //40 to 300mm
@@ -47,12 +47,12 @@
 #define GYRO_PIN A3
 
 //Threshholds for obstacle avoidance
-#define ObstacleSizeMax 250         //When doing the wall inverse cases
-#define momentumTime 900            //Strafing time for wall inverse cases
+#define ObstacleSizeMax 260         //When doing the wall inverse cases
+#define momentumTime 1000            //Strafing time for wall inverse cases
 
 //isObject function thresholds
-#define FrontObject 120
-#define BackObject 140
+#define FrontObject 100
+#define BackObject 100
 
 #define IRNearThresh1 80
 #define IRNearThresh2 180
@@ -61,6 +61,17 @@
 
 //Obstacle avoid wall turning threshold
 #define LFwallTurn 130
+
+// Thresholds for detection the light 
+#define TARGET_BRIGHTNESS 600
+#define TARGET_BRIGHTNESS_OUT 650
+#define TARGET_DISTANCE 300
+#define SERVO_TARGET_BRIGHTNESS 100
+#define DETECT_BRIGHTNES 30 // the sum of brightness for 4 phototransistors
+
+//Threshold for lightdetect.h
+#define LIGHT_THRESH_CLOSE 45
+#define LIGHT_THRESH_FAR 30
 
 
 
