@@ -22,7 +22,7 @@ void setup(){
 //  robot.servoReset();
   
 //  robot.fanServo.detach();
-//  pinMode(SERVO_PIN, INPUT);
+  //robot.FanServoDisable();
   delay(1000);
   Serial.println("Start main loop");
   
@@ -57,11 +57,12 @@ switch (state) {
   case 2:
   Serial.println("In case 2, go to light");
     //Find the going to target normal routine
-    robot.obstacle_Avoid();
+    if (robot.obstacle_Avoid()) {
+      state = 1;
+      break;
+    }
+    //robot.obstacle_Avoid();
     //Only obstacle avoid if it does not pass the check
-//    if (robot.check() != 0) {
-//      robot.obstacle_Avoid(); 
-//    }
     
     target_reached = robot.go_target();
 
@@ -90,7 +91,7 @@ switch (state) {
   case 3:
     Serial.println("In case 3, firefight");
     //robot.fanServo.attach(SERVO_PIN);
-    robot.FanServoAttach();
+    //robot.FanServoAttach();
     //robot.servoReset();
     //robot.servoRotate();
     //Firefighting state
@@ -100,10 +101,11 @@ switch (state) {
       delay(1000);                    //Give time for the fan to fully turn off
       robot.wheels.Attach();
       fighter.Fire_extinguish = 0;    //Reinitialise so we can extinguish the next fire
-      robot.servoReset();
-
-      robot.fanServo.detach();
-      pinMode(SERVO_PIN, INPUT);
+      
+      //robot.servoReset();
+      //robot.FanServoDisable();
+      //robot.fanServo.detach();
+      //pinMode(SERVO_PIN, INPUT);
   
       
       if (fire < 2) {
@@ -128,8 +130,12 @@ switch (state) {
     //Go straight for 1.5 seconds
     while ((millis()-start) < 1500){
       //Only obstacle avoid if it does not pass the check
-      robot.obstacle_Avoid(); 
-      robot.wheels.Straight(200);  
+      //robot.obstacle_Avoid();
+      if (robot.obstacle_Avoid()) {
+        state = 1;
+        break;
+      } 
+      //robot.wheels.Straight(200);  
     }
     
     state = 1; //Go back to search again

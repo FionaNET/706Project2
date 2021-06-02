@@ -254,6 +254,7 @@ bool Robot::obstacle_Avoid(){
     if(front_avg < 120) {
       this->CL_Turn(160);
       delay(100);
+      return true;
       retFlag = true;
 
 
@@ -268,6 +269,7 @@ bool Robot::obstacle_Avoid(){
       //Serial.println("There is a left corner");
       this->CL_Turn(50);
       delay(100);
+      return true;
       retFlag = true;
     //Both right sensors and front sensor
     }else if((RF_IR.getReading() < 100) && (RR_IR.getReading() < 180) && (sonar.ReadUltraSonic() < 220)){
@@ -275,6 +277,7 @@ bool Robot::obstacle_Avoid(){
       //Serial.println("There is a right corner");
       this->CL_Turn(-50);
       delay(100);
+      return true;
       retFlag = true;
     //No or multiple sensosrs (strafe or straight motion only)
     }else{
@@ -367,16 +370,16 @@ bool Robot::obstacle_Avoid(){
             //goStraightFlag = true; //finished going straight
             this->avoidanceOn = false;
             Serial.println("Stopped going straight in obstacle avoidance");
+            return true;
           }
         }
-
         retFlag = true; //going straight finished, get out of while loop
       }
 
     }
 
   }
-  return retFlag;
+  return false;
 }
 
 
@@ -597,7 +600,7 @@ void Robot::CL_Turn(int ref_angle){
 bool Robot::go_target(){
   bool dir; 
   float Kp = 0.15;
-  float Ki = 0.001;
+  float Ki = 0.005;
   float accumulation = 0;
   float distLC = 0;
   float distRC = 0;
@@ -657,7 +660,7 @@ bool Robot::go_target(){
     //   search = this->rotate_while_scan(dir);
     // } 
     
-    if ((((RCAve+RRAve+LCAve+LLAve)/4) < 45) && (((RCAve+RRAve+LCAve+LLAve)/4) > 20)){ // Fixes trajectory when light is somewhere but we might be off
+    if ((((RCAve+RRAve+LCAve+LLAve)/4) < 60) && (((RCAve+RRAve+LCAve+LLAve)/4) > 30)){ // Fixes trajectory when light is somewhere but we might be off
       Serial.println("In go_target, the light is slightly off");
       // Rotate to the highest light value
       if (RRAve>=LLAve){
@@ -666,7 +669,8 @@ bool Robot::go_target(){
         dir = false; // turn left
       }
 
-      while((((RCAve+RRAve+LCAve+LLAve)/4) < 45)) {
+      //while((((RCAve+RRAve+LCAve+LLAve)/4) < 60)) {
+      while((((RCAve+LCAve)/2) < 30)) {
         Serial.println("In go_target, while loop to turn from slightly off");
         this->wheels.Turn(dir, 100);
         LLAve = this->lightInfo->PT_LL->getRawReading();
