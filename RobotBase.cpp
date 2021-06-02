@@ -12,6 +12,7 @@ RobotBase::RobotBase() {
   this->RFpin =  FR_MOTOR_PIN;
   this->LRpin =  BL_MOTOR_PIN;
   this->RRpin =  BR_MOTOR_PIN;
+  this->fanPin = SERVO_PIN;
 }
 
 void RobotBase::Attach() {
@@ -29,7 +30,16 @@ void RobotBase::Stop() {
   setMotors();
 }
 
- 
+void RobotBase::FanServoDisable() { 
+  fanServo.detach();
+  pinMode(this->fanPin, INPUT);
+}
+
+void RobotBase::FanServoAttach() { 
+  fanServo.attach(this->fanPin);
+  //pinMode(this->fanPin, OUTPUT);
+}
+
 void RobotBase::Disable() {   //completelly disable the motors
   LF.detach();
   RF.detach();
