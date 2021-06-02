@@ -7,10 +7,10 @@
 Firefighting fighter = Firefighting(15);
 Robot robot = Robot();
 //LightDetect lightInfo = LightDetect();
-//Phototransistor LL = Phototransistor(PHOTOTRANSISTOR1);
-//Phototransistor LC = Phototransistor(PHOTOTRANSISTOR2);
-//Phototransistor RC = Phototransistor(PHOTOTRANSISTOR3);
-//Phototransistor RR = Phototransistor(PHOTOTRANSISTOR4);
+Phototransistor LL = Phototransistor(PHOTOTRANSISTOR1);
+Phototransistor LC = Phototransistor(PHOTOTRANSISTOR2);
+Phototransistor RC = Phototransistor(PHOTOTRANSISTOR3);
+Phototransistor RR = Phototransistor(PHOTOTRANSISTOR4);
 
 void setup(){
   Serial.begin(9600);
@@ -19,10 +19,18 @@ void setup(){
   robot.wheels.Attach();           //must call within setup or loop to attach the wheels
   robot.gyro.GyroscopeCalibrate(); //call to remove the bias from gyroscope
   //robot.gyro.currentAngle = 0;
-  robot.fanServo.attach(SERVO_PIN);
-  robot.servoReset();
-  delay(1000);
-  Serial.println("Start main loop");
+//  Serial.println("attach");
+//  robot.FanServoAttach();
+//  delay(1000);
+//  Serial.println("reset");
+//  robot.servoReset();
+//  delay(2000);
+//  Serial.println("left");
+//  robot.servoLeft();
+//  delay(2000);
+//  Serial.println("right");
+//  robot.servoRight();
+//  Serial.println("Start main loop");
 }
 
 int search = 0;               //variable to determine if we need to search for a light
@@ -128,8 +136,8 @@ void loop(){
 //  }
 
 
-    robot.servoRotate();
-    fireOff = fighter.ExtinguishFire();
+//    robot.servoRotate();
+//    fireOff = fighter.ExtinguishFire();
     
  
 
@@ -156,13 +164,13 @@ void loop(){
 //}
 
 
-//   Serial.print(LL.getRawReading());
-//   Serial.print("   ");
-//   Serial.print(LC.getRawReading());
-//   Serial.print("   ");
-//   Serial.print(RC.getRawReading());
-//   Serial.print("   ");
-//   Serial.println(RR.getRawReading());
+   Serial.print(LL.getRawReading());
+   Serial.print("   ");
+   Serial.print(LC.getRawReading());
+   Serial.print("   ");
+   Serial.print(RC.getRawReading());
+   Serial.print("   ");
+   Serial.println(RR.getRawReading());
 
 
  
