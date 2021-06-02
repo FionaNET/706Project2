@@ -27,12 +27,15 @@ class RobotBase {
     void Print();
     void setMotors();
     void Attach();
+    Servo fanServo;
+    void FanServoDisable();
+    void FanServoAttach();
     //void Norm();
 
   private:
     // Private members
     Servo LF, RF, LR, RR;
-    int LFpin, RFpin, LRpin, RRpin;
+    int LFpin, RFpin, LRpin, RRpin, fanPin;
     int LFcurrent, RFcurrent, LRcurrent, RRcurrent;
      
 };

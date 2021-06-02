@@ -15,10 +15,13 @@
 
 
 // Servo motor definitions ? 
-#define SERVO_PIN 48
-#define SERVO_MAX 2000
-#define SERVO_MIN 1000
-#define SERVO_MIDDLE 1500
+#define SERVO_PIN 11
+// #define SERVO_MAX 2000
+// #define SERVO_MIN 1000
+// #define SERVO_MIDDLE 1500
+#define SERVO_MAX 100
+#define SERVO_MIN 20
+#define SERVO_MIDDLE 60
 
 // Infrared rangefinder pins
 #define IR_RR A5   //40 to 300mm

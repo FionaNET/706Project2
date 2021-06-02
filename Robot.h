@@ -20,7 +20,6 @@ class Robot{
         float Left_Rules(float LeftN, float LeftF, float RightN, float RightF, float CenterN, float CenterF);
         float Right_Rules(float LeftN, float LeftF, float RightF, float CenterN, float CenterF);
         float Forward_Rules(float LeftN, float RightN, float CenterN);
-        void servoRotate();
         //int Defuzz(float direction);
         float min3(float a, float b, float c);
         bool go_target();
@@ -33,15 +32,13 @@ class Robot{
         bool invDirection;
         bool avoidanceOn;
         //int stopPos;
-        int fanPin;
+
         //servo functions
         void servoRight();
         void servoLeft();
         void servoReset();
-        void FanServoDisable();
-        void FanServoAttach();
+        void servoRotate();
     private:
-        Servo fanServo;
 
         float thr_sonar;
         bool backPass;
