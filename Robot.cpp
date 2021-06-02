@@ -61,6 +61,26 @@ int Robot::rotate_while_scan(bool dir){
       return 2;
     }
   }
+
+  LLAve = this->lightInfo->PT_LL->getRawReading();
+  LCAve = this->lightInfo->PT_LC->getRawReading();
+  RCAve = this->lightInfo->PT_RC->getRawReading();
+  RRAve = this->lightInfo->PT_RR->getRawReading();
+  if ((LLAve -RRAve)> OUTPT_DIFF){
+    // turn left a little bit to face the light
+    dir = false;
+    speed = -50;
+    this->wheels.Turn(dir, speed);
+    delay(SEARCH_FINE_TUNE);
+
+  }else if ((RRAve-LLAve)>OUTPT_DIFF){
+    // turn right a little bit to face the light
+    dir = true;
+    speed = 50;
+    this->wheels.Turn(dir, speed);
+    delay(SEARCH_FINE_TUNE);
+  }
+
   //Serial.println("In rotate_while_scan, found light, should go target");
   return 1;
 }
