@@ -57,11 +57,11 @@ switch (state) {
   case 2:
   Serial.println("In case 2, go to light");
     //Find the going to target normal routine
-    if (robot.obstacle_Avoid()) {
-      state = 1;
-      break;
-    }
-    //robot.obstacle_Avoid();
+//    if (robot.obstacle_Avoid()) {
+//      state = 1;
+//      break;
+//    }
+    robot.obstacle_Avoid();
     //Only obstacle avoid if it does not pass the check
     
     target_reached = robot.go_target();
