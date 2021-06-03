@@ -16,10 +16,19 @@ class Phototransistor {
     private:
         uint8_t setSensorPin;
         float currentVar;
-        float queue[FILTERLENGTH_P] = {0}; 
+        float queue[FILTERLENGTH_P] = {0};
+        //float queue1[FILTERLENGTH_P1] = {0}; 
         int indx;
         float sum;
         float average;
+        float ave_pre;
+        int indx1; 
+        float sum1;
+        float average1;
+
+        float prev2;
+        float prev1;
+
        
 };
 

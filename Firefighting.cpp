@@ -32,6 +32,7 @@ void Firefighting::FanOff(void)
 
 bool Firefighting::ExtinguishFire(double angle) 
 {
+  this->Fire_extinguish = 0;
   this->FanOn(); //turn fan on
   while (this->Fire_extinguish == 0){
     // this->servoCall(angle + 20);
@@ -89,7 +90,7 @@ bool  Firefighting::servoRotate(){
 
   float centreError = RCAve - LCAve;
   //continue to rotate the servo until LC and RC have a high value
-  while ((abs(centreError) > 100) || (LCAve < SERVO_TARGET_BRIGHTNESS) || (RCAve < SERVO_TARGET_BRIGHTNESS)) {
+  while ((abs(centreError) > 200) || (LCAve < SERVO_TARGET_BRIGHTNESS) || (RCAve < SERVO_TARGET_BRIGHTNESS)) {
     // Serial.println("Right photo: " + String(RRAve) + " Left photo: " +  String(LLAve));
     // Serial.println("Right Centre photo: " + String(RCAve) + " Left Centre photo: " +  String(LCAve));
     // Serial.println("Centre error: " + String(centreError));

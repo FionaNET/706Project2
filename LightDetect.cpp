@@ -191,10 +191,14 @@ float LightDetect::detect_dir(){
 int LightDetect::getPTAvg(void)
 {
 	int Avg = 0;
-	Avg += this->PT_LL->getAverageReading();
-	Avg += this->PT_LC->getAverageReading();
-	Avg += this->PT_RC->getAverageReading();
-	Avg += this->PT_RR->getAverageReading();
+	// Avg += this->PT_LL->getAverageReading();
+	// Avg += this->PT_LC->getAverageReading();
+	// Avg += this->PT_RC->getAverageReading();
+	// Avg += this->PT_RR->getAverageReading();
+	Avg += this->PT_LL->getRawReading();
+	Avg += this->PT_LC->getRawReading();
+	Avg += this->PT_RC->getRawReading();
+	Avg += this->PT_RR->getRawReading();
 	Avg = Avg/4;
 	return Avg;
 }
