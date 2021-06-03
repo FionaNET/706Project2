@@ -15,10 +15,21 @@ class Firefighting {
     bool Fire_extinguish;
     
     //public functions
-    bool ExtinguishFire(void); //Main function to extinguish fire
+    bool ExtinguishFire(double angle); //Main function to extinguish fire
     
     //deconstructor
     ~Firefighting();
+
+    LightDetect* lights = new  LightDetect(); 
+
+    Servo fanServo;
+    void FanServoDisable();
+    void FanServoAttach();
+    void servoLeft();
+    void servoRight();
+    bool servoRotate();
+    void servoReset();
+    void servoCall(int angle);
 
     private: 
     //private variables 
@@ -28,6 +39,8 @@ class Firefighting {
     //private functions
     void FanOn(void);
     void FanOff(void);
+
+    int fanPin;
 };
 
 #endif

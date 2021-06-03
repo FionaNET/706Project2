@@ -36,10 +36,7 @@ class Robot{
         //int stopPos;
 
         //servo functions
-        void servoRight();
-        void servoLeft();
-        void servoReset();
-        void servoRotate();
+
     private:
 
         float thr_sonar;

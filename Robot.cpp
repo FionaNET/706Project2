@@ -41,10 +41,10 @@ int Robot::rotate_while_scan(bool dir){
     float RRAve = this->lightInfo->PT_RR->getRawReading();
   int speed;
   if (dir){ // true, turn right, CW
-    speed = 100;
+    speed = 150;
   }else{
     // false, turn left, CCW
-    speed = -100;
+    speed = -150;
   }
 
   Serial.println("Rotating while scan...");
@@ -652,7 +652,7 @@ bool Robot::obstacle_Avoid(){
           Serial.println("RR ir reading = " + String(RR_IR.getReading()));
           passWait = !(RR_IR.getReading() < obstacleThresh);     //back ir detects object we have passed it
           if(!passWait){
-            delay(600);               //wait for back wheel to pass obstical
+            delay(750);               //wait for back wheel to pass obstical
             wheels.Strafe(RIGHT, (stopTime - startTime));      //Strafe to correct path
             this->avoidanceOn = false;
             Serial.println("strafe back left"); 
@@ -663,7 +663,7 @@ bool Robot::obstacle_Avoid(){
           Serial.println("Obstacle on right IR");
           if(!passWait){  //Once obstical has passed
           Serial.println("Passwait back right");
-            delay(600);                                      //wait for back wheel to pass obstical
+            delay(750);                                      //wait for back wheel to pass obstical
             wheels.Strafe(LEFT, (stopTime - startTime));    //Strafe back
             this->avoidanceOn = false;
             Serial.println("strafe back right");
@@ -1289,56 +1289,4 @@ bool Robot::go_target(){
   // }
   //}
 
-void Robot::servoLeft(){
-  //this->wheels->fanServo.writeMicroseconds(SERVO_MAX);
-  this->wheels.fanServo.write(70);
-  
-}
 
-void Robot::servoRight(){
-  //this->wheels->fanServo.writeMicroseconds(SERVO_MIN);
-  this->wheels.fanServo.write(50);
-}
-
-void Robot::servoReset(){
-  //this->wheels->fanServo.writeMicroseconds(SERVO_MIDDLE);
-  this->wheels.fanServo.write(60);
-}
-
-void Robot::servoRotate(){
-  float LLAve = this->lightInfo->PT_LL->getRawReading();
-  float LCAve = this->lightInfo->PT_LC->getRawReading();
-  float RCAve = this->lightInfo->PT_RC->getRawReading();
-  float RRAve = this->lightInfo->PT_RR->getRawReading();
-  float angle = SERVO_MIDDLE;
-
-  float centreError = RCAve - LCAve;
-  //continue to rotate the servo until LC and RC have a high value
-  while ((abs(centreError) > 100) || (LCAve < SERVO_TARGET_BRIGHTNESS) || (RCAve < SERVO_TARGET_BRIGHTNESS)) {
-    // Serial.println("Right photo: " + String(RRAve) + " Left photo: " +  String(LLAve));
-    // Serial.println("Right Centre photo: " + String(RCAve) + " Left Centre photo: " +  String(LCAve));
-    // Serial.println("Centre error: " + String(centreError));
-    // Rotate to the highest light value
-    if (RRAve>LLAve || centreError > 0){
-      angle = angle - 10; // turn right
-      // Serial.println("Turn right, decrease angle");
-    } else{
-      angle = angle + 10; // turn left
-      // Serial.println("Turn left, increase angle");
-    }
-
-    constrain(angle, SERVO_MIN , SERVO_MAX);
-    // Serial.println("Angle: " + String(angle));
-    this->wheels.fanServo.write(angle);
-
-    LLAve = this->lightInfo->PT_LL->getRawReading();
-    LCAve = this->lightInfo->PT_LC->getRawReading();
-    RCAve = this->lightInfo->PT_RC->getRawReading();
-    RRAve = this->lightInfo->PT_RR->getRawReading();
-    centreError = RCAve - LCAve;
-
-    delay(50);
-  }
-  // Serial.println("Light reached");
-
-}
