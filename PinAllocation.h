@@ -67,14 +67,23 @@
 
 // Thresholds for detection the light 
 #define TARGET_BRIGHTNESS 600
-#define TARGET_BRIGHTNESS_OUT 650
+#define TARGET_BRIGHTNESS_OUT_R 800
+#define TARGET_BRIGHTNESS_OUT_L 800
 #define TARGET_DISTANCE 300
 #define SERVO_TARGET_BRIGHTNESS 100
 #define DETECT_BRIGHTNES 30 // the sum of brightness for 4 phototransistors
 
+#define CENTRE_LOW 20
+#define CENTRE_HIGH 100
+#define END_LOW 200
+#define END_HIGH 300
+#define CENTRE_ERROR 50
+#define END_ERROR 100
+#define ABS_ERROR 100
+
 //Threshold for lightdetect.h
 #define LIGHT_THRESH_CLOSE 45
-#define LIGHT_THRESH_FAR 30
+#define LIGHT_THRESH_FAR 25
 
 // Threshold for rotate_while_scan
 #define SEARCH_FINE_TUNE 500 // time of turning when light is detected

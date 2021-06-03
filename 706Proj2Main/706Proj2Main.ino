@@ -61,28 +61,19 @@ switch (state) {
 //      state = 1;
 //      break;
 //    }
-    robot.obstacle_Avoid();
-    //Only obstacle avoid if it does not pass the check
-    
-    target_reached = robot.go_target();
 
+    if (robot.obstacle_Avoid()) {
+      
+      robot.obstacle_Avoid();
+    } else {
+      Serial.println("CASE 2: reattaching wheel");
+      robot.wheels.Attach();
+      target_reached = robot.go_target();
+    }
+    
     if (target_reached){
       robot.wheels.Disable();
       delay(1000); //give time for the motors to stop before turning on fan
-      
-//      if (robot.stopPos == 1){
-//        // center
-//        // do nothing
-//        robot.servoReset();
-//      }else if (robot.stopPos == 2){
-//        // right outside triggerd
-//        // turn servo to the right
-//        robot.servoRight();
-//      }else if (robot.stopPos == 3){
-//        // left outside triggiered
-//        // turn servo to the left
-//        robot.servoLeft();
-//       }
       state = 3;
     }
     
@@ -90,10 +81,8 @@ switch (state) {
     
   case 3:
     Serial.println("In case 3, firefight");
-    //robot.fanServo.attach(SERVO_PIN);
-    //robot.FanServoAttach();
-    //robot.servoReset();
-    //robot.servoRotate();
+    //rotate to the light
+    robot.servoRotate();
     //Firefighting state
     fireOff = fighter.ExtinguishFire();
     if (fireOff){
@@ -101,13 +90,7 @@ switch (state) {
       delay(1000);                    //Give time for the fan to fully turn off
       robot.wheels.Attach();
       fighter.Fire_extinguish = 0;    //Reinitialise so we can extinguish the next fire
-      
-      //robot.servoReset();
-      //robot.FanServoDisable();
-      //robot.fanServo.detach();
-      //pinMode(SERVO_PIN, INPUT);
-  
-      
+      robot.servoReset();     
       if (fire < 2) {
          //reverse
          robot.wheels.Straight(-200);
@@ -145,6 +128,7 @@ switch (state) {
     //Stop the motors once all fires are blown out
     Serial.println("In case 5, STOP");
     robot.wheels.Disable();
+    robot.wheels.FanServoDisable();
     break;
 }
 

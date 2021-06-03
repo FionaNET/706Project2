@@ -18,19 +18,9 @@ void setup(){
   
   robot.wheels.Attach();           //must call within setup or loop to attach the wheels
   robot.gyro.GyroscopeCalibrate(); //call to remove the bias from gyroscope
-  //robot.gyro.currentAngle = 0;
-//  Serial.println("attach");
-//  robot.FanServoAttach();
-//  delay(1000);
-//  Serial.println("reset");
-//  robot.servoReset();
-//  delay(2000);
-//  Serial.println("left");
-//  robot.servoLeft();
-//  delay(2000);
-//  Serial.println("right");
-//  robot.servoRight();
-//  Serial.println("Start main loop");
+
+  robot.wheels.FanServoAttach();
+  robot.servoReset();
 }
 
 int search = 0;               //variable to determine if we need to search for a light
@@ -43,6 +33,7 @@ bool fireOff;
 float start;
 
 void loop(){
+  robot.obstacle_Avoid();
   //Serial.print("READING ULTRASONIC: ");
   //Serial.println(robot.sonar.ReadUltraSonic());
 
@@ -65,7 +56,7 @@ void loop(){
 //    robot.wheels.Straight(200);
 //  }
 
-   //Test go target without obstacle avoidance
+//   //Test go target without obstacle avoidance
 //   switch (state) {
 //  
 //    case 1:
@@ -97,12 +88,14 @@ void loop(){
 //    case 3:
 //      Serial.println("In case 3, firefight");
 //      //Firefighting state
+//      robot.servoRotate();
 //      fireOff = fighter.ExtinguishFire();
 //      if (fireOff){
 //        fire = fire + 1;
 //        delay(1000);                    //Give time for the fan to fully turn off
 //        robot.wheels.Attach();
 //        fighter.Fire_extinguish = 0;    //Reinitialise so we can extinguish the next fire
+//        robot.servoReset();
 //        
 //        if (fire < 2) {
 //           //reverse
@@ -164,13 +157,13 @@ void loop(){
 //}
 
 
-   Serial.print(LL.getRawReading());
-   Serial.print("   ");
-   Serial.print(LC.getRawReading());
-   Serial.print("   ");
-   Serial.print(RC.getRawReading());
-   Serial.print("   ");
-   Serial.println(RR.getRawReading());
+//   Serial.print(LL.getRawReading());
+//   Serial.print("   ");
+//   Serial.print(LC.getRawReading());
+//   Serial.print("   ");
+//   Serial.print(RC.getRawReading());
+//   Serial.print("   ");
+//   Serial.println(RR.getRawReading());
 
 
  
