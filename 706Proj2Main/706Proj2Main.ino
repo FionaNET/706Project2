@@ -19,8 +19,8 @@ void setup(){
   robot.wheels.Attach();            //must call within setup or loop to attach the wheels
   robot.gyro.GyroscopeCalibrate();  //call to remove the bias from gyroscope
 
-  robot.wheels.FanServoAttach();
-  robot.servoReset();
+  fighter.FanServoAttach();
+  fighter.servoReset();
 
 
   //robot.FanServoDisable();
@@ -82,19 +82,30 @@ switch (state) {
   case 3:
     Serial.println("In case 3, firefight");
     //rotate to the light
-    robot.servoRotate();
+//    fighter.servoRotate();
     //Firefighting state
-    fireOff = fighter.ExtinguishFire();
+//    fireOff = fighter.ExtinguishFire();
+    fireOff = fighter.servoRotate();
     if (fireOff){
+      
       fire = fire + 1;
       delay(1000);                    //Give time for the fan to fully turn off
       robot.wheels.Attach();
       fighter.Fire_extinguish = 0;    //Reinitialise so we can extinguish the next fire
-      robot.servoReset();     
+      fighter.servoReset();     
       if (fire < 2) {
+
+//        //instantiate new robot
+//        Robot robot = Robot(); //make new instance of robot
+//        robot.wheels.Attach();            //must call within setup or loop to attach the wheels
+//        robot.gyro.GyroscopeCalibrate();  //call to remove the bias from gyroscope
+//        fighter.FanServoAttach();
+//        fighter.servoReset(); 
+//        //end instantiate new robot
+        
          //reverse
          robot.wheels.Straight(-200);
-         delay(150);
+         delay(250);
          state = 1;                   //Go back to searching again
       }else{
         state = 5;                    //Stop the motors when 2 fires have been blown
@@ -128,7 +139,7 @@ switch (state) {
     //Stop the motors once all fires are blown out
     Serial.println("In case 5, STOP");
     robot.wheels.Disable();
-    robot.wheels.FanServoDisable();
+    fighter.FanServoDisable();
     break;
 }
 

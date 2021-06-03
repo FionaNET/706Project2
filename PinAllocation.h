@@ -69,7 +69,7 @@
 #define TARGET_BRIGHTNESS 600
 #define TARGET_BRIGHTNESS_OUT_R 800
 #define TARGET_BRIGHTNESS_OUT_L 800
-#define TARGET_DISTANCE 300
+#define TARGET_DISTANCE 350
 #define SERVO_TARGET_BRIGHTNESS 100
 #define DETECT_BRIGHTNES 30 // the sum of brightness for 4 phototransistors
 
