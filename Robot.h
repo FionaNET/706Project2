@@ -31,6 +31,8 @@ class Robot{
         UltrasonicSensor sonar;
         bool invDirection;
         bool avoidanceOn;
+        bool LightFlag;             //tells when close to light, so don't obstacle_avoid
+        bool ScanFlag;              //tells when to rotate after scanning
         //int stopPos;
 
         //servo functions
