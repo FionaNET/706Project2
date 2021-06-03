@@ -10,6 +10,7 @@
 #define PHOTOTRANSISTOR3 A10 // RC
 #define PHOTOTRANSISTOR4 A11 // RR
 
+#define FILTERLENGTH_P1 2 
 #define FILTERLENGTH_P 5 // phtotransistor filter length
 #define FILTERLENGTH_IR 5 // ir sensor filter length
 
@@ -68,8 +69,8 @@
 
 // Thresholds for detection the light 
 #define TARGET_BRIGHTNESS 600
-#define TARGET_BRIGHTNESS_OUT_R 800
-#define TARGET_BRIGHTNESS_OUT_L 800
+#define TARGET_BRIGHTNESS_OUT_R 900
+#define TARGET_BRIGHTNESS_OUT_L 900
 #define TARGET_DISTANCE 400
 #define SERVO_TARGET_BRIGHTNESS 100
 #define DETECT_BRIGHTNES 30 // the sum of brightness for 4 phototransistors
@@ -95,7 +96,7 @@
 
 // go_target fuzzy logic 
 
-#define CLOSE_THRESH 0.927 // target reached
+#define CLOSE_THRESH 0.91//0.927 // target reached
 #define FAR_THRESH 0.1 // lost target
 #define FAR_NEAR_CENTER 0.53 // if (max center) < this value, use center error 
 

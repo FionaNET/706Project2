@@ -482,30 +482,30 @@ bool Robot::obstacle_Avoid(){
       //get all distance readings
 
       //if(!this->passWait){      //Only do this once when no obsticles have been previously detected
-        d1 = LF_IR.getReading();
-        d2 = RF_IR.getReading();
+      d1 = LF_IR.getReading();
+      d2 = RF_IR.getReading();
 
-        d3 = sonar.ReadUltraSonic();
-        //Serial.println("D1 = " + String(d1) + "  D2 = " + String(d2) + "  D3 = " + String(d3));
+      d3 = sonar.ReadUltraSonic();
+      //Serial.println("D1 = " + String(d1) + "  D2 = " + String(d2) + "  D3 = " + String(d3));
 
-        LeftMax = Left_Rules(NEAR(d1, true), FAR(d1, true), NEAR(d2, true), FAR(d2, true), NEAR(d3, false), FAR(d3, false));
-        RightMax = Right_Rules(NEAR(d1, true), FAR(d1, true), FAR(d2, true), NEAR(d3, false), FAR(d3, false));
-        ForwardMax = Forward_Rules(NEAR(d1, true), NEAR(d2, true), NEAR(d3, false));
-        //Serial.println("LeftMax = " + String(LeftMax) + "  RightMax = " + String(RightMax) + "  ForwardMax = " + String(ForwardMax));
+      LeftMax = Left_Rules(NEAR(d1, true), FAR(d1, true), NEAR(d2, true), FAR(d2, true), NEAR(d3, false), FAR(d3, false));
+      RightMax = Right_Rules(NEAR(d1, true), FAR(d1, true), FAR(d2, true), NEAR(d3, false), FAR(d3, false));
+      ForwardMax = Forward_Rules(NEAR(d1, true), NEAR(d2, true), NEAR(d3, false));
+      //Serial.println("LeftMax = " + String(LeftMax) + "  RightMax = " + String(RightMax) + "  ForwardMax = " + String(ForwardMax));
 
-        //take weighted average
+      //take weighted average
 
-        //this->direction = LeftMax*-30 + ForwardMax*15 + RightMax*30;    //get direction
-        //New method of including the forward readings
-        if((ForwardMax > LeftMax) || ForwardMax > RightMax){
-          this->direction = 0;
-        }else if(ForwardMax > LeftMax){
-          this->direction = (RightMax - ForwardMax)*50;
-        }else if(ForwardMax > RightMax){
-          this->direction = (LeftMax - ForwardMax)* -50;
-        }else {
-          this->direction = (LeftMax - ForwardMax)*-50 + (RightMax - ForwardMax)*50;
-        }
+      //this->direction = LeftMax*-30 + ForwardMax*15 + RightMax*30;    //get direction
+      //New method of including the forward readings
+      if((ForwardMax > LeftMax) || ForwardMax > RightMax){
+        this->direction = 0;
+      }else if(ForwardMax > LeftMax){
+        this->direction = (RightMax - ForwardMax)*50;
+      }else if(ForwardMax > RightMax){
+        this->direction = (LeftMax - ForwardMax)* -50;
+      }else {
+        this->direction = (LeftMax - ForwardMax)*-50 + (RightMax - ForwardMax)*50;
+      }
         
       //}
         //Contstrain direction so it doesn't hit into a side wall by incorporating the readings from back
@@ -513,7 +513,8 @@ bool Robot::obstacle_Avoid(){
         // if(((LR_IR.getReading() < 130) && (direction < 0)) || ((RR_IR.getReading() < 130) && (direction > 0))){
         //   this->direction = this->direction*-1;
         // }
-        Serial.println("Direction = " + String(direction));
+
+      Serial.println("Direction = " + String(direction));
       
 
       //Movement commands
@@ -1053,8 +1054,11 @@ bool Robot::go_target(){
   float weight_center = 1;
   float weight_side = 1;
 
-  LLfuz = 1/(1+exp(-0.007*(LLAve-375)));
-  RRfuz = 1/(1+exp(-0.007*(RRAve-375)));
+  // LLfuz = 1/(1+exp(-0.007*(LLAve-375)));
+  // RRfuz = 1/(1+exp(-0.007*(RRAve-375)));
+
+  LLfuz = 1/(1+exp(-0.006*(LLAve-375)));
+  RRfuz = 1/(1+exp(-0.006*(RRAve-375)));
   RCfuz = 1/(1+exp(-0.05*(RCAve-60)));
   LCfuz = 1/(1+exp(-0.05*(LCAve-60)));
 
@@ -1074,7 +1078,16 @@ bool Robot::go_target(){
 
    //(distLC+distRC)/2<TARGET_DISTANCE
 
-  if ((max(max(LLfuz,RRfuz),max(RCfuz,RRfuz)) > CLOSE_THRESH) && ((distLC < TARGET_DISTANCE) || (distRC < TARGET_DISTANCE))){
+
+  Serial.println("Fuzzy condition:"); 
+  Serial.print("Condition 1 (max britness):   ");
+  Serial.print((max(max(LLfuz,RRfuz),max(RCfuz,RRfuz))));
+  Serial.print("Condition 2 (distance LC):   ");
+  Serial.print(distLC < TARGET_DISTANCE);
+  Serial.print("Condition 3 (distance RC):    ");
+  Serial.println(distRC < TARGET_DISTANCE);
+
+  if ((max(max(LLfuz,RRfuz),max(RCfuz,RRfuz)) > CLOSE_THRESH) && ((distLC < TARGET_DISTANCE) || (distRC < TARGET_DISTANCE)) ){
     Serial.println("Reach the target!!!   ");
     return true; // close to the target, found the fire
   }else{
@@ -1153,7 +1166,7 @@ bool Robot::go_target(){
 
   }
 
-  this->wheels.Straight(200);
+  this->wheels.Straight(150);
   delay(10);
   return false;
   
