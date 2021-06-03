@@ -32,11 +32,18 @@ void Firefighting::FanOff(void)
 
 bool Firefighting::ExtinguishFire(double angle) 
 {
+  float LCAve = this->lights->PT_LC->getRawReading();
+  float RCAve = this->lights->PT_RC->getRawReading();
+  float maxVal = max(LCAve, RCAve);
+  float thres = maxVal - 100;
+  thres = constrain(thres, this->fireThreshhold, thres);
+
     //this->FanOn(); //turn fan on
     float startTime = millis();
     while ((this->Fire_extinguish == 0) && (millis() - startTime < 5000)){
         //if ((this->LightDetector->getPTAvg() < this->fireThreshhold) ||((millis() - start_time) > 5000) ){
-        if ((this->LightDetector->getPTAvg() < this->fireThreshhold) ){
+        //if ((this->LightDetector->getPTAvg() < this->fireThreshhold) ){
+        if ((this->LightDetector->getPTAvg() < thres) ){
           this->servoReset();
           this->Fire_extinguish = 1;
         }

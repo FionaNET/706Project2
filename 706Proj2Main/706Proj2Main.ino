@@ -105,7 +105,7 @@ switch (state) {
         
          //reverse
          robot.wheels.Straight(-200);
-         delay(250);
+         delay(300);
          state = 1;                   //Go back to searching again
       }else{
         state = 5;                    //Stop the motors when 2 fires have been blown
