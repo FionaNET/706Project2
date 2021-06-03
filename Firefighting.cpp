@@ -32,22 +32,21 @@ void Firefighting::FanOff(void)
 
 bool Firefighting::ExtinguishFire(double angle) 
 {
-    this->FanOn(); //turn fan on
-    float start_time = millis();
-    while (this->Fire_extinguish == 0){
-        this->servoCall(angle + 20);
-        delay(50);
-        this->servoCall(angle - 20);
-        delay(50);
-        //if ((this->LightDetector->getPTAvg() < this->fireThreshhold) ||((millis() - start_time) > 5000) ){
-        if ((this->LightDetector->getPTAvg() < this->fireThreshhold) ){
-          this->servoReset();
-          this->Fire_extinguish = 1;
-        }
+  this->FanOn(); //turn fan on
+  while (this->Fire_extinguish == 0){
+    // this->servoCall(angle + 20);
+    // delay(50);
+    // this->servoCall(angle - 20);
+    // delay(50);
+    //if ((this->LightDetector->getPTAvg() < this->fireThreshhold) ||((millis() - start_time) > 5000) ){
+    if ((this->LightDetector->getPTAvg() < this->fireThreshhold) ){
+      this->servoReset();
+      this->Fire_extinguish = 1;
     }
-    this->FanOff(); //turn fan off
-    //delay(2500);
-    return true;
+  }
+  this->FanOff(); //turn fan off
+  //delay(2500);
+  return true;
 }
 
 void Firefighting::FanServoDisable() { 
