@@ -8,47 +8,18 @@ Phototransistor::Phototransistor(int _setSensorPin){
     this->indx = 0; 
     this->sum = 0;
     this->average = 0;
-    this->indx1 = 0; 
-    this->sum1 = 0;
-    this->ave_pre = 0;
-    this->average1 = 0;
-    this->prev2 = 0;
-    this->prev1 = 0;
-
 
 }
 
 float Phototransistor::getRawReading(){
-    // this->prev2 = this->prev1;
-    // this->prev1 = this->currentVar;
     this->currentVar = analogRead(this->setSensorPin);
-
-    // if(this->currentVar> 940)
-    // {
-    //    this->currentVar = (this->prev2 + this->prev1)/2;
-    // }
-
-//     this->queue1[this->indx1] = this->currentVar;
-//     this->sum1 = (this->sum1 + this->currentVar);
-//     // Serial.println("Current sum of middle two phtotransistor:");
-//     // Serial.println(sum);
-//     //Serial.println("Current index:");
-//     //Serial.println(indx);
-//     this->indx1 = ((this->indx1 +1) % FILTERLENGTH_P1);
-//     // Serial.println("Current index after divisinon by filterlengths:");
-//     //Serial.println(indx);
-//    this->average1 = (this->sum1 / FILTERLENGTH_P1);
-//     // Serial.println("Returned average:");
-//     // Serial.println(average);
-//     this->ave_pre = this->average1;
-
     return this->currentVar;
 }
 
 int Phototransistor::getAverageReading(){
 
     this->sum = this->sum - this->queue[indx];
-
+    this->getRawReading();
     this->queue[this->indx] = this->currentVar;
     this->sum = (this->sum + this->currentVar);
     // Serial.println("Current sum of middle two phtotransistor:");
@@ -60,7 +31,7 @@ int Phototransistor::getAverageReading(){
     //Serial.println(indx);
     this->average = (this->sum / FILTERLENGTH_P);
     // Serial.println("Returned average:");
-
+    // Serial.println(average);
     return this->average;
 }
 
