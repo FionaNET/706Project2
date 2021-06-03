@@ -5,13 +5,14 @@
 #include "LightDetect.h"
 #include <Arduino.h>
 #include "Firefighting.h"
+#include <Servo.h>
 
 class Robot{
     public:
         Robot();
         int check();
         int rotate_while_scan(bool dir);
-        void obstacle_Avoid();
+        bool obstacle_Avoid();
         void CL_Turn(int angle);
         float NEAR(float dist, bool isIR);
         float FAR(float dist, bool isIR);
@@ -30,9 +31,18 @@ class Robot{
         UltrasonicSensor sonar;
         bool invDirection;
         bool avoidanceOn;
-    
+        bool LightFlag;             //tells when close to light, so don't obstacle_avoid
+        bool ScanFlag;              //tells when to rotate after scanning
+        //int stopPos;
+
+<<<<<<< HEAD
+        bool current_dir;
+
+=======
+>>>>>>> 125d5296e6770ef8a6b3eb7e45b65cfd9f3003ac
+        //servo functions
+
     private:
-    
 
         float thr_sonar;
         bool backPass;

@@ -15,10 +15,13 @@
 
 
 // Servo motor definitions ? 
-#define SERVO_PIN 48
-#define SERVO_MAX 2000
-#define SERVO_MIN 1000
-#define SERVO_MIDDLE 1500
+#define SERVO_PIN 11
+// #define SERVO_MAX 2000
+// #define SERVO_MIN 1000
+// #define SERVO_MIDDLE 1500
+#define SERVO_MAX 100
+#define SERVO_MIN 20
+#define SERVO_MIDDLE 60
 
 // Infrared rangefinder pins
 #define IR_RR A5   //40 to 300mm
@@ -64,14 +67,45 @@
 
 // Thresholds for detection the light 
 #define TARGET_BRIGHTNESS 600
-#define TARGET_BRIGHTNESS_OUT 650
-#define TARGET_DISTANCE 300
+#define TARGET_BRIGHTNESS_OUT_R 800
+#define TARGET_BRIGHTNESS_OUT_L 800
+#define TARGET_DISTANCE 350
 #define SERVO_TARGET_BRIGHTNESS 100
 #define DETECT_BRIGHTNES 30 // the sum of brightness for 4 phototransistors
 
+#define CENTRE_LOW 20
+#define CENTRE_HIGH 100
+#define END_LOW 200
+#define END_HIGH 300
+#define CENTRE_ERROR 50
+#define END_ERROR 100
+#define ABS_ERROR 100
+
 //Threshold for lightdetect.h
 #define LIGHT_THRESH_CLOSE 45
-#define LIGHT_THRESH_FAR 30
+#define LIGHT_THRESH_FAR 25
+
+// Threshold for rotate_while_scan
+#define SEARCH_FINE_TUNE 500 // time of turning when light is detected
+#define OUTPT_DIFF 100 // the difference of brightness between outside phototransistors
+
+//rotate_while_scan therhold
+#define ROTATE_WHILE_SCAN 50//100 // check the difference
+
+// go_target fuzzy logic 
+
+#define CLOSE_THRESH 0.94//0.927 // target reached
+#define FAR_THRESH 0.1 // lost target
+#define FAR_NEAR_CENTER 0.53 // if (max center) < this value, use center error 
+
+#define FAR_NEAR_SIDE 0.15// 0.25 // if max(LL,RR) < this value, we are far, use abs(RR-LL)
+#define NEAR_CLOSE_SIDE 0.83 // of Max(LL,RR) between 0.5and 0.7, we are near, use combined error abs(RR+RC-LL-LC)
+
+
+#define FUZZY_SPEED_WEIGHT_CLOSE 200
+#define FUZZY_SPEED_WEIGHT_NEAR 300
+#define FUZZY_SPEED_WEIGHT_FAR 400
+#define FUZZY_SPEED_WEIGHT 500
 
 
 
