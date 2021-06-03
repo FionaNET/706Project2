@@ -18,10 +18,11 @@ void setup(){
   
   robot.wheels.Attach();            //must call within setup or loop to attach the wheels
   robot.gyro.GyroscopeCalibrate();  //call to remove the bias from gyroscope
-//  robot.fanServo.attach(SERVO_PIN);
-//  robot.servoReset();
-  
-//  robot.fanServo.detach();
+
+  robot.wheels.FanServoAttach();
+  robot.servoReset();
+
+
   //robot.FanServoDisable();
   delay(1000);
   Serial.println("Start main loop");
@@ -62,8 +63,7 @@ switch (state) {
 //      break;
 //    }
 
-    if (robot.obstacle_Avoid()) {
-      
+    if (robot.obstacle_Avoid()) {   //true means it is avoiding something
       robot.obstacle_Avoid();
     } else {
       Serial.println("CASE 2: reattaching wheel");
