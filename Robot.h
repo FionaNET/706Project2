@@ -35,8 +35,6 @@ class Robot{
         bool ScanFlag;              //tells when to rotate after scanning
         //int stopPos;
 
-        bool current_dir;
-
         //servo functions
 
     private:

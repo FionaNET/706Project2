@@ -10,7 +10,6 @@
 #define PHOTOTRANSISTOR3 A10 // RC
 #define PHOTOTRANSISTOR4 A11 // RR
 
-#define FILTERLENGTH_P1 2 
 #define FILTERLENGTH_P 5 // phtotransistor filter length
 #define FILTERLENGTH_IR 5 // ir sensor filter length
 
@@ -51,9 +50,10 @@
 #define GYRO_PIN A3
 
 //Threshholds for obstacle avoidance
+//Threshholds for obstacle avoidance
 #define ObstacleSizeMax 260         //When doing the wall inverse cases
 #define momentumTime 1000            //Strafing time for wall inverse cases
-#define StraightTime 600
+#define StraightTime 450
 
 //isObject function thresholds
 #define FrontObject 100
@@ -69,9 +69,9 @@
 
 // Thresholds for detection the light 
 #define TARGET_BRIGHTNESS 600
-#define TARGET_BRIGHTNESS_OUT_R 900
-#define TARGET_BRIGHTNESS_OUT_L 900
-#define TARGET_DISTANCE 400
+#define TARGET_BRIGHTNESS_OUT_R 800
+#define TARGET_BRIGHTNESS_OUT_L 800
+#define TARGET_DISTANCE 350
 #define SERVO_TARGET_BRIGHTNESS 100
 #define DETECT_BRIGHTNES 30 // the sum of brightness for 4 phototransistors
 
@@ -91,19 +91,5 @@
 #define SEARCH_FINE_TUNE 500 // time of turning when light is detected
 #define OUTPT_DIFF 100 // the difference of brightness between outside phototransistors
 
-//rotate_while_scan therhold
-#define ROTATE_WHILE_SCAN 100//100 // check the difference
 
-// go_target fuzzy logic 
 
-#define CLOSE_THRESH 0.91//0.927 // target reached
-#define FAR_THRESH 0.1 // lost target
-#define FAR_NEAR_CENTER 0.53 // if (max center) < this value, use center error 
-
-#define FAR_NEAR_SIDE 0.24 // if max(LL,RR) < this value, we are far, use abs(RR-LL)
-#define NEAR_CLOSE_SIDE 0.83 // of Max(LL,RR) between 0.5and 0.7, we are near, use combined error abs(RR+RC-LL-LC)
-
-#define FUZZY_SPEED_WEIGHT_CLOSE 200
-#define FUZZY_SPEED_WEIGHT_NEAR 300
-#define FUZZY_SPEED_WEIGHT_FAR 400
-#define FUZZY_SPEED_WEIGHT 500

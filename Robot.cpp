@@ -29,7 +29,6 @@ Robot::Robot(){
   this->invDirection = false;
   this->LightFlag = false;
   this->ScanFlag = false;
-  this->current_dir = true;
 }
 
 // Function that will rotate until the robot detects a light source
@@ -52,31 +51,37 @@ int Robot::rotate_while_scan(bool dir){
   //bool front = lightInfo->detect_front();
 
   float timeStart = millis();
-  float timeout = 10000; // 5 sec for a full rotation
+  float timeout = 9000; // 5 sec for a full rotation
   bool front = lightInfo->detect_front();
-  // while (!front && ((LLAve+LCAve+RCAve+RRAve)>DETECT_BRIGHTNES)) {
-  while (!front || (abs(LLAve-RRAve)>ROTATE_WHILE_SCAN)) {
-// while (!front) {
-    
+  //while (!front && ((LLAve+LCAve+RCAve+RRAve)>DETECT_BRIGHTNES)) {
+  while (!front) {
     //Serial.println("Rotate while scanning loop");
     this->wheels.Turn(true, speed); // turn right 360 deg and scan
     front = lightInfo->detect_front();
-    LLAve = this->lightInfo->PT_LL->getRawReading();
-    LCAve = this->lightInfo->PT_LC->getRawReading();
-    RCAve = this->lightInfo->PT_RC->getRawReading();
-    RRAve = this->lightInfo->PT_RR->getRawReading();
-        Serial.print("LL Reading:  ");
-        Serial.print(LLAve);
-        Serial.print("    LC Reading:  ");
-        Serial.print(LCAve);
-        Serial.print("    RC Reading:  ");
-        Serial.print(RCAve);
-        Serial.print("    RR Reading:  ");
-        Serial.println(RRAve);
     if (millis()-timeStart > timeout) {
       return 2;
     }
   }
+
+  LLAve = this->lightInfo->PT_LL->getRawReading();
+  LCAve = this->lightInfo->PT_LC->getRawReading();
+  RCAve = this->lightInfo->PT_RC->getRawReading();
+  RRAve = this->lightInfo->PT_RR->getRawReading();
+  if ((LLAve -RRAve)> OUTPT_DIFF){
+    // turn left a little bit to face the light
+    dir = false;
+    speed = -100;
+    this->wheels.Turn(dir, speed);
+    delay(SEARCH_FINE_TUNE);
+
+  }else if ((RRAve-LLAve)>OUTPT_DIFF){
+    // turn right a little bit to face the light
+    dir = true;
+    speed = 100;
+    this->wheels.Turn(dir, speed);
+    delay(SEARCH_FINE_TUNE);
+  }
+
   //Serial.println("In rotate_while_scan, found light, should go target");
   return 1;
 }
@@ -414,6 +419,7 @@ bool Robot::obstacle_Avoid(){
   //We want to adjust the direction of the robot the robot is far from the light
   if ( ((distLC+distRC)/2 < TARGET_DISTANCE) || ((LCAve +RCAve)/2 >= TARGET_BRIGHTNESS) || (RRAve >= TARGET_BRIGHTNESS_OUT_R) || (LLAve >= TARGET_BRIGHTNESS_OUT_L)) {
     LightFlag = true;
+    avoidanceOn = false;
   }else{
     LightFlag = false;
   }
@@ -568,31 +574,31 @@ bool Robot::obstacle_Avoid(){
         this->avoidanceOn = true;
         if(!Strafed){
           startTime = millis();
-          Serial.println("detect object right = " + String(RF_IR.isObject()));
+          //Serial.println("detect object right = " + String(RF_IR.isObject()));
           if(RF_IR.isObject()){
-            Serial.println("sonar object = " + String(sonar.isObject()));
-            Serial.println("LR IR = " + String(LR_IR.getReading()));
+            //Serial.println("sonar object = " + String(sonar.isObject()));
+            //Serial.println("LR IR = " + String(LR_IR.getReading()));
             if(sonar.isObject() && (LR_IR.getReading() < ObstacleSizeMax)){
               invDirection = true;
               wheels.Strafe(RIGHT, momentumTime/2);
             }else if(!sonar.isObject() && (LR_IR.getReading() < (ObstacleSizeMax/2))){
               invDirection = true;
               wheels.Strafe(RIGHT, momentumTime);
-              Serial.println("Inversing direction - Only RF on object");
+              //Serial.println("Inversing direction - Only RF on object");
             }else{
               invDirection = false;
               wheels.Strafe(LEFT, 0);
-              Serial.println("Keep direction - Only RF on object");
+              //Serial.println("Keep direction - Only RF on object");
             }
           }else if (sonar.ReadUltraSonic() < 220) {
             if(LR_IR.getReading() < ObstacleSizeMax){
               invDirection = true;
               wheels.Strafe(RIGHT, momentumTime/2);
-              Serial.println("Inversing direction - Both sonar and RF on object");
+              //Serial.println("Inversing direction - Both sonar and RF on object");
             }else{
               invDirection = false;
               wheels.Strafe(LEFT, 0);
-              Serial.println("Keep direction - Both sonar and RF on object");
+              //Serial.println("Keep direction - Both sonar and RF on object");
             }
         }else
           {
@@ -601,7 +607,7 @@ bool Robot::obstacle_Avoid(){
           
         }else{
           Strafed = true;
-          Serial.println("obstacle avoid strafe left");
+          //Serial.println("obstacle avoid strafe left");
           memory = this->direction;
         }
         if(invDirection){
@@ -881,151 +887,10 @@ void Robot::CL_Turn(int ref_angle){
 // }
 
 //-------------------TRYING OLD GO TARGET---------------------------//
-// bool Robot::go_target(){
-//   bool dir; 
-//   float Kp = 0.15;
-//   float Ki = 0.001;
-//   float accumulation = 0;
-//   float distLC = 0;
-//   float distRC = 0;
-//   float error = 0;
-//   float RLerror = 0;
-//   int search;
-//   float speed, ultraSpeed;
-
-//   //search = this->rotate_while_scan(true); // initial searching
-
-//   float LLAve = this->lightInfo->PT_LL->getRawReading();
-//   float LCAve = this->lightInfo->PT_LC->getRawReading();
-//   float RCAve = this->lightInfo->PT_RC->getRawReading();
-//   float RRAve = this->lightInfo->PT_RR->getRawReading();
-  
-//   // Serial.print("LLAve: ");
-//   // Serial.print(LLAve);
-//   // Serial.print("  LCAve: ");
-//   // Serial.print(LCAve);
-//   // Serial.print("  RCAve: ");
-//   // Serial.print(RCAve);
-//   // Serial.print("  RRAve: ");
-//   // Serial.println(RRAve);
-
-//   // Serial.print("Average of the middle 2 phototransistors:    ");
-//   // Serial.println((RCAve+LCAve)/2);
-
-//   distLC = this->lightInfo->PT_LC->getDistance();
-//   distRC = this->lightInfo->PT_RC->getDistance();
-
-//   if ( (distLC+distRC)/2 > 210 ) { // distance from the centre phototransistor values
-//     // this->obstacle_Avoid();
-    
-//     LLAve = this->lightInfo->PT_LL->getRawReading();
-//     LCAve = this->lightInfo->PT_LC->getRawReading();
-//     RCAve = this->lightInfo->PT_RC->getRawReading();
-//     RRAve = this->lightInfo->PT_RR->getRawReading();
-
-//     // Commented out the check if light disappears, need to check if our robot will veer off for long distance
-//     // if (((RCAve+RRAve+LCAve+LLAve)/4) < 10){ // light disappear
-//     //   dir = true; // turn right
-//     //   search = this->rotate_while_scan(dir);
-//     // } else if (((RCAve+RRAve+LCAve+LLAve)/4) < 30){ // light is somewhere but we might be very off
-//     //   if (RRAve>LLAve){
-//     //     dir = true; // turn right
-//     //   } else{
-//     //     dir = false; // turn left
-//     //   }
-//     //   search = this->rotate_while_scan(dir);
-//     // }
-
-//     // Fixes trajectory when light is somewhere but we might be off
-//     if (((RCAve+RRAve+LCAve+LLAve)/4) < 20){ 
-//       // Rotate to the highest light value
-//       if (RRAve>LLAve){
-//         dir = true;  // turn right
-//       } else{
-//         dir = false; // turn left
-//       }
-//       search = this->rotate_while_scan(dir);
-//     }
-      
-//     RLerror = RRAve - LLAve;
-
-//     // Fixes problem when the robot is placed centre between two lights and starts driving straight to the centre
-//     // RR and LL reads very high at similar values and LC and RC reads low
-//     if ((abs(RLerror) < 60) && (RCAve < 20) && (LCAve < 20)) {   
-//       // Rotate to the highest light value
-//       if (RRAve>LLAve){
-//         dir = true;  // turn right
-//       }else{
-//         dir = false; // turn left
-//       }
-//       this->wheels.Turn(dir, 200); //turn the robot
-//       delay(550);                  //give time for the robot to turn away
-//     }
-
-//     float start_time = millis();    
-//     error = RCAve+RRAve - LCAve-LLAve; 
-//     // Change direction if the error is too higher or the time spent in the loop is less than 2 sec
-//     while  ((abs(error) > 350) || ((millis()-startTime)<2000)) { 
-//       // Only accumulate error if it is small
-//       if(abs(error) < 365){   // Previously we had a value of 20, but it would never enter the while loop with 20
-//         accumulation = accumulation + error;
-//       }
-//       speed = Kp*error + Ki*accumulation;
-//       constrain(speed, -500 , 500);
-
-//       // Serial.println("Correcting direction..");
-//       // Serial.print("Current error:    "); 
-//       // Serial.println(error);
-//       // Serial.print("Speed turning:");
-//       // Serial.println(speed);
-
-//       // Determine the direction we are supposed to turn
-//       if (error > 0){
-//         // Positive error means right side is brighter
-//         dir = true;
-//       } else {
-//         // Negative error means left side is brighter
-//         dir = false;
-//       }
-
-//       this->wheels.Turn(dir, speed);
-//       LLAve = this->lightInfo->PT_LL->getRawReading();
-//       LCAve = this->lightInfo->PT_LC->getRawReading();
-//       RCAve = this->lightInfo->PT_RC->getRawReading();
-//       RRAve = this->lightInfo->PT_RR->getRawReading();
-//       error = RCAve+RRAve - LCAve-LLAve;
-//       // Serial.print("Updated error:    "); 
-//       // Serial.println(error);
-//     }
-
-//     this->wheels.Straight(200);
-//     return false;
-
-//   // Reached the light    
-//   } else {
-//     // float sonarRead = this->sonar.ReadUltraSonic(); //read the ultrasonic sensor
-//     // float desDistance  = 45;                        //desired distance from the light
-//     // float distError = sonarRead - desDistance;      //if error positive we move closer otherwise we stay there
-
-//     // // Once the light is in range, we should use the ultrasonic to get closer to the light
-//     // while (distError > 15) {
-//     //   ultraSpeed = 2*distError;
-//     //   this->wheels.Straight(ultraSpeed);
-//     //   // Reread ultrasonic distance
-//     //   sonarRead = this->sonar.ReadUltraSonic();
-//     //   // Recalculate error
-//     //   distError = sonarRead - desDistance;
-//     // }
-
-//     // Serial.println("Target arrived!");
-//     return true;
-//   }
-
-// }
-
-//------------------------------------NEW GO TARGET--------------------------------//
 bool Robot::go_target(){
   bool dir; 
+  float Kp = 0.15;
+  float Ki = 0.001;
   float accumulation = 0;
   float distLC = 0;
   float distRC = 0;
@@ -1034,141 +899,118 @@ bool Robot::go_target(){
   int search;
   float speed, ultraSpeed;
 
-  bool go_enable = false;
-  distLC = this->lightInfo->PT_LC->getDistance();
-  distRC = this->lightInfo->PT_RC->getDistance();
   //search = this->rotate_while_scan(true); // initial searching
 
   float LLAve = this->lightInfo->PT_LL->getRawReading();
   float LCAve = this->lightInfo->PT_LC->getRawReading();
   float RCAve = this->lightInfo->PT_RC->getRawReading();
   float RRAve = this->lightInfo->PT_RR->getRawReading();
+  
+  // Serial.print("LLAve: ");
+  // Serial.print(LLAve);
+  // Serial.print("  LCAve: ");
+  // Serial.print(LCAve);
+  // Serial.print("  RCAve: ");
+  // Serial.print(RCAve);
+  // Serial.print("  RRAve: ");
+  // Serial.println(RRAve);
 
-  float LLfuz;
-  float RRfuz;
-  float RCfuz;
-  float LCfuz;
-
-
-
-  float weight_center = 1;
-  float weight_side = 1;
-
-  // LLfuz = 1/(1+exp(-0.007*(LLAve-375)));
-  // RRfuz = 1/(1+exp(-0.007*(RRAve-375)));
-
-  LLfuz = 1/(1+exp(-0.006*(LLAve-375)));
-  RRfuz = 1/(1+exp(-0.006*(RRAve-375)));
-  RCfuz = 1/(1+exp(-0.05*(RCAve-60)));
-  LCfuz = 1/(1+exp(-0.05*(LCAve-60)));
-
+  // Serial.print("Average of the middle 2 phototransistors:    ");
+  // Serial.println((RCAve+LCAve)/2);
 
   distLC = this->lightInfo->PT_LC->getDistance();
   distRC = this->lightInfo->PT_RC->getDistance();
 
-  Serial.println("Fuzzy values:"); 
-  Serial.print("LL fuz:   ");
-  Serial.print(LLfuz);
-  Serial.print("LC fuz:   ");
-  Serial.print(LCfuz);
-  Serial.print("RC fuz:    ");
-  Serial.print(RCfuz);
-  Serial.print("RR fuz:   ");
-  Serial.println(RRfuz);
+  if ( (distLC+distRC)/2 > 210 ) { // distance from the centre phototransistor values
+    // this->obstacle_Avoid();
+    
+    LLAve = this->lightInfo->PT_LL->getRawReading();
+    LCAve = this->lightInfo->PT_LC->getRawReading();
+    RCAve = this->lightInfo->PT_RC->getRawReading();
+    RRAve = this->lightInfo->PT_RR->getRawReading();
 
-   //(distLC+distRC)/2<TARGET_DISTANCE
+    // Commented out the check if light disappears, need to check if our robot will veer off for long distance
+    // if (((RCAve+RRAve+LCAve+LLAve)/4) < 10){ // light disappear
+    //   dir = true; // turn right
+    //   search = this->rotate_while_scan(dir);
+    // } else if (((RCAve+RRAve+LCAve+LLAve)/4) < 30){ // light is somewhere but we might be very off
+    //   if (RRAve>LLAve){
+    //     dir = true; // turn right
+    //   } else{
+    //     dir = false; // turn left
+    //   }
+    //   search = this->rotate_while_scan(dir);
+    // }
 
-
-  Serial.println("Fuzzy condition:"); 
-  Serial.print("Condition 1 (max britness):   ");
-  Serial.print((max(max(LLfuz,RRfuz),max(RCfuz,RRfuz))));
-  Serial.print("Condition 2 (distance LC):   ");
-  Serial.print(distLC < TARGET_DISTANCE);
-  Serial.print("Condition 3 (distance RC):    ");
-  Serial.println(distRC < TARGET_DISTANCE);
-
-  if ((max(max(LLfuz,RRfuz),max(RCfuz,RRfuz)) > CLOSE_THRESH) && ((distLC < TARGET_DISTANCE) || (distRC < TARGET_DISTANCE)) ){
-    Serial.println("Reach the target!!!   ");
-    return true; // close to the target, found the fire
-  }else{
-    go_enable = true;
-  }                                           
-                                  
-  if (go_enable){
-
-    if (RCfuz+RRfuz - LCfuz-LLfuz >= 0){
-      dir = true;  // turn right
-    } else{
-      dir = false; // turn left
-    }
-
-    if(max(max(LLfuz,RRfuz),max(RCfuz,RRfuz))<FAR_THRESH){ 
-      Serial.println("Lost the light, re-searching...");
-      search = this->rotate_while_scan(dir);
-    }else{
-      if (max(LCfuz,RCfuz)>FAR_NEAR_CENTER){ // CLOSE -------------------------------------------------------------
-        Serial.println("We are CLOSE, error = RCAve - LCAve");  
-        error = RCAve - LCAve; 
-        if (error > 0){
-          // Positive error means right side is brighter
-          dir = true;
-        } else {
-          // Negative error means left side is brighter
-          dir = false;
-        } 
-        speed = abs(error)*FUZZY_SPEED_WEIGHT_CLOSE;
-        constrain(speed,0,500);
-        this->wheels.Turn(dir, speed);
-        delay(50);
-      } else if (max(LLfuz,RRfuz)>FAR_NEAR_SIDE && max(LLfuz,RRfuz)<NEAR_CLOSE_SIDE){ //NEAR ----------------------------------------------------
-        Serial.println("We are NEAR, error = RRAve+ RCAve -LLAve -LCAve"); 
-        error = RRAve+ RCAve -LLAve -LCAve; 
-        if (error > 0){
-          // Positive error means right side is brighter
-          dir = true;
-        } else {
-          // Negative error means left side is brighter
-          dir = false;
-        } 
-        speed = abs(error)*FUZZY_SPEED_WEIGHT_NEAR;
-        constrain(speed,0,500);
-        this->wheels.Turn(dir, speed);
-        delay(50);
-      }else if (max(LLfuz,RRfuz)<=FAR_NEAR_SIDE){ // FAR -----------------------------------------------
-        Serial.println("We are FAR, error = RRAve -LLAve;");
-        error = RRAve -LLAve;
-        if (error > 0){
-          // Positive error means right side is brighter
-          dir = true;
-        } else {
-          // Negative error means left side is brighter
-          dir = false;
-        } 
-        speed = abs(error)*FUZZY_SPEED_WEIGHT_FAR;
-        constrain(speed,0,500);
-        this->wheels.Turn(dir, speed);
-        delay(50);
-
-      } else {
-
-        Serial.println("Missed CLOSE, NEAR, FAR, use general rule");
-        LLAve = this->lightInfo->PT_LL->getRawReading();
-        LCAve = this->lightInfo->PT_LC->getRawReading();
-        RCAve = this->lightInfo->PT_RC->getRawReading();
-        RRAve = this->lightInfo->PT_RR->getRawReading();
-        speed = abs(RCfuz+RRfuz - LCfuz-LLfuz)*FUZZY_SPEED_WEIGHT;
-        constrain(speed,0,500);
-        this->wheels.Turn(dir, speed);
-        delay(50);
-
+    // Fixes trajectory when light is somewhere but we might be off
+    if (((RCAve+RRAve+LCAve+LLAve)/4) < 20){ 
+      // Rotate to the highest light value
+      if (RRAve>LLAve){
+        dir = true;  // turn right
+      } else{
+        dir = false; // turn left
       }
+      search = this->rotate_while_scan(dir);
+    }
+      
+    RLerror = RRAve - LLAve;
+
+    // Fixes problem when the robot is placed centre between two lights and starts driving straight to the centre
+    // RR and LL reads very high at similar values and LC and RC reads low
+    if ((abs(RLerror) < 60) && (RCAve < 20) && (LCAve < 20)) {   
+      // Rotate to the highest light value
+      if (RRAve>LLAve){
+        dir = true;  // turn right
+      }else{
+        dir = false; // turn left
+      }
+      this->wheels.Turn(dir, 200); //turn the robot
+      delay(550);                  //give time for the robot to turn away
     }
 
+    float start_time = millis();    
+    error = RCAve+RRAve - LCAve-LLAve; 
+    // Change direction if the error is too higher or the time spent in the loop is less than 2 sec
+    while  ((abs(error) > 350) || ((millis()-startTime)<2000)) { 
+      // Only accumulate error if it is small
+      if(abs(error) < 365){   // Previously we had a value of 20, but it would never enter the while loop with 20
+        accumulation = accumulation + error;
+      }
+      speed = Kp*error + Ki*accumulation;
+      constrain(speed, -500 , 500);
+
+      // Serial.println("Correcting direction..");
+      // Serial.print("Current error:    "); 
+      // Serial.println(error);
+      // Serial.print("Speed turning:");
+      // Serial.println(speed);
+
+      // Determine the direction we are supposed to turn
+      if (error > 0){
+        // Positive error means right side is brighter
+        dir = true;
+      } else {
+        // Negative error means left side is brighter
+        dir = false;
+      }
+
+      this->wheels.Turn(dir, speed);
+      LLAve = this->lightInfo->PT_LL->getRawReading();
+      LCAve = this->lightInfo->PT_LC->getRawReading();
+      RCAve = this->lightInfo->PT_RC->getRawReading();
+      RRAve = this->lightInfo->PT_RR->getRawReading();
+      error = RCAve+RRAve - LCAve-LLAve;
+      // Serial.print("Updated error:    "); 
+      // Serial.println(error);
+    }
+
+    this->wheels.Straight(150);
+    return false;
+
+  // Reached the light    
+  } else {
+    return true;
   }
 
-  this->wheels.Straight(150);
-  delay(10);
-  return false;
-  
 }
 
