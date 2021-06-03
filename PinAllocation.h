@@ -52,6 +52,7 @@
 //Threshholds for obstacle avoidance
 #define ObstacleSizeMax 260         //When doing the wall inverse cases
 #define momentumTime 1000            //Strafing time for wall inverse cases
+#define StraightTime 600
 
 //isObject function thresholds
 #define FrontObject 100

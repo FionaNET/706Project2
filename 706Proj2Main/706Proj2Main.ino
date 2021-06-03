@@ -58,10 +58,6 @@ switch (state) {
   case 2:
   Serial.println("In case 2, go to light");
     //Find the going to target normal routine
-//    if (robot.obstacle_Avoid()) {
-//      state = 1;
-//      break;
-//    }
 
     if (robot.obstacle_Avoid()) {   //true means it is avoiding something
       robot.obstacle_Avoid();
@@ -124,12 +120,14 @@ switch (state) {
     //Go straight for 1.5 seconds
     while ((millis()-start) < 1500){
       //Only obstacle avoid if it does not pass the check
-      //robot.obstacle_Avoid();
-      if (robot.obstacle_Avoid()) {
-        state = 1;
-        break;
-      } 
-      //robot.wheels.Straight(200);  
+      
+      if (robot.obstacle_Avoid()) {   //true means it is avoiding something
+        robot.obstacle_Avoid();
+      } else {
+        robot.wheels.Attach();
+        robot.wheels.Straight(200);  
+      }
+      
     }
     
     state = 1; //Go back to search again

@@ -640,7 +640,7 @@ bool Robot::obstacle_Avoid(){
           Serial.println("RR ir reading = " + String(RR_IR.getReading()));
           passWait = !(RR_IR.getReading() < obstacleThresh);     //back ir detects object we have passed it
           if(!passWait){
-            delay(750);               //wait for back wheel to pass obstical
+            delay(StraightTime);               //wait for back wheel to pass obstical
             wheels.Strafe(RIGHT, (stopTime - startTime));      //Strafe to correct path
             this->avoidanceOn = false;
             Serial.println("strafe back left"); 
@@ -651,7 +651,7 @@ bool Robot::obstacle_Avoid(){
           Serial.println("Obstacle on right IR");
           if(!passWait){  //Once obstical has passed
           Serial.println("Passwait back right");
-            delay(750);                                      //wait for back wheel to pass obstical
+            delay(StraightTime);                                      //wait for back wheel to pass obstical
             wheels.Strafe(LEFT, (stopTime - startTime));    //Strafe back
             this->avoidanceOn = false;
             Serial.println("strafe back right");
