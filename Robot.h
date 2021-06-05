@@ -11,8 +11,8 @@ class Robot{
     public:
         Robot();
         int check();
-        int rotate_while_scan(bool dir);
-        bool obstacle_Avoid();
+        int Rotate_While_Scan(bool dir);
+        bool Obstacle_Avoid();
         void CL_Turn(int angle);
         float NEAR(float dist, bool isIR);
         float FAR(float dist, bool isIR);
@@ -22,7 +22,7 @@ class Robot{
         float Forward_Rules(float LeftN, float RightN, float CenterN);
         //int Defuzz(float direction);
         float min3(float a, float b, float c);
-        bool go_target();
+        bool Go_Target();
         LightDetect* lightInfo = new  LightDetect(); 
         RobotBase  wheels;
        // Firefighting fighter;
