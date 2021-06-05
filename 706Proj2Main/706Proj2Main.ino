@@ -6,11 +6,6 @@
 
 Firefighting fighter = Firefighting(15);
 Robot robot = Robot();
-//LightDetect lightInfo = LightDetect();
-//Phototransistor LL = Phototransistor(PHOTOTRANSISTOR1);
-//Phototransistor LC = Phototransistor(PHOTOTRANSISTOR2);
-//Phototransistor RC = Phototransistor(PHOTOTRANSISTOR3);
-//Phototransistor RR = Phototransistor(PHOTOTRANSISTOR4);
 
 void setup(){
   Serial.begin(9600);
@@ -20,10 +15,8 @@ void setup(){
   robot.gyro.GyroscopeCalibrate();  //call to remove the bias from gyroscope
 
   fighter.FanServoAttach();
-  fighter.servoReset();
-
-
-  //robot.FanServoDisable();
+  fighter.Servo_Reset();
+  
   delay(1000);
   Serial.println("Start main loop");
   
@@ -44,31 +37,26 @@ void loop(){
 switch (state) {
   
   case 1:
-  Serial.println("In case 1, searching the light");
-     // initial state: Seached for the light
-    search = robot.rotate_while_scan(true);
-
+    Serial.println("In case 1, searching the light");
+    
+    search = robot.Rotate_While_Scan(true);
+    
     if (search == 1){    //Light found!!
       state = 2;         //Go target state
     } else {
       state = 4;         //Go straight if light is not found
     }
+    
     break;
     
   case 2:
-  Serial.println("In case 2, go to light");
-    //Find the going to target normal routine
-//    if (robot.obstacle_Avoid()) {
-//      state = 1;
-//      break;
-//    }
+    Serial.println("In case 2, go to light");
 
-    if (robot.obstacle_Avoid()) {   //true means it is avoiding something
-      robot.obstacle_Avoid();
+    if (robot.Obstacle_Avoid()) {   //true means it is avoiding something
+      robot.Obstacle_Avoid();
     } else {
-      Serial.println("CASE 2: reattaching wheel");
       robot.wheels.Attach();
-      target_reached = robot.go_target();
+      target_reached = robot.Go_Target();
     }
     
     if (target_reached){
@@ -81,128 +69,56 @@ switch (state) {
     
   case 3:
     Serial.println("In case 3, firefight");
-    //rotate to the light
-//    fighter.servoRotate();
-    //Firefighting state
-//    fireOff = fighter.ExtinguishFire();
-    fireOff = fighter.servoRotate();
+    
+    fireOff = fighter.Servo_Rotate();
     if (fireOff){
       
       fire = fire + 1;
       delay(1000);                    //Give time for the fan to fully turn off
-      robot.wheels.Attach();
+      robot.wheels.Attach();          //Reattach robot wheels
       fighter.Fire_extinguish = 0;    //Reinitialise so we can extinguish the next fire
-      fighter.servoReset();     
+      fighter.Servo_Reset();           //Reset servo position
       if (fire < 2) {
-
-//        //instantiate new robot
-//        Robot robot = Robot(); //make new instance of robot
-//        robot.wheels.Attach();            //must call within setup or loop to attach the wheels
-//        robot.gyro.GyroscopeCalibrate();  //call to remove the bias from gyroscope
-//        fighter.FanServoAttach();
-//        fighter.servoReset(); 
-//        //end instantiate new robot
-        
          //reverse
          robot.wheels.Straight(-200);
          delay(300);
          state = 1;                   //Go back to searching again
-      }else{
+      } else {
         state = 5;                    //Stop the motors when 2 fires have been blown
       }
           
     }
+    
     break;
     
     case 4:
-    //change threshhold if the search failed then go back to state 1
-    
-    //Go straight when searching failed
-    Serial.println("In case 4, go straight");
-
-    start = millis();
-    //Go straight for 1.5 seconds
-    while ((millis()-start) < 1500){
-      //Only obstacle avoid if it does not pass the check
-      //robot.obstacle_Avoid();
-      
-      if (robot.obstacle_Avoid()) {   //true means it is avoiding something
-        robot.obstacle_Avoid();
-      } else {
-        robot.wheels.Attach();
-        robot.wheels.Straight(150);  
+      //Go straight when searching failed
+      Serial.println("In case 4, go straight");
+  
+      start = millis();
+      //Go straight for 1.5 seconds
+      while ((millis()-start) < 1500){
+        //Only obstacle avoid if it does not pass the check
+        //robot.obstacle_Avoid();
+        
+        if (robot.Obstacle_Avoid()) {   //true means it is avoiding something
+          robot.Obstacle_Avoid();
+        } else {
+          robot.wheels.Attach();
+          robot.wheels.Straight(150);  
+        }
+        //robot.wheels.Straight(200);  
       }
-      //robot.wheels.Straight(200);  
-    }
-    
-    state = 1; //Go back to search again
-    break;
+      
+      state = 1; //Go back to search again
+      break;
 
     case 5:
-    //Stop the motors once all fires are blown out
-    Serial.println("In case 5, STOP");
-    robot.wheels.Disable();
-    fighter.FanServoDisable();
-    break;
-}
+      //Stop the motors once all fires are blown out
+      Serial.println("In case 5, STOP");
+      robot.wheels.Disable();
+      fighter.FanServoDisable();
+      break;
+  }
 
 }
-
-  
-
-//  //blowing out 2 fires take highest priority
-//  if (fire == 2) {
-//    robot.wheels.Disable();
-//
-//  //blowing out the fire is second priority because it might trigger obstacle avoidance
-//  } else if (target_reached) {
-//     robot.wheels.Disable();
-//     delay(1000); //give time for the motors to stop before turning on fan
-//
-//     //extinguish the fire
-//     if (fighter.ExtinguishFire()) {
-//      delay(1000); //give time for the fan to fully turn off
-//      robot.wheels.Attach();
-//
-//      //reinitialise so we can extinguish the next fire
-//      fighter.Fire_extinguish = 0;
-//
-//      //search again
-//      start = true;
-//      search = 0;
-//
-//      //find the next target
-//      target_reached = false;
-//      
-//      //increase the number of fires we put out
-//      fire = fire + 1;
-//
-//      if (fire < 2) {
-//      //reverse
-//      robot.wheels.Straight(-200);
-//      delay(200);
-//      }
-//     }
-//     
-//  // Based on if any of the range sensors detect an object
-//  }else if (robot.check() != 0) {
-////    while( !robot.obstacle_Avoid()) {
-////      robot.obstacle_Avoid();
-////    }
-//    robot.obstacle_Avoid();
-//  }else if (search != 1) {
-//    //rotate at the start or after 1.5 second of going straight
-//    if ((start == true) || (millis()-time_start) > 1500){
-//      search = robot.rotate_while_scan(true);
-//      time_start = millis(); 
-//      start = false;
-//    }
-//    //go straight for 1.5 sec
-//    robot.wheels.Straight(200);
-//  } else {
-//    //by default the robot should go to target
-//    target_reached = robot.go_target();
-//  }
-//
-//
-//}
