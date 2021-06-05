@@ -30,7 +30,7 @@ void Firefighting::FanOff(void)
     digitalWrite(FAN_PIN, LOW); // set fan to low by default
 }
 
-bool Firefighting::ExtinguishFire(double angle) 
+bool Firefighting::ExtinguishFire() 
 {
   float LCAve = this->lights->PT_LC->getRawReading();
   float RCAve = this->lights->PT_RC->getRawReading();
@@ -44,7 +44,7 @@ bool Firefighting::ExtinguishFire(double angle)
         //if ((this->LightDetector->getPTAvg() < this->fireThreshhold) ||((millis() - start_time) > 5000) ){
         //if ((this->LightDetector->getPTAvg() < this->fireThreshhold) ){
         if ((this->LightDetector->getPTAvg() < thres) ){
-          this->servoReset();
+          this->Servo_Reset();
           this->Fire_extinguish = 1;
         }
     }
@@ -63,28 +63,12 @@ void Firefighting::FanServoAttach() {
   //pinMode(this->fanPin, OUTPUT);
 }
 
-void Firefighting::servoLeft(){
-  //this->wheels->fanServo.writeMicroseconds(SERVO_MAX);
-  this->fanServo.write(70);
-  
-}
-
-void Firefighting::servoRight(){
-  //this->wheels->fanServo.writeMicroseconds(SERVO_MIN);
-  this->fanServo.write(50);
-}
-
-void Firefighting::servoCall(int angle){
-  //this->wheels->fanServo.writeMicroseconds(SERVO_MIN);
-  this->fanServo.write(angle);
-}
-
-void Firefighting::servoReset(){
+void Firefighting::Servo_Reset(){
   //this->wheels->fanServo.writeMicroseconds(SERVO_MIDDLE);
   this->fanServo.write(60);
 }
 
-bool  Firefighting::servoRotate(){
+bool  Firefighting::Servo_Rotate(){
   float LLAve = this->lights->PT_LL->getRawReading();
   float LCAve = this->lights->PT_LC->getRawReading();
   float RCAve = this->lights->PT_RC->getRawReading();
@@ -122,7 +106,7 @@ bool  Firefighting::servoRotate(){
     delay(50);
   }
 
-  return this->ExtinguishFire(angle); 
+  return this->ExtinguishFire(); 
   // Serial.println("Light reached");
 
 }

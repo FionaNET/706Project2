@@ -34,7 +34,7 @@ Robot::Robot(){
 // Function that will rotate until the robot detects a light source
 // return 1 = successfully detected light
 // return 2 = stopped due to timeout
-int Robot::rotate_while_scan(bool dir){
+int Robot::Rotate_While_Scan(bool dir){
     float LLAve = this->lightInfo->PT_LL->getRawReading();
     float LCAve = this->lightInfo->PT_LC->getRawReading();
     float RCAve = this->lightInfo->PT_RC->getRawReading();
@@ -86,323 +86,7 @@ int Robot::rotate_while_scan(bool dir){
   return 1;
 }
 
-//non fuzzy logic
-// void Robot::obstical_avoid(){
-//     //Read all IR_Sensors and decide if any is too much
-//     unsigned long startTime, strafeTime;
-
-//     if(LF_IR.getReading() < obstacleThresh){
-//         backPass = false;
-//         //Strafe right until the path is clear in front of robot
-//         while(LF_IR.getReading() < obstacleThresh){
-//             startTime = millis();
-//             wheels.Strafe(RIGHT, 0);
-//         }
-//         strafeTime = millis() - startTime;
-//         //Keep going forward until the back has passed
-//         while(!backPass){
-//             wheels.Straight(400);
-//             backPass = (LR_IR.getReading() < obstacleThresh);
-//         }
-//         //Go back left
-//         wheels.Strafe(LEFT, strafeTime);
-
-//     }else if (RF_IR.getReading() < obstacleThresh){
-//         backPass = false;
-//         //Strafe right until the path is clear in front of robot
-//         while(RF_IR.getReading() < obstacleThresh){
-//             startTime = millis();
-//             wheels.Strafe(LEFT, 0);
-//         }
-//         strafeTime = millis() - startTime;
-//         while(!backPass){
-//             wheels.Straight(400);
-//             backPass = (LR_IR.getReading() < obstacleThresh);
-//         }
-//         //Go back to correct path once object is passed
-//         wheels.Strafe(RIGHT, strafeTime);
-//     }
-
-int Robot::check(){
-  int flag;
-  float d1, d2, d3, d4, d5, LeftMax, ForwardMax, RightMax;
-  
-  if(LF_IR.isObject() && RF_IR.isObject() && sonar.isObject()){
-    //All three sensors are reading objects so it is a wall
-    flag = 1;
-  }else if((LF_IR.getReading() < 100) && (LR_IR.getReading() < 150) && (sonar.ReadUltraSonic() < 200)) {
-    flag = 2;
-    //Serial.println("There is a wall on left so we are turning");
-  }else if((RF_IR.getReading() < 100) && (RR_IR.getReading() < 150) && (sonar.ReadUltraSonic() < 200)){
-    flag = 3;
-  }else{
-    //1 or more objects detected so it is a cyclindar
-  
-    //if(!this->passWait){      //Only do this once when no obsticles have been previously detected
-    //get all distance readings
-    d1 = LF_IR.getReading();
-    d2 = RF_IR.getReading();
-    d3 = sonar.ReadUltraSonic();
-    //Serial.println("D1 = " + String(d1) + "  D2 = " + String(d2) + "  D3 = " + String(d3));
-
-    LeftMax = Left_Rules(NEAR(d1, true), FAR(d1, true), NEAR(d2, true), FAR(d2, true), NEAR(d3, false), FAR(d3, false));
-    RightMax = Right_Rules(NEAR(d1, true), FAR(d1, true), FAR(d2, true), NEAR(d3, false), FAR(d3, false));
-    ForwardMax = Forward_Rules(NEAR(d1, true), NEAR(d2, true), NEAR(d3, false));
-    //Serial.println("LeftMax = " + String(LeftMax) + "  RightMax = " + String(RightMax) + "  ForwardMax = " + String(ForwardMax));
-
-    //take weighted average
-
-    //this->direction = LeftMax*-30 + ForwardMax*15 + RightMax*30;    //get direction
-    //New method of including the forward readings
-    if((ForwardMax > LeftMax) || ForwardMax > RightMax){
-      this->direction = 0;
-    }else if(ForwardMax > LeftMax){
-      this->direction = (RightMax - ForwardMax)*50;
-    }else if(ForwardMax > RightMax){
-      this->direction = (LeftMax - ForwardMax)*(-50);
-    }else {
-      this->direction = (LeftMax - ForwardMax)*(-50) + (RightMax - ForwardMax)*50;
-    }
-    
-    //Contstrain direction so it doesn't hit into a side wall by incorporating the readings from back
-    //sensors
-    // if(((LR_IR.getReading() < 130) && (direction < 0)) || ((RR_IR.getReading() < 130) && (direction > 0))){
-    //   this->direction = this->direction*-1;
-    // }
-    //Serial.println("Direction = " + String(direction));
-  
-
-    //Movement commands
-    if(direction > directionThresh){     //Strafe right
-      avoidanceOn = true;           
-      if(!Strafed){               //Went straight last time or strafed in opposite direction
-        startTime = millis();     //Count how long we have strafed for
-        //Serial.println("detect object left = " + String(LF_IR.isObject()));
-        if(LF_IR.isObject()){
-          flag = 4;
-          if(sonar.isObject() && (RR_IR.getReading() < ObstacleSizeMax)){
-            flag = 5;
-          }else if(!sonar.isObject() && (RR_IR.getReading() < (ObstacleSizeMax))){
-            flag = 6;
-          }else{
-            flag = 7;
-          }
-        }else if (sonar.isObject()){
-          if(RR_IR.getReading() < (ObstacleSizeMax)){
-            flag = 8;
-          }else{
-            flag = 9;
-          }
-        }else{
-          flag = 10;
-        }
-      }else{
-        flag = 11;
-        Strafed = false;
-      }
-      Strafed = true;
-    }else if(direction < -directionThresh){    //Strafe left
-      this->avoidanceOn = true;
-      if(!Strafed){
-        startTime = millis();
-        //Serial.println("detect object right = " + String(RF_IR.isObject()));
-        if(RF_IR.isObject()){
-          flag = 12;
-          if(sonar.isObject() && (LR_IR.getReading() < ObstacleSizeMax)){
-            flag = 13;
-          }else if(!sonar.isObject() && (LR_IR.getReading() < (ObstacleSizeMax/2))){
-            flag = 14;
-          }else{
-            flag = 15;
-          }
-        }else if (sonar.ReadUltraSonic() < 200) {
-          if(LR_IR.getReading() < ObstacleSizeMax){
-            flag = 16;
-          }else{
-            flag = 17;
-          }
-        }else{
-          flag = 18;
-        }
-      }else{      //no obstical on the right but strafing left
-        Strafed = true;
-        //Serial.println("obstacle avoid strafe left");
-        memory = this->direction;
-      }
-      Strafed = true;
-    }else{                        //Going forward
-      flag = 0;
-      Strafed = false;
-    }
-  }
-  return flag;
-}
-
-// //obstacle avoidance with fuzzy logic
-// bool Robot::obstacle_Avoid(){
-
-//   float d1, d2, d3, d4, d5, LeftMax, ForwardMax, RightMax;
-//   float LLAve = this->lightInfo->PT_LL->getRawReading();
-//   float LCAve = this->lightInfo->PT_LC->getRawReading();
-//   float RCAve = this->lightInfo->PT_RC->getRawReading();
-//   float RRAve = this->lightInfo->PT_RR->getRawReading();
-
-//   float distLC = this->lightInfo->PT_LC->getDistance();
-//   float distRC = this->lightInfo->PT_RC->getDistance();
-//   bool close = true;
-//   bool retFlag = false; //Determines when obstacle avoid has been completed
-
-//   //Closer to the light, higher the ADC value
-//   //We want to adjust the direction of the robot the robot is far from the light
-//   if ( ((distLC+distRC)/2 < 400) || ((LCAve +RCAve)/2 >= TARGET_BRIGHTNESS) || (RRAve >= TARGET_BRIGHTNESS_OUT) || (LLAve >= TARGET_BRIGHTNESS_OUT)) {
-//     retFlag = true;
-//   }
-
-//   // Serial.println("LF_IR dist: " + String(LF_IR.getReading()) + "RF_IR dist: " + String(RF_IR.getReading()) + "Sonar dist: " + String(sonar.ReadUltraSonic()));
-//   // Serial.println("LF OBject: " + String(LF_IR.isObject()) + "  RF object: " + String(RF_IR.isObject()) + "  center object: " + String(sonar.isObject()));
-  
-//   float RF_read = RF_IR.getReading();
-//   float LF_read = LF_IR.getReading();
-//   float RR_read = RR_IR.getReading();
-//   float LR_read = LR_IR.getReading();
-//   float sonar_read = sonar.ReadUltraSonic();
-//   float front_avg = ((RF_read + LF_read + sonar_read)/3);
-
-//   while (!retFlag) {
-//     //All three sensors are reading objects so it is a wall
-
-//     if(front_avg < 120) {
-//       this->CL_Turn(160);
-//       delay(100);
-//       return true;
-//       retFlag = true;
-
-
-//     // if(LF_IR.isObject() && RF_IR.isObject()){
-//     //   Serial.println("There is a wall");
-//     //   this->CL_Turn(180); 
-//     //   delay(100);
-//     //   retFlag = true;
-//     //Both left sensors and front sensor
-//     }else if((LF_IR.getReading() < 100) && (LR_IR.getReading() < 180) && (sonar.ReadUltraSonic() < 220)) {
-//     //}else if((LF_IR.getReading() < 100) && (LR_IR.getReading() < 100) && (sonar.ReadUltraSonic() < 200)) {
-//       //Serial.println("There is a left corner");
-//       this->CL_Turn(50);
-//       delay(100);
-//       return true;
-//       retFlag = true;
-//     //Both right sensors and front sensor
-//     }else if((RF_IR.getReading() < 100) && (RR_IR.getReading() < 180) && (sonar.ReadUltraSonic() < 220)){
-//     //}else if((RF_IR.getReading() < 100) && (RR_IR.getReading() < 100) && (sonar.ReadUltraSonic() < 200)){
-//       //Serial.println("There is a right corner");
-//       this->CL_Turn(-50);
-//       delay(100);
-//       return true;
-//       retFlag = true;
-//     //No or multiple sensosrs (strafe or straight motion only)
-//     }else{
-//       //get all distance readings
-//       d1 = LF_IR.getReading();
-//       d2 = RF_IR.getReading();
-//       d3 = sonar.ReadUltraSonic();
-//       //Serial.println("D1 = " + String(d1) + "  D2 = " + String(d2) + "  D3 = " + String(d3));
-
-//       LeftMax = Left_Rules(NEAR(d1, true), FAR(d1, true), NEAR(d2, true), FAR(d2, true), NEAR(d3, false), FAR(d3, false));
-//       RightMax = Right_Rules(NEAR(d1, true), FAR(d1, true), FAR(d2, true), NEAR(d3, false), FAR(d3, false));
-//       ForwardMax = Forward_Rules(NEAR(d1, true), NEAR(d2, true), NEAR(d3, false));
-//       //Serial.println("LeftMax = " + String(LeftMax) + "  RightMax = " + String(RightMax) + "  ForwardMax = " + String(ForwardMax));
-
-//       //take weighted average
-
-//       //this->direction = LeftMax*-30 + ForwardMax*15 + RightMax*30;    //get direction
-//       //New method of including the forward readings
-//       if((ForwardMax > LeftMax) || ForwardMax > RightMax){
-//         this->direction = 0;
-//       }else if(ForwardMax > LeftMax){
-//         this->direction = (RightMax - ForwardMax)*50;
-//       }else if(ForwardMax > RightMax){
-//         this->direction = (LeftMax - ForwardMax)*(-50);
-//       }else {
-//         this->direction = (LeftMax - ForwardMax)*(-50) + (RightMax - ForwardMax)*50;
-//       }
-
-//       //Movement commands
-//       if(direction > directionThresh){     //Strafe right        
-//       this->avoidanceOn = true;
-//           //Went straight last time or strafed in opposite direction
-//           Serial.println("detect object left = " + String(LF_IR.isObject()));
-//           if(LF_IR.isObject()){
-//             Serial.println("sonar object = " + String(sonar.isObject()));
-//             Serial.println("RR IR = " + String(RR_IR.getReading()));
-//             if (sonar.isObject() && (RR_IR.getReading() < ObstacleSizeMax)){
-//               wheels.Strafe(LEFT, momentumTime);
-//             }else if(!sonar.isObject() && (RR_IR.getReading() < (ObstacleSizeMax))){
-//               wheels.Strafe(LEFT, momentumTime/2);
-//             }else{
-//               wheels.Strafe(RIGHT, 0);
-//             }
-//           }else if (sonar.isObject()){
-//             if(RR_IR.getReading() < (ObstacleSizeMax)){
-//               wheels.Strafe(LEFT, momentumTime/2);
-//             }else{
-//               wheels.Strafe(RIGHT, 0);
-//             }
-//           }else{
-//             wheels.Strafe(RIGHT, 0);
-//           }
-
-//       }else if(direction < -directionThresh){    //Strafe left
-//         this->avoidanceOn = true;
-//           Serial.println("detect object right = " + String(RF_IR.isObject()));
-//           if(RF_IR.isObject()){
-//             Serial.println("sonar object = " + String(sonar.isObject()));
-//             Serial.println("LR IR = " + String(LR_IR.getReading()));
-//             if(sonar.isObject() && (LR_IR.getReading() < ObstacleSizeMax)){
-//               wheels.Strafe(RIGHT, momentumTime);
-//             }else if(!sonar.isObject() && (LR_IR.getReading() < (ObstacleSizeMax/2))){
-//               wheels.Strafe(RIGHT, momentumTime/2);
-//               Serial.println("Inversing direction - Only RF on object");
-//             }else{
-//               wheels.Strafe(LEFT, 0);
-//               Serial.println("Keep direction - Only RF on object");
-//             }
-//           }else if (sonar.ReadUltraSonic() < 80) {
-//             if(LR_IR.getReading() < ObstacleSizeMax){
-//               wheels.Strafe(RIGHT, momentumTime/2);
-//               Serial.println("Inversing direction - Both sonar and RF on object");
-//             }else{
-//               wheels.Strafe(LEFT, 0);
-//               Serial.println("Keep direction - Both sonar and RF on object");
-//             }
-//           }else{
-//             wheels.Strafe(LEFT, 0);
-//             invDirection = false;
-//           }
-
-//       //no obstacle, go straight  
-//       }else{              
-//         //bool goStraightFlag = false;  
-//         wheels.Straight(200);
-
-//         // while ((!goStraightFlag)  && (avoidanceOn)){
-//         while (this->avoidanceOn){
-//           if(LR_IR.isObject() || RR_IR.isObject() || LF_IR.isObject() ||  RF_IR.isObject() || sonar.isObject()){
-//             //goStraightFlag = true; //finished going straight
-//             this->avoidanceOn = false;
-//             Serial.println("Stopped going straight in obstacle avoidance");
-//             return true;
-//           }
-//         }
-//         retFlag = true; //going straight finished, get out of while loop
-//       }
-
-//     }
-
-//   }
-//   return false;
-// }
-
-bool Robot::obstacle_Avoid(){
+bool Robot::Obstacle_Avoid(){
 
   float d1, d2, d3, d4, d5, LeftMax, ForwardMax, RightMax;
   float LLAve = this->lightInfo->PT_LL->getRawReading();
@@ -759,34 +443,7 @@ float Robot::min3(float a, float b, float c){
   }
 }
 
-// Fuzzification combining distance readings from left, right and center. 
-// float* Robot::fuzzify(float e){
-//   static float fuzz[3];
-//   int thresh1 = 6;
-//   int thresh2 = 3;
 
-//   if(e <= -thresh1 || e >= thresh1){
-//     fuzz[0] = 0; // left
-//     fuzz[1] = 0; //right
-//     fuzz[2] = 1; //no obstacle
-//   }else if(-thresh1 < e && e < -thresh2){
-//     fuzz[0] = 0; // left
-//     fuzz[1] = 2 + e/3; //right
-//     fuzz[2] = -e/3 - 2; //no obstacle
-//   }else if(-thresh2 <= e && e < 0){
-//     fuzz[0] = 0; // left
-//     fuzz[1] = 1; //right
-//     fuzz[2] = 0; //no obstacle
-//   }else if(0 <= e && e <= thresh2){
-//     fuzz[0] = 1; // left
-//     fuzz[1] = 0; //right
-//     fuzz[2] = 0; //no obstacle
-//   }else if(thresh2 < e && e < thresh1){
-//     fuzz[0] = 0; // left
-//     fuzz[1] = 2 - e/3; //right
-//     fuzz[2] = e/3 + 2; //no obstacle
-//   }
-// }
 
 
 void Robot::CL_Turn(int ref_angle){
@@ -845,49 +502,8 @@ void Robot::CL_Turn(int ref_angle){
 }
 
 
-// using fuzzy logic
-// int Robot::go_target(){
-//   //wheels.Move(0,80);
-//   int tar_arrive = 0;
-//    bool direction; 
-
-//   while (tar_arrive != 1) {
-//     Serial.println("Going ot target");
-//     Serial.println("Abstacle avoid");
-//     this->obstacle_Avoid();
-
-//     float fuzzy_var = this->lightInfo->detect_dir();
-//     Serial.print("fuzzy reading:  ");
-//     Serial.println(fuzzy_var);
-//     if (fuzzy_var <0){
-//         direction = false;
-//     }    
-
-
-//     float speed = fuzzy_var * this->speed_step;
-//     Serial.print("Speed:   ");
-//     Serial.println(speed);
-//     this->wheels.Turn(direction,speed);
-//     delay(10); // allow rotation to happen
-//     this->wheels.Straight(200);
-    
-//     // check if meet target
-//     if ((this->sonar.ReadUltraSonic() < this->thr_sonar) && this->lightInfo->detect_front()){
-//       Serial.println("Target found!");
-//       tar_arrive = 1;
-//     } 
-//   }
-
-//   // arrived at the target
-//   // this->wheels.Stop();
-//   // alternative:
-//   // this->wheels.Disable(); 
-
-//   return tar_arrive;
-// }
-
 //-------------------TRYING OLD GO TARGET---------------------------//
-bool Robot::go_target(){
+bool Robot::Go_Target(){
   bool dir; 
   float Kp = 0.15;
   float Ki = 0.001;
@@ -906,14 +522,6 @@ bool Robot::go_target(){
   float RCAve = this->lightInfo->PT_RC->getRawReading();
   float RRAve = this->lightInfo->PT_RR->getRawReading();
   
-  // Serial.print("LLAve: ");
-  // Serial.print(LLAve);
-  // Serial.print("  LCAve: ");
-  // Serial.print(LCAve);
-  // Serial.print("  RCAve: ");
-  // Serial.print(RCAve);
-  // Serial.print("  RRAve: ");
-  // Serial.println(RRAve);
 
   // Serial.print("Average of the middle 2 phototransistors:    ");
   // Serial.println((RCAve+LCAve)/2);
@@ -929,18 +537,6 @@ bool Robot::go_target(){
     RCAve = this->lightInfo->PT_RC->getRawReading();
     RRAve = this->lightInfo->PT_RR->getRawReading();
 
-    // Commented out the check if light disappears, need to check if our robot will veer off for long distance
-    // if (((RCAve+RRAve+LCAve+LLAve)/4) < 10){ // light disappear
-    //   dir = true; // turn right
-    //   search = this->rotate_while_scan(dir);
-    // } else if (((RCAve+RRAve+LCAve+LLAve)/4) < 30){ // light is somewhere but we might be very off
-    //   if (RRAve>LLAve){
-    //     dir = true; // turn right
-    //   } else{
-    //     dir = false; // turn left
-    //   }
-    //   search = this->rotate_while_scan(dir);
-    // }
 
     // Fixes trajectory when light is somewhere but we might be off
     if (((RCAve+RRAve+LCAve+LLAve)/4) < 20){ 
@@ -950,7 +546,7 @@ bool Robot::go_target(){
       } else{
         dir = false; // turn left
       }
-      search = this->rotate_while_scan(dir);
+      search = this->Rotate_While_Scan(dir);
     }
       
     RLerror = RRAve - LLAve;
@@ -978,12 +574,6 @@ bool Robot::go_target(){
       }
       speed = Kp*error + Ki*accumulation;
       constrain(speed, -500 , 500);
-
-      // Serial.println("Correcting direction..");
-      // Serial.print("Current error:    "); 
-      // Serial.println(error);
-      // Serial.print("Speed turning:");
-      // Serial.println(speed);
 
       // Determine the direction we are supposed to turn
       if (error > 0){
