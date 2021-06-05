@@ -38,16 +38,16 @@ bool Firefighting::ExtinguishFire()
   float thres = maxVal - 100;
   thres = constrain(thres, this->fireThreshhold, thres);
 
-    //this->FanOn(); //turn fan on
-    float startTime = millis();
-    while ((this->Fire_extinguish == 0) && (millis() - startTime < 5000)){
-        //if ((this->LightDetector->getPTAvg() < this->fireThreshhold) ||((millis() - start_time) > 5000) ){
-        //if ((this->LightDetector->getPTAvg() < this->fireThreshhold) ){
-        if ((this->LightDetector->getPTAvg() < thres) ){
-          this->Servo_Reset();
-          this->Fire_extinguish = 1;
-        }
-    }
+  //this->FanOn(); //turn fan on
+  float startTime = millis();
+  while ((this->Fire_extinguish == 0) && (millis() - startTime < 5000)){
+      //if ((this->LightDetector->getPTAvg() < this->fireThreshhold) ||((millis() - start_time) > 5000) ){
+      //if ((this->LightDetector->getPTAvg() < this->fireThreshhold) ){
+      if ((this->LightDetector->getPTAvg() < thres) ){
+        this->Servo_Reset();
+        this->Fire_extinguish = 1;
+      }
+  }
     this->FanOff(); //turn fan off
     //delay(2500);
     return true;
@@ -68,7 +68,7 @@ void Firefighting::Servo_Reset(){
   this->fanServo.write(60);
 }
 
-bool  Firefighting::Servo_Rotate(){
+void  Firefighting::Servo_Rotate(){
   float LLAve = this->lights->PT_LL->getRawReading();
   float LCAve = this->lights->PT_LC->getRawReading();
   float RCAve = this->lights->PT_RC->getRawReading();
@@ -105,8 +105,6 @@ bool  Firefighting::Servo_Rotate(){
 
     delay(50);
   }
-
-  return this->ExtinguishFire(); 
   // Serial.println("Light reached");
 
 }

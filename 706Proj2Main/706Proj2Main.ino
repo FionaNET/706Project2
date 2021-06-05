@@ -69,8 +69,8 @@ switch (state) {
     
   case 3:
     Serial.println("In case 3, firefight");
-    
-    fireOff = fighter.Servo_Rotate();
+    fighter.Servo_Rotate();
+    fireOff = fighter.ExtinguishFire();
     if (fireOff){
       
       fire = fire + 1;
