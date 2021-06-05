@@ -25,7 +25,7 @@ class Firefighting {
     Servo fanServo;
     void FanServoDisable();
     void FanServoAttach();
-    bool Servo_Rotate();
+    void Servo_Rotate();
     void Servo_Reset();
 
     private: 
